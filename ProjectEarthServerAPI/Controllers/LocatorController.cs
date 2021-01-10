@@ -12,7 +12,7 @@ namespace ProjectEarthServerAPI.Controllers
     [ApiController]
     [ApiVersion("1.0")]
     [ApiVersion("1.1")]
-    [Route("api/v{version:apiVersion}/player/environment")]
+    [Route("player/environment")]
     public class LocatorController : ControllerBase
     {
 
@@ -24,10 +24,12 @@ namespace ProjectEarthServerAPI.Controllers
         }
 
         [HttpGet]
-        public string Get()
+        public ContentResult Get()
         {
             LocatorResponse.Root response = new LocatorResponse.Root()
             {
+                continuationToken = null,
+                expiration = null,
                 result = new LocatorResponse.Result()
                 {
                     serviceEnvironments = new LocatorResponse.ServiceEnvironments()
@@ -45,13 +47,11 @@ namespace ProjectEarthServerAPI.Controllers
 
                     }
                 },
-                continuationToken = null,
-                expiration = null,
                 updates = new LocatorResponse.Updates()
             };
-            response.result.supportedEnvironments._2020121702.Add("int");
-            var send = JsonConvert.SerializeObject(response);
-            return send;
+            response.result.supportedEnvironments._2020121702.Add("production");
+            var resp = JsonConvert.SerializeObject(response);
+            return Content(resp,"application/json");
 
         }
     }
