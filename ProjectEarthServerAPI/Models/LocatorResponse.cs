@@ -10,8 +10,11 @@ namespace ProjectEarthServerAPI.Models
     {
         public class Production
         {
+            [JsonProperty(Order = 1)]
             public string serviceUri { get; set; }
+            [JsonProperty(Order = 2)]
             public string cdnUri { get; set; }
+            [JsonProperty(Order = 3)]
             public string playfabTitleId { get; set; }
         }
 

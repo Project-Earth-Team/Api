@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.ResponseCompression;
 
 namespace ProjectEarthServerAPI
 {
@@ -28,6 +29,11 @@ namespace ProjectEarthServerAPI
         {
 
             services.AddControllers();
+            services.AddResponseCompression(options =>
+            {
+                options.Providers.Add<GzipCompressionProvider>();
+            });
+            services.AddResponseCaching();
             services.AddApiVersioning(config =>
             {
                 config.DefaultApiVersion = new ApiVersion(1, 1);
@@ -56,6 +62,12 @@ namespace ProjectEarthServerAPI
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseResponseCompression();
+
+            //app.UseSession();
+
+            app.UseResponseCaching();
 
             app.UseEndpoints(endpoints =>
             {

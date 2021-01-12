@@ -28,16 +28,15 @@ namespace ProjectEarthServerAPI.Controllers
         {
             LocatorResponse.Root response = new LocatorResponse.Root()
             {
-                continuationToken = null,
-                expiration = null,
                 result = new LocatorResponse.Result()
                 {
                     serviceEnvironments = new LocatorResponse.ServiceEnvironments()
                     {
                         production = new LocatorResponse.Production()
                         {
-                            cdnUri = "192.168.2.100",
-                            serviceUri = "192.168.2.100",
+                            serviceUri = "http://192.168.2.100",
+                            //serviceUri = "https://client.mceserv.net",
+                            cdnUri = "https://cdn.mceserv.net",
                             playfabTitleId = "11509"
                         }
                     },
@@ -47,7 +46,7 @@ namespace ProjectEarthServerAPI.Controllers
 
                     }
                 },
-                updates = new LocatorResponse.Updates()
+                //updates = new LocatorResponse.Updates()
             };
             response.result.supportedEnvironments._2020121702.Add("production");
             var resp = JsonConvert.SerializeObject(response);
