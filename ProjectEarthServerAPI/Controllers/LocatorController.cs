@@ -34,8 +34,8 @@ namespace ProjectEarthServerAPI.Controllers
                     {
                         production = new LocatorResponse.Production()
                         {
-                            serviceUri = "http://192.168.2.100",
-                            //serviceUri = "https://client.mceserv.net",
+                            serviceUri = "http://192.168.86.30",
+                           // serviceUri = "https://client.mceserv.net",
                             cdnUri = "https://cdn.mceserv.net",
                             playfabTitleId = "11509"
                         }
