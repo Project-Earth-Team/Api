@@ -8,11 +8,10 @@ using ProjectEarthServerAPI.Models;
 
 namespace ProjectEarthServerAPI.Controllers
 {
-    public class AdventureController : Controller
-    {
+
         [ApiVersion("1.1")]
         [Route("1/api/v{version:apiVersion}/adventure/scrolls")]
-        public class PlayerRubiesController : Controller
+        public class AdventureScrollsController : Controller
         {
             public ContentResult Get()
             {
@@ -22,4 +21,3 @@ namespace ProjectEarthServerAPI.Controllers
             }
         }
     }
-}
