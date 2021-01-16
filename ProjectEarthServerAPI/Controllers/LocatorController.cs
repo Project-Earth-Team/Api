@@ -13,7 +13,7 @@ namespace ProjectEarthServerAPI.Controllers
     [ApiVersion("1.0")]
     [ApiVersion("1.1")]
     [Route("player/environment")]
-    public class LocatorController : ControllerBase
+    public class LocatorController : Controller
     {
 
         public static String serverBaseIP = "http://93.209.241.92";

@@ -11,19 +11,21 @@ namespace ProjectEarthServerAPI.Util
     /// </summary>
     public class Tile
     {
-        public static void downloadTile(int pos1, int pos2, string basePath)
+        public static bool DownloadTile(int pos1, int pos2, string basePath)
         {
             WebClient webClient = new WebClient();
             
             try
             {
 
-                String downloadUrl = "https://cdn.mceserv.net:443/tile/16/" + pos1 + "/" + pos1 + "_" + pos2 + "_16.png";
+                String downloadUrl = "https://cdn.mceserv.net/tile/16/" + pos1 + "/" + pos1 + "_" + pos2 + "_16.png";
                 webClient.DownloadFile(downloadUrl, basePath + pos1 + @"\" + pos2 + @"\" + pos1 + "_" + pos2 + "_16.png");
+                return true;
             }
             catch(WebException wex)
             {
                 //TODO: error 502 check.
+                return false;
             }
         }
     }
