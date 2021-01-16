@@ -17,7 +17,6 @@ namespace ProjectEarthServerAPI.Util
             
             try
             {
-
                 String downloadUrl = "https://cdn.mceserv.net/tile/16/" + pos1 + "/" + pos1 + "_" + pos2 + "_16.png";
                 webClient.DownloadFile(downloadUrl, basePath + pos1 + @"\" + pos2 + @"\" + pos1 + "_" + pos2 + "_16.png");
                 return true;
@@ -27,6 +26,32 @@ namespace ProjectEarthServerAPI.Util
                 //TODO: error 502 check.
                 return false;
             }
+        }
+
+        //From https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames with slight changes
+        
+        public static int[] getTileForCords(double lat, double lon)
+        {
+            //Adapted from java example. Zoom is replaced by the constant 16 because all MCE tiles are at zoom 16
+           
+            int xtile = (int)Math.Floor((lon + 180) / 360 * (1 << 16));
+            int ytile = (int)Math.Floor((1 - Math.Log(Math.Tan(toRadians(lat)) + 1 / Math.Cos(toRadians(lat))) / Math.PI) / 2 * (1 << 16));
+
+            if (xtile < 0)
+                xtile = 0;
+            if (xtile >= (1 << 16))
+                xtile = ((1 << 16) - 1);
+            if (ytile < 0)
+                ytile = 0;
+            if (ytile >= (1 << 16))
+                ytile = ((1 << 16) - 1);
+
+            return new int[] { xtile, ytile };
+        }
+        //Helper
+        static double toRadians(double angle)
+        {
+            return (Math.PI / 180) * angle;
         }
     }
 }
