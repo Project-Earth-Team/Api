@@ -40,7 +40,7 @@ namespace ProjectEarthServerAPI.Controllers
                             //cdnUri = "https://cdn.mceserv.net",
                             playfabTitleId = "11509",
                             serviceUri = serverBaseIP,
-                            //cdnUri = serverBaseIP+"/cdn",
+                            cdnUri = serverBaseIP+"/cdn",
                             //playfabTitleId = "F0DE2" //maybe make our own soon? - Mojang could kill this anytime after server sunset with no warning. 
                         }
                     },
