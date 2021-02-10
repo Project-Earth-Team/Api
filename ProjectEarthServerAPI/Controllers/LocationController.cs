@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ProjectEarthServerAPI.Models;
 using Newtonsoft.Json;
+using ProjectEarthServerAPI.Util;
 namespace ProjectEarthServerAPI.Controllers
 {
     [ApiVersion("1.1")]
@@ -13,13 +14,17 @@ namespace ProjectEarthServerAPI.Controllers
     {
         public ContentResult Get(double latitude, double longitude)
         {
-            //see https://github.com/Luminoso-256/project-earth-tiles/wiki/Tappables
+            //Nab tile loc
+            int[] cords = Tile.getTileForCords(latitude, longitude);
+
+
+
 
             //Create Active Locations - not done inline with the LocationResponse.root because eventually this will be a randomly generated fed in list.
             LocationResponse.ActiveLocation testActiveLocation = new LocationResponse.ActiveLocation
             {
                 id = "8c7a46b2-7e21-674a-4c05-6583e5a34f88", //Copypasted from a known good response. TODO: Figure out what this actually is. MCE loves it's UUIDs 
-                tileId = "16288_25136", //Once again. copypasted. Tile IDs are based on Open Street Map. Perhaps we can construct a Long/Lat -> Tile ID converter? - https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames could be of use
+                tileId = cords[0]+"_"+cords[1],
                 coordinate = new LocationResponse.Coordinate
                 {
                     latitude = latitude,
