@@ -3,11 +3,11 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iis": {
-      "applicationUrl": "http://localhost/ProjectEarthServerAPI",
+      "applicationUrl": "http://localhost:80",
       "sslPort": 0
     },
     "iisExpress": {
-      "applicationUrl": "http://192.168.86.30:80",
+      "applicationUrl": "http://localhost:80",
       "sslPort": 0
     }
   },
@@ -22,12 +22,13 @@
     },
     "ProjectEarthServerAPI": {
       "commandName": "Project",
+      "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": "true",
-      "applicationUrl": "https://localhost:80"
+      "applicationUrl": "https://*:80"
     }
   }
 }

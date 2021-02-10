@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -17,13 +18,16 @@ namespace ProjectEarthServerAPI.Util
             
             try
             {
+                Directory.CreateDirectory(Path.Combine(basePath, pos1.ToString()));
                 String downloadUrl = "https://cdn.mceserv.net/tile/16/" + pos1 + "/" + pos1 + "_" + pos2 + "_16.png";
-                webClient.DownloadFile(downloadUrl, basePath + pos1 + @"\" + pos2 + @"\" + pos1 + "_" + pos2 + "_16.png");
+                webClient.DownloadFile(downloadUrl, Path.Combine(basePath, pos1.ToString(), $"{pos1}_{pos2}_16.png"));
+                webClient.Dispose();
                 return true;
             }
             catch(WebException wex)
             {
                 //TODO: error 502 check.
+                webClient.Dispose();
                 return false;
             }
         }

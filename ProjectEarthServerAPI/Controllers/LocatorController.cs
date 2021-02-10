@@ -16,7 +16,7 @@ namespace ProjectEarthServerAPI.Controllers
     public class LocatorController : Controller
     {
 
-        public static String serverBaseIP = "http://93.209.241.92";
+        public static String serverBaseIP = "http://93.209.243.32";
 
         private readonly ILogger<LocatorController> _logger;
 
@@ -36,11 +36,12 @@ namespace ProjectEarthServerAPI.Controllers
                     {
                         production = new LocatorResponse.Production()
                         {
-                            serviceUri = serverBaseIP,
                             //serviceUri = "https://client.mceserv.net",
                             //cdnUri = "https://cdn.mceserv.net",
-                            cdnUri = serverBaseIP+"/cdn",
-                            playfabTitleId = "11509" //maybe make our own soon? - Mojang could kill this anytime after server sunset with no warning. 
+                            playfabTitleId = "11509",
+                            serviceUri = serverBaseIP,
+                            //cdnUri = serverBaseIP+"/cdn",
+                            //playfabTitleId = "F0DE2" //maybe make our own soon? - Mojang could kill this anytime after server sunset with no warning. 
                         }
                     },
                     supportedEnvironments = new LocatorResponse.SupportedEnvironments()
@@ -51,6 +52,7 @@ namespace ProjectEarthServerAPI.Controllers
                 },
                 //updates = new LocatorResponse.Updates()
             };
+
             response.result.supportedEnvironments._2020121702.Add("production");
             var resp = JsonConvert.SerializeObject(response);
             return Content(resp,"application/json");

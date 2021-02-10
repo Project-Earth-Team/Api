@@ -11,7 +11,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.ResponseCompression;
+using ProjectEarthServerAPI.Util;
 
 namespace ProjectEarthServerAPI
 {
@@ -47,21 +49,22 @@ namespace ProjectEarthServerAPI
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+                //app.UseDeveloperExceptionPage();
             }
 
+            app.UseETagger();
             //app.UseHttpsRedirection();
 
             app.UseRouting();
 
             app.UseAuthorization();
 
+            app.UseResponseCaching();
+
             app.UseResponseCompression();
 
             //app.UseSession();
-
-            app.UseResponseCaching();
-
+            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

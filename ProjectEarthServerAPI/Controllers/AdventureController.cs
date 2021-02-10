@@ -9,7 +9,7 @@ using ProjectEarthServerAPI.Models;
 namespace ProjectEarthServerAPI.Controllers
 {
     [ApiVersion("1.1")]
-    [Route("1/api/v{version:apiVersion}/adventure/scrolls")]
+    [Route("1/api/v{version:apiVersion}/adventures/scrolls")]
     public class AdventureScrollsController : Controller
     {
         public ContentResult Get()

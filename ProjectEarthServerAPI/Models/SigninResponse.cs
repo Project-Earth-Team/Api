@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace ProjectEarthServerAPI.Models
 {
@@ -30,7 +31,7 @@ namespace ProjectEarthServerAPI.Models
             public object Streams { get; set; }
 
             [JsonProperty("tokens")]
-            public object Tokens { get; set; }
+            public Dictionary<string,Token> Tokens { get; set; }
 
         }
     }
