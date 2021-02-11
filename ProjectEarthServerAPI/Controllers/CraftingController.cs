@@ -11,7 +11,7 @@ namespace ProjectEarthServerAPI.Controllers
     public class CraftingController : Controller
     {
         [ApiVersion("1.1")]
-        [Route("1/api/v{version:apiVersion}/crafting/{slot}")]
+        [Route("1/api/v{version:apiVersion}/crafting/{slot}/start")]
         public IActionResult PostNewCraftingJob(int slot)
         {
             string authtoken;
@@ -24,7 +24,7 @@ namespace ProjectEarthServerAPI.Controllers
                 return Forbid();
             }
 
-            //var returnUpdates = CraftingUtils.StartCraftingJob(authtoken);
+            //var returnUpdates = CraftingUtils.StartCraftingJob(authtoken); 
 
             Console.WriteLine($"User with id {authtoken} initiated crafting job in slot {slot}.");
 
@@ -69,7 +69,7 @@ namespace ProjectEarthServerAPI.Controllers
                 return Forbid();
             }
 
-            //var returnUpdates = CraftingUtils.StartCraftingJob(authtoken);
+            //var returnUpdates = CraftingUtils.StartCraftingJob(authtoken); // Not sure if even needed, lets hope not
 
             Console.WriteLine($"User with id {authtoken} collected results of crafting slot {slot}.");
 

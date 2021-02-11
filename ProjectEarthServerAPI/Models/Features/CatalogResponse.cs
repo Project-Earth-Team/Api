@@ -12,8 +12,8 @@ namespace ProjectEarthServerAPI.Models.Features
     /// </summary>
     public class CatalogResponse
     {
-       //===Model
-
+        //===Model
+        #region Model
         //Efficiency Classes
         public class EfficiencyMap
         {
@@ -262,12 +262,16 @@ namespace ProjectEarthServerAPI.Models.Features
         public object expiration { get; set; }
         public object continuationToken { get; set; }
         public Updates updates { get; set; }
+        #endregion
+        #region Functions
 
         //===Load and save
-        public static CatalogResponse fromFile(string catalogFilePath)
+        public static CatalogResponse FromFile(string catalogFilePath)
         {
             string file = File.ReadAllText(catalogFilePath);
             return JsonConvert.DeserializeObject<CatalogResponse>(file);
         }
+
+        #endregion
     }
 }

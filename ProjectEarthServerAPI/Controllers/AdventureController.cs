@@ -17,6 +17,6 @@ namespace ProjectEarthServerAPI.Controllers
             var responseobj = new ScrollsResponse();
             var response = JsonConvert.SerializeObject(responseobj);
             return Content(response, "application/json");
-        }
+        } // TODO: Fixed String
     }
 }

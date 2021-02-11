@@ -15,8 +15,8 @@ namespace ProjectEarthServerAPI
         public static void Main(string[] args)
         {
             //Initialize singleton with loaded information
-
-            StateSingleton.Instance.catalog = CatalogResponse.fromFile(StateSingleton.Instance.config.catalogFileLocation);
+            string catalogFileLocation = "./catalogv3";
+            StateSingleton.Instance.catalog = CatalogResponse.FromFile(catalogFileLocation);
             //Start api
             CreateHostBuilder(args).Build().Run();
         }

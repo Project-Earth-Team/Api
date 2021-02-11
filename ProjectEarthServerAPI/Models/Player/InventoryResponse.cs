@@ -31,33 +31,33 @@ namespace ProjectEarthServerAPI.Models.Player
 
         public class StackableItem
         {
-            public int owned { get; set; }
-            public string id { get; set; }
-            public Seen seen { get; set; }
-            public Unlocked unlocked { get; set; }
-            public int fragments { get; set; }
+            public int owned { get; set; } // How many you have
+            public string id { get; set; } // Item UUID 
+            public Seen seen { get; set; } // When you last used/got this item
+            public Unlocked unlocked { get; set; } // When you first unlocked the item
+            public int fragments { get; set; } // Not used
         }
 
         public class Instance
         {
-            public string id { get; set; }
-            public double health { get; set; }
+            public string id { get; set; } // Maybe? Instance id of last multiplayer instance you visited
+            public double health { get; set; } // Same as above, just health of the tool
         }
 
         public class NonStackableItem
         {
-            public List<Instance> instances { get; set; }
-            public string id { get; set; }
-            public Seen seen { get; set; }
-            public Unlocked unlocked { get; set; }
-            public int fragments { get; set; }
+            public List<Instance> instances { get; set; } // List of Instances, see above explanation
+            public string id { get; set; } // Item UUID
+            public Seen seen { get; set; } // When you last used/got this item
+            public Unlocked unlocked { get; set; } // When you first unlocked the item
+            public int fragments { get; set; } // Not used
         }
 
         public class Result
         {
-            public List<Hotbar> hotbar { get; set; }
-            public List<StackableItem> stackableItems { get; set; }
-            public List<NonStackableItem> nonStackableItems { get; set; }
+            public List<Hotbar> hotbar { get; set; } // Items you have in your hotbar
+            public List<StackableItem> stackableItems { get; set; } // Stackable items (dirt,cobble,torches)
+            public List<NonStackableItem> nonStackableItems { get; set; } // Unstackable items (picks,axes,swords)
         }
 
         public class Updates
