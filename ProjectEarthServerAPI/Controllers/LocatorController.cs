@@ -26,7 +26,7 @@ namespace ProjectEarthServerAPI.Controllers
         [HttpGet]
         public ContentResult Get()
         {
-            string baseServerIP = ServerConfig.getFromFile().baseServerIP;
+            string baseServerIP = StateSingleton.Instance.config.baseServerIP;
 
             LocatorResponse.Root response = new LocatorResponse.Root()
             {

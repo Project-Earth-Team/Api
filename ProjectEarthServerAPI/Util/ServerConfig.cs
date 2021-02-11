@@ -14,10 +14,15 @@ namespace ProjectEarthServerAPI.Util
     {
         //Properties
         public string baseServerIP { get; set; }
-
+        public string catalogFileLocation { get; set; }
 
 
         //Load method
+
+        /// <summary>
+        /// Get the server config from the configuration file.
+        /// </summary>
+        /// <returns></returns>
         public static ServerConfig getFromFile()
         {
             String file = File.ReadAllText("./config/apiconfig.json");
