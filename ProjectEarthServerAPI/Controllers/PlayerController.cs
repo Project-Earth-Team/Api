@@ -128,7 +128,7 @@ namespace ProjectEarthServerAPI.Controllers
     {
         public ContentResult Get()
         {
-            var fs = new StreamReader("M:\\DevEnvironment\\DevWorkspace\\dotNETProjects\\ProjectEarthServerAPI\\ProjectEarthServerAPI\\bin\\Debug\\net5.0\\catalogv3");
+            var fs = new StreamReader(StateSingleton.Instance.config.catalogFileLocation);
             return Content(fs.ReadToEnd(), "application/json");
         }
     }
