@@ -13,7 +13,7 @@ namespace ProjectEarthServerAPI.Controllers
     //Wheres the resource pack?
 
     [ApiVersion("1.1")]
-    [Route("api/v{version:apiVersion}/resourcepacks/2020.12717.02/default")]
+    [Route("api/v{version:apiVersion}/resourcepacks/2020.1217.02/default")]
     public class ResourcePackController : ControllerBase
     {
         [HttpGet]

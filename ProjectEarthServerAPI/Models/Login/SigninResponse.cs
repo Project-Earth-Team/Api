@@ -5,11 +5,15 @@ namespace ProjectEarthServerAPI.Models
 {
     public class SigninResponse
     {
+        [JsonObject(ItemNullValueHandling = NullValueHandling.Include)]
         public class ResponseTemplate
         {
             public Result result { get; set; }
+            [JsonProperty("updates")]
+            public Dictionary<string, int> Updates { get; set; }
         }
 
+        [JsonObject(ItemNullValueHandling = NullValueHandling.Include)]
         public class Result
         {
             [JsonProperty("authenticationToken")]
@@ -32,6 +36,9 @@ namespace ProjectEarthServerAPI.Models
 
             [JsonProperty("tokens")]
             public Dictionary<string,Token> Tokens { get; set; }
+
+            [JsonProperty("updates")]
+            public Dictionary<string,int> Updates { get; set; }
 
         }
     }

@@ -8,13 +8,13 @@ namespace ProjectEarthServerAPI.Util
 {
     public class TokenUtils
     {
-        public static Dictionary<string, Token> GetSeasonalTokens(string userid)
+        public static Dictionary<string, Token> GetSigninTokens(string userid)
         {
             var origTokens = GetTokensForUserId(userid);
             Dictionary<string,Token> returnTokens = new Dictionary<string, Token>();
             foreach (KeyValuePair<string,Token> tok in origTokens)
             {
-                if (tok.Value.clientProperties.ContainsKey("seasonId"))
+                if (!tok.Value.clientProperties.ContainsKey("challengeid"))
                 {
                     returnTokens.Add(tok.Key,tok.Value);
                 }
@@ -31,7 +31,11 @@ namespace ProjectEarthServerAPI.Util
         public static TokenResponse GetTokenResponseForUserId(string userid)
         {
             var returntokens = GetSerializedTokenResponse(userid);
-            var serializedTokens = JsonConvert.DeserializeObject<TokenResponse>(returntokens);
+
+            var serializedTokens = JsonConvert.DeserializeObject<TokenResponse>(returntokens,new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore
+            });
             return serializedTokens;
         }
 
@@ -46,7 +50,7 @@ namespace ProjectEarthServerAPI.Util
                 Console.WriteLine($"User with id {userid} first requested tokens, generating default.");
             }
 
-            var returntokens = System.IO.File.ReadAllText(tokenpath);
+            var returntokens = File.ReadAllText(tokenpath);
             return returntokens;
         }
     }

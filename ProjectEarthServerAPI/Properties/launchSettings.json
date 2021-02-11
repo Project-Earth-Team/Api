@@ -22,13 +22,12 @@
     },
     "ProjectEarthServerAPI": {
       "commandName": "Project",
-      "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": "true",
-      "applicationUrl": "https://*:80"
+      "applicationUrl": "http://localhost:80"
     }
   }
 }
