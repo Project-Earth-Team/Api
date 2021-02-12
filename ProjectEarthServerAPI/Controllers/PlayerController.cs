@@ -7,6 +7,7 @@ using System.IO;
 using System.Net;
 using Newtonsoft.Json;
 using ProjectEarthServerAPI.Models;
+using ProjectEarthServerAPI.Models.Player;
 using ProjectEarthServerAPI.Util;
 
 namespace ProjectEarthServerAPI.Controllers
@@ -145,22 +146,19 @@ namespace ProjectEarthServerAPI.Controllers
         }
     } // TODO: Fixed String
 
-    [ApiVersion("1.1")]
-    [Route("1/api/v{version:apiVersion}/inventory/catalogv3")]
     public class PlayerInventoryController : Controller
     {
-        public IActionResult Get()
+        [ApiVersion("1.1")]
+        [Route("1/api/v{version:apiVersion}/inventory/catalogv3")]
+        public IActionResult GetCatalog()
         {
             var fs = new StreamReader("./catalogv3");
             return Content(fs.ReadToEnd(), "application/json");
         }
-    }
 
-    [ApiVersion("1.1")]
-    [Route("1/api/v{version:apiVersion}/inventory/survival")]
-    public class PlayerSurvivalInventoryController : Controller
-    {
-        public IActionResult Get()
+        [ApiVersion("1.1")]
+        [Route("1/api/v{version:apiVersion}/inventory/survival")]
+        public IActionResult GetSurvivalInventory()
         {
             string authtoken;
             try
@@ -171,11 +169,71 @@ namespace ProjectEarthServerAPI.Controllers
             {
                 return Forbid();
             }
-            
+
             var inv = InventoryUtils.ReadInventory(authtoken);
             var jsonstring = JsonConvert.SerializeObject(inv);
             return Content(jsonstring, "application/json");
-            //return Content("{\"result\":{\"hotbar\":[null,null,null,null,null,null,null],\"stackableItems\":[{\"owned\":1,\"id\":\"805028aa-c421-2db9-c07b-0ac3592bed4e\",\"seen\":{\"on\":\"2019-10-24T16:37:46.1904053Z\"},\"unlocked\":{\"on\":\"2019-10-24T16:37:46.1904053Z\"},\"fragments\":1},{\"owned\":11,\"id\":\"a1bf49f9-1f1f-2a4d-5f7b-c0c5ba833068\",\"seen\":{\"on\":\"2019-10-24T16:37:54.649247Z\"},\"unlocked\":{\"on\":\"2019-10-24T16:37:54.649247Z\"},\"fragments\":1},{\"owned\":4,\"id\":\"ff796546-f5f5-2c99-1118-0bb41e70d48c\",\"seen\":{\"on\":\"2019-11-21T14:55:53.7694275Z\"},\"unlocked\":{\"on\":\"2019-11-21T14:55:53.7694275Z\"},\"fragments\":1},{\"owned\":1,\"id\":\"9740784f-7047-0b4b-f936-8b6f8f9a1a15\",\"seen\":{\"on\":\"2019-11-21T14:55:53.7694275Z\"},\"unlocked\":{\"on\":\"2019-11-21T14:55:53.7694275Z\"},\"fragments\":1},{\"owned\":3,\"id\":\"3d0969b4-e8c8-0a23-73d4-0c6128bfb84c\",\"seen\":{\"on\":\"2019-11-21T14:55:53.7694275Z\"},\"unlocked\":{\"on\":\"2019-11-21T14:55:53.7694275Z\"},\"fragments\":1},{\"owned\":8,\"id\":\"f0617d6a-c35a-5177-fcf2-95f67d79196d\",\"seen\":{\"on\":\"2019-11-21T14:56:08.8284287Z\"},\"unlocked\":{\"on\":\"2019-11-21T14:56:08.8284287Z\"},\"fragments\":1},{\"owned\":1,\"id\":\"3eb631f9-fd37-705c-bd86-dec6aaf44702\",\"seen\":{\"on\":\"2019-11-21T14:56:08.8284287Z\"},\"unlocked\":{\"on\":\"2019-11-21T14:56:08.8284287Z\"},\"fragments\":1},{\"owned\":1,\"id\":\"88ffe819-aefb-e080-5ef5-e04244a387e1\",\"seen\":{\"on\":\"2019-11-21T14:56:20.6668018Z\"},\"unlocked\":{\"on\":\"2019-11-21T14:56:20.6668018Z\"},\"fragments\":1},{\"owned\":4,\"id\":\"eead8c3f-638b-91fa-6e0a-f99f6906dd56\",\"seen\":{\"on\":\"2019-11-21T14:56:20.6668018Z\"},\"unlocked\":{\"on\":\"2019-11-21T14:56:20.6668018Z\"},\"fragments\":1},{\"owned\":1,\"id\":\"663f3282-95c6-6d22-ebf5-f1f923964d77\",\"seen\":{\"on\":\"2019-11-21T14:56:20.6668018Z\"},\"unlocked\":{\"on\":\"2019-11-21T14:56:20.6668018Z\"},\"fragments\":1},{\"owned\":3,\"id\":\"4f16a053-4929-263a-c91a-29663e29df76\",\"seen\":{\"on\":\"2020-10-23T14:09:16.1876553Z\"},\"unlocked\":{\"on\":\"2020-10-23T14:09:16.1876553Z\"},\"fragments\":1},{\"owned\":2,\"id\":\"1b527574-8260-42f4-bd34-49d2cad6b91f\",\"seen\":{\"on\":\"2020-10-23T14:09:16.1876553Z\"},\"unlocked\":{\"on\":\"2020-10-23T14:09:16.1876553Z\"},\"fragments\":1},{\"owned\":9,\"id\":\"9efdd49a-5bda-1191-34eb-747cf02406c0\",\"seen\":{\"on\":\"2020-10-23T14:09:38.6242099Z\"},\"unlocked\":{\"on\":\"2020-10-23T14:09:38.6242099Z\"},\"fragments\":1},{\"owned\":1,\"id\":\"c0284797-233c-64c5-13b5-b821922ae84a\",\"seen\":{\"on\":\"2020-10-23T14:09:38.6242099Z\"},\"unlocked\":{\"on\":\"2020-10-23T14:09:38.6242099Z\"},\"fragments\":1},{\"owned\":6,\"id\":\"efea9c90-e554-3f2a-4d0e-bfd754d899f9\",\"seen\":{\"on\":\"2020-10-28T19:51:13.3746972Z\"},\"unlocked\":{\"on\":\"2020-10-28T19:51:13.3746972Z\"},\"fragments\":1},{\"owned\":1,\"id\":\"d9bbd707-8a7a-4edb-a85c-f8ec0c78a1f9\",\"seen\":{\"on\":\"2020-11-30T07:54:56.0625597Z\"},\"unlocked\":{\"on\":\"2020-11-30T07:54:56.0625597Z\"},\"fragments\":1},{\"owned\":2,\"id\":\"81a84b7e-928f-7157-254c-6543e90dbc59\",\"seen\":{\"on\":\"2020-11-30T07:54:57.2589605Z\"},\"unlocked\":{\"on\":\"2020-11-30T07:54:57.2589605Z\"},\"fragments\":1},{\"owned\":2,\"id\":\"b6bd9483-b995-413c-b9ba-447e4daf8e69\",\"seen\":{\"on\":\"2020-12-02T21:23:53.4079699Z\"},\"unlocked\":{\"on\":\"2020-12-02T21:23:53.4079699Z\"},\"fragments\":1},{\"owned\":1,\"id\":\"234432db-03c6-46f3-85c6-289cc710ca90\",\"seen\":{\"on\":\"2020-12-02T21:23:54.0418279Z\"},\"unlocked\":{\"on\":\"2020-12-02T21:23:54.0418279Z\"},\"fragments\":1},{\"owned\":1,\"id\":\"c4231eb5-8fc0-4ad7-ad18-ecfcb0734049\",\"seen\":{\"on\":\"2021-01-05T19:49:21.2877321Z\"},\"unlocked\":{\"on\":\"2021-01-05T19:49:21.2877321Z\"},\"fragments\":1},{\"owned\":1,\"id\":\"bef8b1c2-54c6-4f69-a6c9-f1aa1ee18119\",\"seen\":{\"on\":\"2021-01-05T19:50:18.0905966Z\"},\"unlocked\":{\"on\":\"2021-01-05T19:50:18.0905966Z\"},\"fragments\":1},{\"owned\":1,\"id\":\"69840d34-5fde-64f1-0710-d8f9a34e3e5e\",\"seen\":{\"on\":\"2021-01-05T19:50:20.8702008Z\"},\"unlocked\":{\"on\":\"2021-01-05T19:50:20.8702008Z\"},\"fragments\":1},{\"owned\":1,\"id\":\"29d15352-7a57-2c12-1885-3a783649737e\",\"seen\":{\"on\":\"2021-01-05T19:52:21.0649737Z\"},\"unlocked\":{\"on\":\"2021-01-05T19:52:21.0649737Z\"},\"fragments\":1},{\"owned\":1,\"id\":\"f9deeb00-51ff-714c-93be-fd2b65ef4022\",\"seen\":{\"on\":\"2021-01-05T19:52:21.0649737Z\"},\"unlocked\":{\"on\":\"2021-01-05T19:52:21.0649737Z\"},\"fragments\":1},{\"owned\":2,\"id\":\"c2fead8a-3539-da39-047c-4c156c4438fe\",\"seen\":{\"on\":\"2021-01-05T19:52:21.0649737Z\"},\"unlocked\":{\"on\":\"2021-01-05T19:52:21.0649737Z\"},\"fragments\":1},{\"owned\":3,\"id\":\"408bb17b-da92-0cea-7496-ee01c6a542d7\",\"seen\":{\"on\":\"2021-01-06T21:21:29.1972348Z\"},\"unlocked\":{\"on\":\"2021-01-06T21:21:29.1972348Z\"},\"fragments\":1},{\"owned\":1,\"id\":\"cdc029f4-c70f-7158-eb95-95c8f3b28669\",\"seen\":{\"on\":\"2021-01-06T21:32:39.6566477Z\"},\"unlocked\":{\"on\":\"2021-01-06T21:32:39.6566477Z\"},\"fragments\":1},{\"owned\":1,\"id\":\"038c8034-1d98-96ca-8278-bc69f592549f\",\"seen\":{\"on\":\"2021-01-06T22:29:16.0124724Z\"},\"unlocked\":{\"on\":\"2021-01-06T22:29:16.0124724Z\"},\"fragments\":1},{\"owned\":1,\"id\":\"7768e3de-aea7-4171-8fdd-2b69cce45ee6\",\"seen\":{\"on\":\"2021-01-07T01:16:12.516064Z\"},\"unlocked\":{\"on\":\"2021-01-07T01:16:12.516064Z\"},\"fragments\":1}],\"nonStackableItems\":[]},\"expiration\":null,\"continuationToken\":null,\"updates\":{}}", "application/json");
+        }
+
+        [ApiVersion("1.1")]
+        [Route("1/api/v{version:apiVersion}/inventory/survival/hotbar")]
+        public async Task<IActionResult> PutItemInHotbar()
+        {
+
+            string authtoken;
+            try
+            {
+                authtoken = HttpContext.Request.Headers["Authorization"].ToString().Remove(0, 6);
+            }
+            catch
+            {
+                return Forbid();
+            }
+
+            var stream = new StreamReader(Request.Body);
+            var body = await stream.ReadToEndAsync();
+
+            var newhotbar = JsonConvert.DeserializeObject<InventoryResponse.Hotbar[]>(body);
+            var inv = InventoryUtils.ReadInventory(authtoken);
+
+            for (int i = 0; i < inv.result.hotbar.Length-1; i++)
+            {
+                if (newhotbar[i]?.id != inv.result.hotbar[i]?.id | newhotbar[i]?.count != inv.result.hotbar[i]?.count)
+                {
+                    if (newhotbar[i] == null)
+                    {
+                        if (inv.result.hotbar[i].instanceId == null)
+                        {
+                            InventoryUtils.AddItemToInv(authtoken, inv.result.hotbar[i].id, inv.result.hotbar[i].count,
+                                true);
+                        }
+                        else
+                        {
+                            InventoryUtils.AddItemToInv(authtoken, inv.result.hotbar[i].id, 1, false, inv.result.hotbar[i].instanceId.id);
+                        }
+                    }
+                    else
+                    {
+                        if (inv.result.hotbar[i] != null)
+                        {
+                            InventoryUtils.RemoveItemFromInv(authtoken, newhotbar[i].id,
+                                newhotbar[i].instanceId?.id, newhotbar[i].count - inv.result.hotbar[i].count);
+                        }
+                        else
+                        {
+                            InventoryUtils.RemoveItemFromInv(authtoken, newhotbar[i].id,
+                                newhotbar[i].instanceId?.id, newhotbar[i].count);
+                        }
+                    }
+                }
+            }
+
+            var newinv = InventoryUtils.ReadInventory(authtoken);
+            newinv.result.hotbar = newhotbar;
+
+            InventoryUtils.WriteInventory(authtoken, newinv);
+
+            return Content(JsonConvert.SerializeObject(newinv.result.hotbar));
         }
     }
 

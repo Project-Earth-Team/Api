@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using ProjectEarthServerAPI.Models.Player;
+using ProjectEarthServerAPI.Util;
 
 namespace ProjectEarthServerAPI.Util
 {
@@ -15,10 +16,10 @@ namespace ProjectEarthServerAPI.Util
     public class InventoryUtils
     {
 
-        public static InventoryUtilResult RemoveItemFromInv(string playerid, string itemIdToRemove,
+        public static InventoryUtilResult RemoveItemFromInv(string playerId, string itemIdToRemove,
             [Optional] string unstackableItemId, int countToRemove = 1)
         {
-            var inv = ReadInventory(playerid);
+            var inv = ReadInventory(playerId);
 
             var itementry = inv.result.stackableItems.Find(match => match.id == itemIdToRemove);
             if (itementry != null)
@@ -32,7 +33,7 @@ namespace ProjectEarthServerAPI.Util
                     itementry.owned -= countToRemove;
                     itementry.seen.on = DateTime.UtcNow;
                 }
-                WriteInventory(playerid, inv);
+                WriteInventory(playerId, inv);
                 return InventoryUtilResult.Success;
             }
             else
@@ -44,7 +45,7 @@ namespace ProjectEarthServerAPI.Util
                     unstackableItem.instances.Remove(instance);
                     unstackableItem.seen.on = DateTime.UtcNow;
 
-                    WriteInventory(playerid, inv);
+                    WriteInventory(playerId, inv);
                     return InventoryUtilResult.Success;
                 }
 
@@ -52,9 +53,9 @@ namespace ProjectEarthServerAPI.Util
             }
         }
 
-        public static Tuple<InventoryUtilResult,int> GetItemCountFromInv(string playerid, string itemId)
+        public static Tuple<InventoryUtilResult,int> GetItemCountFromInv(string playerId, string itemId)
         {
-            var inv = ReadInventory(playerid);
+            var inv = ReadInventory(playerId);;
 
             var itementry = inv.result.stackableItems.Find(match => match.id == itemId);
 
@@ -74,22 +75,25 @@ namespace ProjectEarthServerAPI.Util
             return new Tuple<InventoryUtilResult, int>(InventoryUtilResult.ItemNotFoundInInv, 0); // Item not in inventory, so count 0
         }
 
-        public static InventoryUtilResult AddItemToInv(string playerid, string itemIdToAdd, int count = 1, bool isStackableItem = true)
+        public static InventoryUtilResult AddItemToInv(string playerId, string itemIdToAdd, int count = 1, bool isStackableItem = true, string instanceId = null)
         {
             try
             {
-                var inv = ReadInventory(playerid);
+                var inv = ReadInventory(playerId);
 
                 if (!isStackableItem)
                 {
-                    inv.result.nonStackableItems.Add(new InventoryResponse.NonStackableItem()
+                    var itementry = inv.result.nonStackableItems.Find(match => match.id == itemIdToAdd);
+
+                    if (itementry != null && instanceId != null)
                     {
-                        fragments = 1,
-                        instances = new List<InventoryResponse.Instance>(),
-                        id = itemIdToAdd,
-                        seen = new InventoryResponse.Seen(){on = DateTime.UtcNow},
-                        unlocked = new InventoryResponse.Unlocked(){on = DateTime.UtcNow}
-                    });
+                        itementry.instances.Add(new InventoryResponse.Instance{health = 100.00, id = instanceId});
+                        itementry.seen.on = DateTime.UtcNow;
+                    }
+                    else
+                    {
+                        // TODO: Figure out what to do here. New instance somehow?
+                    }
                 }
                 else
                 {
@@ -113,24 +117,24 @@ namespace ProjectEarthServerAPI.Util
                     }
                 }
 
-                WriteInventory(playerid,inv);
+                WriteInventory(playerId,inv);
 
-                Console.WriteLine($"Added item {itemIdToAdd} to inventory. User ID: {playerid}");
+                Console.WriteLine($"Added item {itemIdToAdd} to inventory. User ID: {playerId}");
                 return InventoryUtilResult.Success;
 
             }
             catch
             {
-                Console.WriteLine($"Adding item to inventory failed! User ID: {playerid} Item to add: {itemIdToAdd}");
+                Console.WriteLine($"Adding item to inventory failed! User ID: {playerId} Item to add: {itemIdToAdd}");
                 return InventoryUtilResult.NoSpecificError;
             }
         }
 
-        public static Tuple<InventoryUtilResult, double> EditHealthOfItem(string playerid, string itemId, string unstackableItemInstanceId, double newHealth) // TODO: Actually Edit lmao
+        public static Tuple<InventoryUtilResult, double> EditHealthOfItem(string playerId, string itemId, string unstackableItemInstanceId, double newHealth) // TODO: Actually Edit lmao
         {
             try
             {
-                var inv = ReadInventory(playerid);
+                var inv = ReadInventory(playerId);
 
                 var unstackableItem = inv.result.nonStackableItems.Find(result => result.id == itemId);
                 var unstackableItemInstance =
@@ -148,51 +152,19 @@ namespace ProjectEarthServerAPI.Util
             }
         }
 
-        private static InventoryUtilResult SetupInventoryForId(string playerid)
+        /*
+         * Theoretically we can just replace these function with their generic variants,
+         * but I thought keeping them for ease of use would be nice.
+         */
+
+        public static InventoryResponse ReadInventory(string playerId)
         {
-            try
-            {
-                var inventoryfile = $"./{playerid}/inventory.json";
-                var obj = new InventoryResponse()
-                {
-                    result = new InventoryResponse.Result() // TODO: Implement Default Values for each player property/json we store for them
-                };
-                File.WriteAllText(inventoryfile, JsonConvert.SerializeObject(obj));
-                return InventoryUtilResult.Success;
-            }
-            catch
-            {
-                Console.WriteLine($"Creating default inventory failed! User ID: {playerid}");
-                return InventoryUtilResult.NoSpecificError;
-            }
+            return GenericUtils.ParseJsonFile<InventoryResponse>(playerId, "inventory");
         }
 
-        public static InventoryResponse ReadInventory(string playerid)
+        public static bool WriteInventory(string playerId, InventoryResponse inv)
         {
-            var inventoryfile = $"./{playerid}/inventory.json";
-            if (!File.Exists(inventoryfile))
-            {
-                SetupInventoryForId(playerid); // New inventory, no items will be available
-            }
-
-            var invjson = File.ReadAllText(inventoryfile);
-            var inv = JsonConvert.DeserializeObject<InventoryResponse>(invjson);
-            return inv;
-        }
-
-        public static InventoryUtilResult WriteInventory(string playerid, InventoryResponse inv)
-        {
-            try
-            {
-                var inventoryfile = $"./{playerid}/inventory.json"; // Path should exist, as you cant really write to the file before reading it first
-
-                File.WriteAllText(inventoryfile, JsonConvert.SerializeObject(inv));
-                return InventoryUtilResult.Success;
-            }
-            catch
-            {
-                return InventoryUtilResult.NoSpecificError;
-            }
+            return GenericUtils.WriteJsonFile(playerId,inv, "inventory");
         }
 
         public enum InventoryUtilResult

@@ -69,7 +69,7 @@ namespace ProjectEarthServerAPI.Controllers
                 return Forbid();
             }
 
-            //var returnUpdates = CraftingUtils.StartCraftingJob(authtoken); // Not sure if even needed, lets hope not
+            //var returnUpdates = CraftingUtils.FinishCraftingJob(authtoken,slot); // Not sure if even needed, lets hope not
 
             Console.WriteLine($"User with id {authtoken} collected results of crafting slot {slot}.");
 

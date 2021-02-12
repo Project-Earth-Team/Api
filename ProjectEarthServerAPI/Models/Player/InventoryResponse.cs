@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using System.Threading.Tasks;
 
 namespace ProjectEarthServerAPI.Models.Player
@@ -10,13 +11,23 @@ namespace ProjectEarthServerAPI.Models.Player
     /// </summary>
     public class InventoryResponse
     {
+        #region Model
+        public Result result { get; set; }
+        public object expiration { get; set; }
+        public object continuationToken { get; set; }
+        public Updates updates { get; set; }
         public class Hotbar
         {
             //I havent done adventures recently. Health is **Probably wrong**
-            public object health { get; set; }
             public string id { get; set; }
-            public object instanceId { get; set; }
+            public ItemInstance instanceId { get; set; }
             public int count { get; set; }
+        }
+
+        public class ItemInstance
+        {
+            public string id { get; set; }
+            public double health { get; set; }
         }
 
         public class Seen
@@ -55,7 +66,7 @@ namespace ProjectEarthServerAPI.Models.Player
 
         public class Result
         {
-            public List<Hotbar> hotbar { get; set; } // Items you have in your hotbar
+            public Hotbar[] hotbar { get; set; } // Items you have in your hotbar
             public List<StackableItem> stackableItems { get; set; } // Stackable items (dirt,cobble,torches)
             public List<NonStackableItem> nonStackableItems { get; set; } // Unstackable items (picks,axes,swords)
         }
@@ -63,13 +74,20 @@ namespace ProjectEarthServerAPI.Models.Player
         public class Updates
         {
         }
+        #endregion
+        #region Functions
 
-     
-        public Result result { get; set; }
-        public object expiration { get; set; }
-        public object continuationToken { get; set; }
-        public Updates updates { get; set; }
-        
+        public InventoryResponse()
+        {
+            result = new Result
+            {
+                hotbar = new Hotbar[7],
+                nonStackableItems = new List<NonStackableItem>(1),
+                stackableItems = new List<StackableItem>(1)
+            };
+        }
+
+        #endregion
 
     }
 }
