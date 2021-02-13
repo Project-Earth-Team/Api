@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-
+using System;
 namespace ProjectEarthServerAPI.Models
 {
     public class Rewards
@@ -16,6 +16,15 @@ namespace ProjectEarthServerAPI.Models
         public RewardComponent[] PersonaItems { get; set; }
         [JsonProperty("utilityBlocks")]
         public RewardComponent[] UtilityBlocks { get; set; }
+
+        public Rewards()
+        {
+            Inventory = Array.Empty<RewardComponent>();
+            Buildplates = Array.Empty<RewardComponent>();
+            Challenges = Array.Empty<RewardComponent>();
+            PersonaItems = Array.Empty<RewardComponent>();
+            UtilityBlocks = Array.Empty<RewardComponent>();
+        }
     }
 
     public class RewardComponent

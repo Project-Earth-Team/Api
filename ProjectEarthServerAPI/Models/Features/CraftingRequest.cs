@@ -1,11 +1,11 @@
 ﻿using Newtonsoft.Json;
 
-namespace ProjectEarthServerAPI.Models
+namespace ProjectEarthServerAPI.Models.Features
 {
     public class CraftingRequest
     {
         [JsonProperty("ingredients")]
-        public CraftingIngredient[] Ingredients { get; set; }
+        public InputItem[] Ingredients { get; set; }
         [JsonProperty("multiplier")]
         public int Multiplier { get; set; }
         [JsonProperty("recipeId")]
@@ -14,13 +14,4 @@ namespace ProjectEarthServerAPI.Models
         public string SessionId { get; set; }
     }
 
-    public class CraftingIngredient
-    {
-        [JsonProperty("itemId")]
-        public string ItemId { get; set; }
-        [JsonProperty("itemInstanceIds")]
-        public string[] ItemInstanceIds { get; set; }
-        [JsonProperty("quantity")]
-        public int Quantity { get; set; }
-    }
 }

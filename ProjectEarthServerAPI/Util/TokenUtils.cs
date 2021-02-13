@@ -53,5 +53,37 @@ namespace ProjectEarthServerAPI.Util
             var returntokens = File.ReadAllText(tokenpath);
             return returntokens;
         }
+
+        public static void AddItemToken(string playerId, string itemId)
+        {
+            var itemtoken = new Token
+            {
+                clientProperties = new Dictionary<string, string>(),
+                clientType = "item.unlocked",
+                lifetime = "Persistent",
+                rewards = new Rewards()
+            };
+            itemtoken.clientProperties.Add("itemid", itemId);
+
+            var tokenlist = GetTokensForUserId(playerId);
+            tokenlist.Add("4c41bed5-c863-4494-aff5-d55c2fcf96eb", itemtoken); // TODO: Figure out token id list.
+
+            WriteTokensForPlayer(playerId, tokenlist);
+
+        }
+
+        private static void WriteTokensForPlayer(string playerId, Dictionary<string, Token> tokenlist)
+        {
+            var tokenpath = $"./{playerId}/tokens.json";
+            var response = new TokenResponse
+            {
+                Result = new TokenResult
+                {
+                    tokens = tokenlist
+                }
+            };
+
+            File.WriteAllText(tokenpath,JsonConvert.SerializeObject(response));
+        }
     }
 }

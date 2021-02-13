@@ -12,11 +12,14 @@ namespace ProjectEarthServerAPI
 {
     public class Program
     {
+        public static readonly string recipeFileLocation = "./recipes"; // TODO: Implement into _Candelas_ config
+        public static readonly string catalogFileLocation = "./catalogv3"; // TODO: Implement into _Candelas_ config
+
+        public static Recipes recipeList = Recipes.FromFile(recipeFileLocation);
+        public static CatalogResponse catelog = CatalogResponse.FromFile(catalogFileLocation);
+
         public static void Main(string[] args)
         {
-            //Initialize singleton with loaded information
-            string catalogFileLocation = "./catalogv3";
-            StateSingleton.Instance.catalog = CatalogResponse.FromFile(catalogFileLocation);
             //Start api
             CreateHostBuilder(args).Build().Run();
         }

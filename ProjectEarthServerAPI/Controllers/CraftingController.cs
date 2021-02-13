@@ -1,8 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using ProjectEarthServerAPI.Models.Features;
+using ProjectEarthServerAPI.Models.Player;
 using ProjectEarthServerAPI.Util;
 
 namespace ProjectEarthServerAPI.Controllers
@@ -12,7 +16,7 @@ namespace ProjectEarthServerAPI.Controllers
     {
         [ApiVersion("1.1")]
         [Route("1/api/v{version:apiVersion}/crafting/{slot}/start")]
-        public IActionResult PostNewCraftingJob(int slot)
+        public async Task<IActionResult> PostNewCraftingJob(int slot)
         {
             string authtoken;
             try
@@ -24,13 +28,45 @@ namespace ProjectEarthServerAPI.Controllers
                 return Forbid();
             }
 
-            //var returnUpdates = CraftingUtils.StartCraftingJob(authtoken); 
+            var stream = new StreamReader(Request.Body);
+            var body = await stream.ReadToEndAsync();
+
+            var req = JsonConvert.DeserializeObject<CraftingRequest>(body);
+
+            var craftingJob = CraftingUtils.StartCraftingJob(authtoken,slot,req); 
 
             Console.WriteLine($"User with id {authtoken} initiated crafting job in slot {slot}.");
 
-            return Accepted();
+            var updateResponse = new CraftingUpdates
+            {
+                updates = new Dictionary<string, int>()
+            };
+
+            updateResponse.updates.Add("crafting", 2);
+            updateResponse.updates.Add("inventory", 2);
+
+            return Content(JsonConvert.SerializeObject(updateResponse), "application/json");
             //return Accepted(Content(returnUpdates, "application/json"));
         }
+
+        [ApiVersion("1.1")]
+        [Route("1/api/v{version:apiVersion}/crafting/finish/price")]
+        public IActionResult GetCraftingPrice(int slot)
+        {
+            TimeSpan remainingTime = TimeSpan.Parse(Request.Query["remainingTime"]);
+            var returnPrice = new CraftingPriceResponse
+            {
+                result = new CraftingPrice{
+                cost = 1,
+                discount = 0,
+                validTime = remainingTime
+                },
+                updates = new Dictionary<string, int>()
+            };
+
+            return Content(JsonConvert.SerializeObject(returnPrice), "application/json");
+        }
+
 
         [ApiVersion("1.1")]
         [Route("1/api/v{version:apiVersion}/crafting/{slot}")]
@@ -46,12 +82,12 @@ namespace ProjectEarthServerAPI.Controllers
                 return Forbid();
             }
 
-            //var returnUpdates = CraftingUtils.StartCraftingJob(authtoken);
+            var craftingStatus = CraftingUtils.GetCraftingJobInfo(authtoken, slot);
 
             Console.WriteLine($"User with id {authtoken} requested crafting slot {slot} status.");
 
 
-            return Ok();
+            return Content(JsonConvert.SerializeObject(craftingStatus),"application/json");
             //return Accepted(Content(returnTokens, "application/json"));
         }
 
@@ -69,12 +105,12 @@ namespace ProjectEarthServerAPI.Controllers
                 return Forbid();
             }
 
-            //var returnUpdates = CraftingUtils.FinishCraftingJob(authtoken,slot); // Not sure if even needed, lets hope not
+            var returnUpdates = CraftingUtils.FinishCraftingJob(authtoken,slot); // Not sure if even needed, lets hope not
 
             Console.WriteLine($"User with id {authtoken} collected results of crafting slot {slot}.");
 
 
-            return Ok();
+            return Content(JsonConvert.SerializeObject(returnUpdates), "application/json");
             //return Accepted(Content(returnTokens, "application/json"));
         }
     }
