@@ -36,19 +36,19 @@ namespace ProjectEarthServerAPI.Models.Features
 
     public class CraftingSlotInfo // crafting/slot, crafting/1, crafting/2 - Also used in utilityBlocks
     {
-        public int available { get; set; } // 0 - Currently not available or working, 1 - Available for collecting
-        public BoostState boostState { get; set; } // See class below
-        public int completed { get; set; } // Completed - maybe the same as available above, or just unused
-        public InputItem[] escrow { get; set; } // Input Items for process, empty when process is finished
-        public DateTime? nextCompletionUtc { get; set; } // Time when process is complete
-        public RecipeOutput output { get; set; } // Output items of process
-        public string recipeId { get; set; } // ID of Recipe in use
         public string sessionId { get; set; } // ID of Session for Job
-        public string state { get; set; } // State: Active, Completed or Locked
-        public int streamVersion { get; set; } // StreamVersion with changes, unused in our version
+        public string recipeId { get; set; } // ID of Recipe in use
+        public RecipeOutput output { get; set; } // Output items of process
+        public InputItem[] escrow { get; set; } // Input Items for process, empty when process is finished
+        public int completed { get; set; } // Completed - maybe the same as available above, or just unused
+        public int available { get; set; } // 0 - Currently not available or working, 1 - Available for collecting
         public int total { get; set; } // Total number of output items
+        public DateTime? nextCompletionUtc { get; set; } // Time when process is complete
         public DateTime? totalCompletionUtc { get; set; } // Time of completion
+        public string state { get; set; } // State: Active, Completed or Locked
+        public BoostState boostState { get; set; } // See class below
         public UnlockPrice unlockPrice { get; set; } // Price to unlock item
+        public int streamVersion { get; set; } // StreamVersion with changes, unused in our version
     }
 
     public class BoostState

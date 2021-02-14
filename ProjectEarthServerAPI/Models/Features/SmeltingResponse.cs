@@ -5,23 +5,23 @@ namespace ProjectEarthServerAPI.Models.Features
 {
     public class SmeltingResponse // smelting endpoints, like crafting, also used in utilityBlocks 
     {
-        public int available { get; set; } // See crafting variant
-        public BoostState boostState { get; set; } // See crafting variant
-        public BurningItems burning { get; set; } // Information about currently burning items/burn rate
-        public int completed { get; set; } // See crafting variant
-        public InputItem[] escrow { get; set; } // See crafting variant
         public string fuel { get; set; } // Doesnt seem like its used in the current game. Maybe only in specific circumstances
-        public bool hasSufficientFuel { get; set; } // If item has enough fuel to complete process. 
-        public float heatAppliedToCurrentItem { get; set; } // Heat value to cook current item.
-        public DateTime nextCompletionUtc { get; set; } // See crafting variant
-        public RecipeOutput output { get; set; } // See crafting variant
-        public string recipeId { get; set; } // See crafting variant
+        public BurningItems burning { get; set; } // Information about currently burning items/burn rate
+        public bool? hasSufficientFuel { get; set; } // If item has enough fuel to complete process. 
+        public float? heatAppliedToCurrentItem { get; set; } // Heat value to cook current item.
         public string sessionId { get; set; } // See crafting variant
-        public string state { get; set; } // Active, completed, or locked
-        public int streamVersion { get; set; } // See crafting variant
+        public string recipeId { get; set; } // See crafting variant
+        public RecipeOutput output { get; set; } // See crafting variant
+        public InputItem[] escrow { get; set; } // See crafting variant
+        public int completed { get; set; } // See crafting variant
+        public int available { get; set; } // See crafting variant
         public int total { get; set; } // See crafting variant
-        public DateTime totalCompletionUtc { get; set; } // See crafting variant
+        public DateTime? nextCompletionUtc { get; set; } // See crafting variant
+        public DateTime? totalCompletionUtc { get; set; } // See crafting variant
+        public string state { get; set; } // Active, completed, or locked (or Empty)
+        public BoostState boostState { get; set; } // See crafting variant
         public UnlockPrice unlockPrice { get; set; } // See crafting variant
+        public int streamVersion { get; set; } // See crafting variant
     }
 
     public class BurningItems

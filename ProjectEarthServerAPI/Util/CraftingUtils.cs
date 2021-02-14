@@ -30,25 +30,31 @@ namespace ProjectEarthServerAPI.Util
                     }
                 }
 
+                var nextStreamId = GenericUtils.GetNextStreamVersion();
+
                 CraftingSlotInfo job = new CraftingSlotInfo
                 {
                     available = 0,
                     boostState = null,
                     completed = 0,
                     escrow = request.Ingredients,
-                    nextCompletionUtc = DateTime.UtcNow.Add(recipe.duration.TimeOfDay),
+                    nextCompletionUtc = null,
                     output = recipe.output,
                     recipeId = recipe.id,
                     sessionId = request.SessionId,
                     state = "Active",
-                    streamVersion = 1, // TODO: Stream ID
+                    streamVersion = nextStreamId,
                     total = request.Multiplier,
                     totalCompletionUtc = DateTime.UtcNow.Add(recipe.duration.TimeOfDay*request.Multiplier),
                     unlockPrice = null
 
                 };
 
-                job.output.quantity *= request.Multiplier;
+                //job.output.quantity *= request.Multiplier; After testing, B A D
+                if (request.Multiplier != 1)
+                {
+                    job.nextCompletionUtc = DateTime.UtcNow.Add(recipe.duration.TimeOfDay);
+                }
 
                 if (!craftingJobs.ContainsKey(playerId))
                 {
@@ -59,6 +65,9 @@ namespace ProjectEarthServerAPI.Util
                 }
 
                 craftingJobs[playerId][slot] = job;
+
+                UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
+
                 return true;
             }
 
@@ -74,33 +83,37 @@ namespace ProjectEarthServerAPI.Util
                 var job = craftingJobs[playerId][slot];
                 var recipe = recipeList.result.crafting.Find(match => match.id == job.recipeId & !match.deprecated);
                 var updates = new Dictionary<string,int>();
+                var nextStreamId = GenericUtils.GetNextStreamVersion();
 
-                if (job.totalCompletionUtc != null && job.completed == 0 && DateTime.Compare(job.totalCompletionUtc.Value,DateTime.UtcNow) < 0)
-                {
-                    if (job.nextCompletionUtc.Value.Second == job.totalCompletionUtc.Value.Second)
-                    {
-                        job.completed = 1;
-                        job.available = 1;
-                        job.nextCompletionUtc = null;
-                        job.state = "Completed";
-                        job.streamVersion = 2; // TODO: Stream ID
-                        job.escrow = new InputItem[0];
-                    }
-                    else
-                    {
-                        job.available = 1;
-                        job.state = "Available";
-                        job.streamVersion = 2; // TODO: Stream ID
-                        job.nextCompletionUtc = job.nextCompletionUtc.Value.Add(recipe.duration.TimeOfDay);
 
-                        for (int i = 0; i < job.escrow.Length-1; i++)
-                        {
-                            job.escrow[i].quantity -= recipe.ingredients[i].quantity;
-                        }
-
-                    }
-                    updates.Add("crafting", 2); // TODO: Stream ID
+                if (job.totalCompletionUtc != null && DateTime.Compare(job.totalCompletionUtc.Value, DateTime.UtcNow) < 0
+                    || (job.nextCompletionUtc == null || job.nextCompletionUtc.Value.TimeOfDay.Seconds >= job.totalCompletionUtc.Value.TimeOfDay.Seconds)) // TODO: Implement Collecting of not finished crafting jobs (when you request the same recipe more than once)
+                {                                                                                                                                          // TODO: Since the game sadly doesnt use this endpoint when collecting those jobs, we need to implement
+                                                                                                                                                           // TODO: our own solution for this problem. An internal timer that increments the job somehow?
+                    job.completed = job.total;                                                                                                            
+                    job.available = job.total;
+                    job.nextCompletionUtc = null;
+                    job.state = "Completed";
+                    job.streamVersion = nextStreamId; 
+                    job.escrow = new InputItem[0];
                 }
+                else
+                {
+
+                    job.available++;
+                    //job.completed++;
+                    job.state = "Available";
+                    job.streamVersion = nextStreamId;
+                    job.nextCompletionUtc = job.nextCompletionUtc.Value.Add(recipe.duration.TimeOfDay);
+
+                    for (int i = 0; i < job.escrow.Length - 1; i++)
+                    {
+                        job.escrow[i].quantity -= recipe.ingredients[i].quantity;
+                    }
+
+                }
+
+                updates.Add("crafting", nextStreamId);
 
                 var returnResponse = new CraftingSlotResponse
                 {
@@ -108,12 +121,14 @@ namespace ProjectEarthServerAPI.Util
                     updates = updates
                 };
 
+                UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
+
                 return returnResponse;
             }
             catch (Exception e )
             {
                 Console.WriteLine($"Error while getting crafting job info: Player ID: {playerId} Crafting Slot: {slot}");
-                Console.WriteLine($"Exception: {e}");
+                Console.WriteLine($"Exception: {e.StackTrace}");
                 return null;
             }
 
@@ -123,7 +138,9 @@ namespace ProjectEarthServerAPI.Util
         {
             var job = craftingJobs[playerId][slot];
 
-            InventoryUtils.AddItemToInv(playerId, job.output.itemId, job.output.quantity);
+            var nextStreamId = GenericUtils.GetNextStreamVersion();
+
+            InventoryUtils.AddItemToInv(playerId, job.output.itemId, job.output.quantity*job.total);
             // TODO: Add to challenges, tokens, journal (when implemented)
 
 
@@ -136,14 +153,14 @@ namespace ProjectEarthServerAPI.Util
 
             returnResponse.rewards.Inventory = returnResponse.rewards.Inventory.Append(new RewardComponent
             {
-                Amount = job.output.quantity,
+                Amount = job.output.quantity*job.total,
                 Id = job.output.itemId
             }).ToArray();
 
             if (!TokenUtils.GetTokenResponseForUserId(playerId).Result.tokens.Any(match => match.Value.clientProperties.ContainsKey("itemid") && match.Value.clientProperties["itemid"] == job.output.itemId))
             {
-                TokenUtils.AddItemToken(playerId, job.output.itemId);
-                returnResponse.updates.Add("tokens", 3); // TODO: Stream ID
+                //TokenUtils.AddItemToken(playerId, job.output.itemId); -> List of item tokens not known. Could cause issues later, for now we just disable it.
+                returnResponse.updates.Add("tokens", nextStreamId);
             }
 
             job.nextCompletionUtc = null;
@@ -151,29 +168,21 @@ namespace ProjectEarthServerAPI.Util
             job.completed = 0;
             job.recipeId = null;
             job.sessionId = null;
-            job.state = null; // This ones probably not right
+            job.state = "Empty";
             job.total = 0;
             job.boostState = null;
             job.totalCompletionUtc = null;
             job.unlockPrice = null;
             job.output = null;
-            //craftingJobs[playerId].Remove(slot);
+            job.streamVersion = nextStreamId;
 
+            UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
 
-            returnResponse.updates.Add("crafting",3); // TODO: Stream ID
-            returnResponse.updates.Add("inventory",3); // TODO: Stream ID
+            returnResponse.updates.Add("crafting",nextStreamId);
+            returnResponse.updates.Add("inventory",nextStreamId);
 
             return returnResponse;
 
         }
-    }
-
-    public class CraftingJob
-    {
-        public string recipeId { get; set; }
-        public string sessionId { get; set; }
-        public DateTime startTime { get; set; }
-        public DateTime timeRemaining { get; set; }
-        public RecipeOutput output { get; set; }
     }
 }
