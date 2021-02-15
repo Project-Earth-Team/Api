@@ -42,8 +42,10 @@ namespace ProjectEarthServerAPI.Controllers
                 updates = new Dictionary<string, int>()
             };
 
-            updateResponse.updates.Add("crafting", 2);
-            updateResponse.updates.Add("inventory", 2);
+            var nextStreamId = GenericUtils.GetNextStreamVersion();
+
+            updateResponse.updates.Add("crafting", nextStreamId);
+            updateResponse.updates.Add("inventory", nextStreamId);
 
             return Content(JsonConvert.SerializeObject(updateResponse), "application/json");
             //return Accepted(Content(returnUpdates, "application/json"));
@@ -105,12 +107,36 @@ namespace ProjectEarthServerAPI.Controllers
                 return Forbid();
             }
 
-            var returnUpdates = CraftingUtils.FinishCraftingJob(authtoken,slot); // Not sure if even needed, lets hope not
+            var returnUpdates = CraftingUtils.FinishCraftingJob(authtoken,slot);
 
             Console.WriteLine($"User with id {authtoken} collected results of crafting slot {slot}.");
 
 
             return Content(JsonConvert.SerializeObject(returnUpdates), "application/json");
+            //return Accepted(Content(returnTokens, "application/json"));
+        }
+
+        [ApiVersion("1.1")]
+        [Route("1/api/v{version:apiVersion}/crafting/{slot}/stop")]
+        public IActionResult GetStopCraftingJob(int slot)
+        {
+            string authtoken;
+            try
+            {
+                authtoken = HttpContext.Request.Headers["Authorization"].ToString().Remove(0, 6);
+            }
+            catch
+            {
+                return Forbid();
+            }
+
+            var returnUpdates = CraftingUtils.CancelCraftingJob(authtoken, slot);
+
+            Console.WriteLine($"User with id {authtoken} cancelled crafting job in slot {slot}.");
+
+            return Accepted();
+
+            //return Content(JsonConvert.SerializeObject(returnUpdates), "application/json");
             //return Accepted(Content(returnTokens, "application/json"));
         }
     }

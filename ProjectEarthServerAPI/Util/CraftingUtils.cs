@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json.Linq;
 using ProjectEarthServerAPI.Models;
 using ProjectEarthServerAPI.Models.Features;
 
 namespace ProjectEarthServerAPI.Util
 {
-    public class CraftingUtils
+    public class CraftingUtils // TODO: Implement Stopping of crafting process
     {
         private static Recipes recipeList = Program.recipeList;
         private static Dictionary<string,Dictionary<int, CraftingSlotInfo>> craftingJobs = new Dictionary<string, Dictionary<int, CraftingSlotInfo>>();
@@ -26,7 +27,7 @@ namespace ProjectEarthServerAPI.Util
                     if (itemsToReturn.Find(match =>
                         match.id == ingredient.items[0] && match.amount == ingredient.quantity) == null)
                     {
-                        InventoryUtils.RemoveItemFromInv(playerId, ingredient.items[0], null, ingredient.quantity);
+                        InventoryUtils.RemoveItemFromInv(playerId, ingredient.items[0], null, ingredient.quantity*request.Multiplier);
                     }
                 }
 
@@ -50,7 +51,6 @@ namespace ProjectEarthServerAPI.Util
 
                 };
 
-                //job.output.quantity *= request.Multiplier; After testing, B A D
                 if (request.Multiplier != 1)
                 {
                     job.nextCompletionUtc = DateTime.UtcNow.Add(recipe.duration.TimeOfDay);
@@ -85,19 +85,18 @@ namespace ProjectEarthServerAPI.Util
                 var updates = new Dictionary<string,int>();
                 var nextStreamId = GenericUtils.GetNextStreamVersion();
 
+                job.streamVersion = nextStreamId;
 
-                if (job.totalCompletionUtc != null && DateTime.Compare(job.totalCompletionUtc.Value, DateTime.UtcNow) < 0
-                    || (job.nextCompletionUtc == null || job.nextCompletionUtc.Value.TimeOfDay.Seconds >= job.totalCompletionUtc.Value.TimeOfDay.Seconds)) // TODO: Implement Collecting of not finished crafting jobs (when you request the same recipe more than once)
+                if (job.totalCompletionUtc != null && DateTime.Compare(job.totalCompletionUtc.Value, DateTime.UtcNow) < 0 && job.recipeId != null) // TODO: Implement Collecting of not finished crafting jobs (when you request the same recipe more than once)
                 {                                                                                                                                          // TODO: Since the game sadly doesnt use this endpoint when collecting those jobs, we need to implement
                                                                                                                                                            // TODO: our own solution for this problem. An internal timer that increments the job somehow?
-                    job.completed = job.total;                                                                                                            
-                    job.available = job.total;
+                    job.available = job.total - job.completed;
+                    //job.completed = job.total;
                     job.nextCompletionUtc = null;
                     job.state = "Completed";
-                    job.streamVersion = nextStreamId; 
                     job.escrow = new InputItem[0];
                 }
-                else
+                /*else
                 {
 
                     job.available++;
@@ -111,7 +110,7 @@ namespace ProjectEarthServerAPI.Util
                         job.escrow[i].quantity -= recipe.ingredients[i].quantity;
                     }
 
-                }
+                }*/
 
                 updates.Add("crafting", nextStreamId);
 
@@ -137,12 +136,10 @@ namespace ProjectEarthServerAPI.Util
         public static CollectItemsResponse FinishCraftingJob(string playerId, int slot)
         {
             var job = craftingJobs[playerId][slot];
+            var recipe = recipeList.result.crafting.Find(match => match.id == job.recipeId & !match.deprecated);
+            int craftedAmount = 0;
 
             var nextStreamId = GenericUtils.GetNextStreamVersion();
-
-            InventoryUtils.AddItemToInv(playerId, job.output.itemId, job.output.quantity*job.total);
-            // TODO: Add to challenges, tokens, journal (when implemented)
-
 
             var returnResponse = new CollectItemsResponse
             {
@@ -150,17 +147,83 @@ namespace ProjectEarthServerAPI.Util
                 updates = new Dictionary<string, int>()
             };
 
-
-            returnResponse.rewards.Inventory = returnResponse.rewards.Inventory.Append(new RewardComponent
+            if (job.completed != job.total && job.nextCompletionUtc != null)
             {
-                Amount = job.output.quantity*job.total,
-                Id = job.output.itemId
-            }).ToArray();
+                if (DateTime.UtcNow >= job.nextCompletionUtc)
+                {
+                    craftedAmount++;
+                    while (DateTime.UtcNow >= job.nextCompletionUtc && job.nextCompletionUtc.Value.Add(recipe.duration.TimeOfDay) < job.totalCompletionUtc && craftedAmount < job.total-job.completed)
+                    {
+                        job.nextCompletionUtc = job.nextCompletionUtc.Value.Add(recipe.duration.TimeOfDay);
+                        craftedAmount++;
+                    }
+
+                    job.nextCompletionUtc = job.nextCompletionUtc.Value.Add(recipe.duration.TimeOfDay);
+                    job.completed += craftedAmount;
+                    //job.available -= craftedAmount;
+                    for (int i = 0; i < job.escrow.Length-1; i++)
+                    {
+                        job.escrow[i].quantity -= recipe.ingredients[i].quantity*craftedAmount;
+                    }
+
+                    job.streamVersion = nextStreamId;
+
+                    InventoryUtils.AddItemToInv(playerId, job.output.itemId, job.output.quantity*craftedAmount);
+                }
+            }
+            else
+            {
+                craftedAmount = job.total - job.completed;
+                InventoryUtils.AddItemToInv(playerId, job.output.itemId, job.output.quantity * craftedAmount);
+                // TODO: Add to challenges, tokens, journal (when implemented)
+            }
 
             if (!TokenUtils.GetTokenResponseForUserId(playerId).Result.tokens.Any(match => match.Value.clientProperties.ContainsKey("itemid") && match.Value.clientProperties["itemid"] == job.output.itemId))
             {
                 //TokenUtils.AddItemToken(playerId, job.output.itemId); -> List of item tokens not known. Could cause issues later, for now we just disable it.
                 returnResponse.updates.Add("tokens", nextStreamId);
+            }
+
+            returnResponse.rewards.Inventory = returnResponse.rewards.Inventory.Append(new RewardComponent
+            {
+                Amount = job.output.quantity*craftedAmount,
+                Id = job.output.itemId
+            }).ToArray();
+
+            returnResponse.updates.Add("crafting", nextStreamId);
+            returnResponse.updates.Add("inventory", nextStreamId);
+
+
+            if (job.completed == job.total || job.nextCompletionUtc == null)
+            {
+                job.nextCompletionUtc = null;
+                job.available = 0;
+                job.completed = 0;
+                job.recipeId = null;
+                job.sessionId = null;
+                job.state = "Empty";
+                job.total = 0;
+                job.boostState = null;
+                job.totalCompletionUtc = null;
+                job.unlockPrice = null;
+                job.output = null;
+                job.streamVersion = nextStreamId;
+            }
+
+            UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
+
+            return returnResponse;
+
+        }
+
+        public static bool CancelCraftingJob(string playerId, int slot)
+        {
+            var job = craftingJobs[playerId][slot];
+            var nextStreamId = GenericUtils.GetNextStreamVersion();
+
+            foreach (InputItem item in job.escrow)
+            {
+                InventoryUtils.AddItemToInv(playerId, item.itemId, item.quantity);
             }
 
             job.nextCompletionUtc = null;
@@ -177,12 +240,7 @@ namespace ProjectEarthServerAPI.Util
             job.streamVersion = nextStreamId;
 
             UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
-
-            returnResponse.updates.Add("crafting",nextStreamId);
-            returnResponse.updates.Add("inventory",nextStreamId);
-
-            return returnResponse;
-
+            return true;
         }
     }
 }
