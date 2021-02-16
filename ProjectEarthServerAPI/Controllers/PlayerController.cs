@@ -164,7 +164,7 @@ namespace ProjectEarthServerAPI.Controllers
         [Route("1/api/v{version:apiVersion}/inventory/catalogv3")]
         public IActionResult GetCatalog()
         {
-            var fs = new StreamReader("./catalogv3");
+            var fs = new StreamReader(StateSingleton.Instance.config.catalogFileLocation);
             return Content(fs.ReadToEnd(), "application/json");
         }
 
@@ -265,7 +265,17 @@ namespace ProjectEarthServerAPI.Controllers
     {
         public IActionResult Get()
         {
-            var fs = new StreamReader("./recipes");
+            var fs = new StreamReader(StateSingleton.Instance.config.recipiesFileLocation);
+            return Content(fs.ReadToEnd(), "application/json");
+        }
+    }
+    [ApiVersion("1.1")]
+    [Route("1/api/v{version:apiVersion}/journal/catalog")]
+    public class JournalCatalogController : Controller
+    {
+        public IActionResult Get()
+        {
+            var fs = new StreamReader(StateSingleton.Instance.config.journalCatalogFileLocation);
             return Content(fs.ReadToEnd(), "application/json");
         }
     }

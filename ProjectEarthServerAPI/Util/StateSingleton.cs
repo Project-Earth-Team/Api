@@ -29,6 +29,7 @@ namespace ProjectEarthServerAPI.Util
         }
         public CatalogResponse catalog { get; set; }
         public ServerConfig config { get; set; }
+        public Recipes recipies { get; set; }
       
     }
 }

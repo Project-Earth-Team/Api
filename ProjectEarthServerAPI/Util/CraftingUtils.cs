@@ -9,7 +9,7 @@ namespace ProjectEarthServerAPI.Util
 {
     public class CraftingUtils // TODO: Implement Stopping of crafting process
     {
-        private static Recipes recipeList = Program.recipeList;
+        private static Recipes recipeList = StateSingleton.Instance.recipies;
         private static Dictionary<string,Dictionary<int, CraftingSlotInfo>> craftingJobs = new Dictionary<string, Dictionary<int, CraftingSlotInfo>>();
         public static bool StartCraftingJob(string playerId, int slot,CraftingRequest request) // TODO: Check if slot not unlocked (not a big priority)
         {

@@ -15,8 +15,8 @@ namespace ProjectEarthServerAPI.Util
         //Properties
         public string baseServerIP { get; set; }
         public string catalogFileLocation { get; set; }
-
-
+        public string journalCatalogFileLocation { get; set; }
+        public string recipiesFileLocation { get; set; }
         //Load method
 
         /// <summary>
