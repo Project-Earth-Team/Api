@@ -26,7 +26,7 @@ namespace ProjectEarthServerAPI.Controllers
                     {
                         order = 0,
                         parsedResourcePackVersion = new List<int>() { 2020, 1214, 4 },
-                        relativePath = "cdn/resourcepacks/dba38e59-091a-4826-b76a-a08d7de5a9e2-1301b0c257a311678123b9e7325d0d6c61db3c35", //Naming the endpoint the same thing for consistency. this might not be needed. 
+                        relativePath = "availableresourcepack/resourcepacks/dba38e59-091a-4826-b76a-a08d7de5a9e2-1301b0c257a311678123b9e7325d0d6c61db3c35", //Naming the endpoint the same thing for consistency. this might not be needed. 
                         resourcePackVersion = "2020.1214.04"
                     }
                 },
@@ -39,7 +39,7 @@ namespace ProjectEarthServerAPI.Controllers
     }
 
     //Heres the resource pack!
-    [Route("cdn/resourcepacks/dba38e59-091a-4826-b76a-a08d7de5a9e2-1301b0c257a311678123b9e7325d0d6c61db3c35")]
+    [Route("cdn/availableresourcepack/resourcepacks/dba38e59-091a-4826-b76a-a08d7de5a9e2-1301b0c257a311678123b9e7325d0d6c61db3c35")]
     public class ResourcePackCdnController : ControllerBase
     {
         public IActionResult Get() 
