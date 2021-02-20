@@ -4,10 +4,12 @@ namespace ProjectEarthServerAPI.Models
 {
     public class Rewards
     {
-        [JsonProperty("experiencePoints")]
+        [JsonProperty("experiencePoints", NullValueHandling = NullValueHandling.Ignore)]
         public int? ExperiencePoints { get; set; }
         [JsonProperty("inventory")]
         public RewardComponent[] Inventory { get; set; }
+        [JsonProperty("rubies", NullValueHandling = NullValueHandling.Ignore)]
+        public int? Rubies { get; set; }
         [JsonProperty("buildplates")]
         public RewardComponent[] Buildplates { get; set; }
         [JsonProperty("challenges")]
