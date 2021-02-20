@@ -139,5 +139,26 @@ namespace ProjectEarthServerAPI.Controllers
             //return Content(JsonConvert.SerializeObject(returnUpdates), "application/json");
             //return Accepted(Content(returnTokens, "application/json"));
         }
+
+        [ApiVersion("1.1")]
+        [Route("1/api/v{version:apiVersion}/crafting/{slot}/unlock")]
+        public IActionResult GetUnlockCraftingSlot(int slot)
+        {
+            string authtoken;
+            try
+            {
+                authtoken = HttpContext.Request.Headers["Authorization"].ToString().Remove(0, 6);
+            }
+            catch
+            {
+                return Forbid();
+            }
+
+            var returnUpdates = CraftingUtils.UnlockCraftingSlot(authtoken, slot);
+
+            Console.WriteLine($"User with id {authtoken} cancelled crafting job in slot {slot}.");
+
+            return Content(JsonConvert.SerializeObject(returnUpdates),"application/json");
+        }
     }
 }

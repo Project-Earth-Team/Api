@@ -7,7 +7,7 @@ using ProjectEarthServerAPI.Models.Features;
 
 namespace ProjectEarthServerAPI.Util
 {
-    public class CraftingUtils // TODO: Implement Stopping of crafting process
+    public class CraftingUtils
     {
         private static Recipes recipeList = StateSingleton.Instance.recipies;
         private static Dictionary<string,Dictionary<int, CraftingSlotInfo>> craftingJobs = new Dictionary<string, Dictionary<int, CraftingSlotInfo>>();
@@ -241,6 +241,28 @@ namespace ProjectEarthServerAPI.Util
 
             UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
             return true;
+        }
+
+        public static CraftingUpdates UnlockCraftingSlot(string playerId, int slot)
+        {
+            var job = craftingJobs[playerId][slot];
+
+            RubyUtils.SetRubies(playerId, job.unlockPrice.cost - job.unlockPrice.discount, false);
+            job.state = "Empty";
+            job.unlockPrice = null;
+
+            var nextStreamId = GenericUtils.GetNextStreamVersion();
+            var returnUpdates = new CraftingUpdates
+            {
+                updates = new Dictionary<string, int>()
+            };
+
+            UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
+
+            returnUpdates.updates.Add("crafting", nextStreamId);
+
+            return returnUpdates;
+
         }
     }
 }

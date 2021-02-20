@@ -157,33 +157,33 @@ namespace ProjectEarthServerAPI.Models.Features
 
         public class BlockMetadata
         {
-            public double health { get; set; }
+            public double? health { get; set; }
             public string efficiencyCategory { get; set; }
         }
         public class ItemMetadata
         {
             public string useType { get; set; }
             public string alternativeUseType { get; set; }
-            public double mobDamage { get; set; }
-            public double blockDamage { get; set; }
+            public double? mobDamage { get; set; }
+            public double? blockDamage { get; set; }
             public object weakDamage { get; set; }
-            public double nutrition { get; set; }
-            public double heal { get; set; }
+            public double? nutrition { get; set; }
+            public double? heal { get; set; }
             public object efficiencyType { get; set; }
-            public double maxHealth { get; set; }
+            public double? maxHealth { get; set; }
         }
 
         public class Effect
         {
             public string type { get; set; }
-            public object duration { get; set; }
-            public double value { get; set; }
+            public TimeSpan? duration { get; set; }
+            public double? value { get; set; }
             public string unit { get; set; }
             public string targets { get; set; }
-            public List<object> items { get; set; }
-            public List<object> itemScenarios { get; set; }
-            public string activation { get; set; }
-            public object modifiesType { get; set; }
+            public List<object> items { get; set; } // Which items it affects
+            public List<object> itemScenarios { get; set; } // Where this effect is used
+            public string activation { get; set; } // Triggered - on a trigger, Instant - directly, for food, Timed - Has a timer for completion
+            public object modifiesType { get; set; } // Only health or null
         }
 
         public class BoostMetadata
@@ -193,12 +193,12 @@ namespace ProjectEarthServerAPI.Models.Features
             public string type { get; set; }
             public bool canBeDeactivated { get; set; }
             public bool canBeRemoved { get; set; }
-            public object activeDuration { get; set; }
+            public DateTime? activeDuration { get; set; }
             public bool additive { get; set; }
             public object level { get; set; }
             public List<Effect> effects { get; set; }
-            public object scenario { get; set; }
-            public object cooldown { get; set; }
+            public string scenario { get; set; }
+            public DateTime? cooldown { get; set; }
         }
 
         public class JournalMetadata
@@ -237,7 +237,7 @@ namespace ProjectEarthServerAPI.Models.Features
         public class Item
         {
             public string id { get; set; }
-            public Item item { get; set; }
+            public ItemInfo item { get; set; }
             public string rarity { get; set; }
             public int fragmentsRequired { get; set; }
             public bool stacks { get; set; }
@@ -246,8 +246,29 @@ namespace ProjectEarthServerAPI.Models.Features
             public List<object> consumeReturnItems { get; set; }
             public bool deprecated { get; set; }
             public int? experience { get; set; }
-            public ExperiencePoints experiencePoints { get; set; }
+            public Dictionary<string,int> experiencePoints { get; set; }
             public string category { get; set; }
+        }
+
+        public class ItemInfo
+        {
+            public string name { get; set; }
+            public int aux { get; set; }
+            public string type { get; set; }
+            public string useType { get; set; }
+            public float? tapSpeed { get; set; }
+            public float? heal { get; set; }
+            public float? nutrition { get; set; }
+            public float? mobDamage { get; set; }
+            public float? blockDamage { get; set; }
+            public float? health { get; set; }
+            public BlockMetadata blockMetadata { get; set; }
+            public ItemMetadata ItemMetadata { get; set; }
+            public BoostMetadata boostMetadata { get; set; }
+            public JournalMetadata journalMetadata { get; set; }
+            public AudioMetadata audioMetadata { get; set; }
+            public ClientProperties clientProperties { get; set; }
+
         }
         public class Result
         {
