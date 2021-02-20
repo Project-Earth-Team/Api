@@ -3,50 +3,36 @@
     public class SettingsResponse
     {
         public SettingsResult result { get; set; }
-        public string expiration { get; set; }
-        public string continuationTokem { get; set;  }
-        public object updates { get; set; }
     }
 
     public class SettingsResult
     {
-        public bool workshop_enabled { get; set; } = true;
-        public bool buildplates_enabled { get; set; } = true;
-        public bool enable_ruby_purchasing { get; set; }
-        public bool commerce_enabled { get; set; } = true;
-        public bool full_logging_enabled { get; set; } = true;
-        public bool challenges_enabled { get; set; } = true;
-        public bool craftingv2_enabled { get; set; } = true;
-        public bool smeltingv2_enabled { get; set; } = true;
-        public bool inventory_item_boosts_enabled { get; set; } = true;
-        public bool player_health_enabled { get; set; } = true;
-        public bool minifigs_enabled { get; set; } = true;
-        public bool potions_enabled { get; set; } = true;
-        public bool social_link_share_enabled { get; set; } = true;
-        public bool social_link_launch_enabled { get; set; } = true;
-        public bool encoded_join_enabled { get; set; } = true;
-        public bool adventure_crystals_enabled { get; set; } = true;
-        public bool item_limits_enabled { get; set; } = true;
-        public bool adventure_crystals_ftue_enabled { get; set; } = true;
-        public bool expire_crystals_on_cleanup_enabled { get; set; } = true;
-        public bool challenges_v2_enabled { get; set; } = true;
-        public bool player_journal_enabled { get; set; } = true;
-        public bool player_stats_enabled { get; set; } = true;
-        public bool activity_log_enabled { get; set; } = true;
-        public bool seasons_enabled { get; set; } = true;
-        public bool daily_login_enabled { get; set; } = true;
-        public bool store_pdp_enabled { get; set; } = true;
-        public bool hotbar_stacksplitting_enabled { get; set; } = true;
-        public bool fancy_rewards_screen_enabled { get; set; } = true;
-        public bool async_ecs_dispatcher { get; set; } = true;
-        public bool adventure_oobe_enabled { get; set; } = true;
-        public bool tappable_oobe_enabled { get; set; } = true;
-        public bool map_permission_oobe_enabled { get; set; } = true;
-        public bool journal_oobe_enabled { get; set; } = true;
-        public bool freedom_oobe_enabled { get; set; } = true;
-        public bool challenge_oobe_enabled { get; set; } = true;
-        public bool level_rewards_v2_enabled { get; set; } = true;
-        public bool content_driven_season_assets { get; set; } = true;
-        public bool paid_earned_rubies_enabled { get; set; } = true;
+        public double encounterinteractionradius { get; set; }
+        public double tappableinteractionradius { get; set; }
+        public double tappablevisibleradius { get; set; }
+        public double targetpossibletappables { get; set; }
+        public double tile0 { get; set; }
+        public double slowrequesttimeout { get; set; }
+        public double cullingradius { get; set; }
+        public double commontapcount { get; set; }
+        public double epictapcount { get; set; }
+        public double speedwarningcooldown { get; set; }
+        public double mintappablesrequiredpertile { get; set; }
+        public double targetactivetappables { get; set; }
+        public double tappablecullingradius { get; set; }
+        public double raretapcount { get; set; }
+        public double requestwarningtimeout { get; set; }
+        public double speedwarningthreshold { get; set; }
+        public double asaanchormaxplaneheightthreshold { get; set; }
+        public double maxannouncementscount { get; set; }
+        public double removethislater { get; set; }
+        public double crystalslotcap { get; set; }
+        public double crystaluncommonduration { get; set; }
+        public double crystalrareduration { get; set; }
+        public double crystalepicduration { get; set; }
+        public double crystalcommonduration { get; set; }
+        public double crystallegendaryduration { get; set; }
+        public double maximumpersonaltimedchallenges { get; set; }
+        public double maximumpersonalcontinuouschallenges { get; set; }
     }
 }

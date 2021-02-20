@@ -1,4 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Newtonsoft.Json;
+using ProjectEarthServerAPI.Models.Features;
 
 namespace ProjectEarthServerAPI.Models
 {
@@ -8,35 +12,94 @@ namespace ProjectEarthServerAPI.Models
 
     public class StatusEffects
     {
-        public object tappableInteractionRadius { get; set; }
-        public object experiencePointRate { get; set; }
-        public List<object> itemExperiencePointRates { get; set; }
-        public object attackDamageRate { get; set; }
-        public object playerDefenseRate { get; set; }
-        public object blockDamageRate { get; set; }
-        public object maximumPlayerHealth { get; set; }
-        public object craftingSpeed { get; set; }
-        public object smeltingFuelIntensity { get; set; }
-        public object foodHealthRate { get; set; }
+        public int? tappableInteractionRadius { get; set; }
+        public int? experiencePointRate { get; set; }
+        public List<int?> itemExperiencePointRates { get; set; }
+        public int? attackDamageRate { get; set; }
+        public int? playerDefenseRate { get; set; }
+        public int? blockDamageRate { get; set; }
+        public int? maximumPlayerHealth { get; set; }
+        public int? craftingSpeed { get; set; }
+        public int? smeltingFuelIntensity { get; set; }
+        public int? foodHealthRate { get; set; }
     }
 
     public class ScenarioBoosts
     {
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public List<ActiveBoost> death { get; set; } // Only on death for now
+    }
+
+    public class ActiveBoost
+    {
+        public List<ActiveEffect> effects { get; set; }
+        public bool enabled { get; set; }
+        public DateTime? expiration { get; set; }
+        public string instanceId { get; set; }
     }
 
     public class BoostResult
     {
-        public List<object> potions { get; set; }
+        public List<Potion> potions { get; set; }
         public List<object> miniFigs { get; set; }
         public MiniFigRecords miniFigRecords { get; set; }
-        public List<object> activeEffects { get; set; }
+        public List<ActiveEffect> activeEffects { get; set; }
         public StatusEffects statusEffects { get; set; }
         public ScenarioBoosts scenarioBoosts { get; set; }
-        public object expiration { get; set; }
+        public DateTime? expiration { get; set; }
+    }
+
+    public class Potion
+    {
+        public bool enabled { get; set; }
+        public DateTime? expiration { get; set; }
+        public string instanceId { get; set; }
+        public string itemId { get; set; }
+    }
+
+    public class ActiveEffect
+    {
+        public CatalogResponse.Effect effect { get; set; }
+        public DateTime? expiration { get; set; }
     }
 
     public class BoostResponse
     {
         public BoostResult result { get; set; }
+        public Dictionary<string,int> updates { get; set; }
+
+        public BoostResponse(bool shouldInitDefault = false) // TODO: This works, but doesnt initialize default properly. Find a way to init either init properly or empty with bool?
+        {
+            result = new BoostResult
+            {
+                activeEffects = new List<ActiveEffect>(),
+                miniFigRecords = new MiniFigRecords(),
+                miniFigs = null,
+                potions = null,
+                scenarioBoosts = new ScenarioBoosts(),
+                statusEffects = new StatusEffects
+                {
+                    itemExperiencePointRates = new List<int?>()
+                }
+            };
+            updates = new Dictionary<string, int>();
+        }
+
+        public BoostResponse() // TODO: This works, but doesnt initialize default properly. Find a way to init either init properly or empty with bool?
+        {
+            result = new BoostResult
+            {
+                activeEffects = new List<ActiveEffect>(),
+                miniFigRecords = new MiniFigRecords(),
+                miniFigs = new List<object>(),
+                potions = new List<Potion>(),
+                scenarioBoosts = new ScenarioBoosts(),
+                statusEffects = new StatusEffects
+                {
+                    itemExperiencePointRates = new List<int?>()
+                }
+            };
+            updates = new Dictionary<string, int>();
+        }
     }
 }

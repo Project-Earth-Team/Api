@@ -307,9 +307,20 @@ namespace ProjectEarthServerAPI.Controllers
     {
         public IActionResult Get()
         {
-            var responseobj = new SettingsResponse {result = new SettingsResult(), updates = new object()};
+            var responseobj = new FeaturesResponse() {result = new FeaturesResult(), updates = new object()};
             var response = JsonConvert.SerializeObject(responseobj);
             return Content(response, "application/json");
         }
     } // TODO: Fixed String, just get from a JSON for serverwide settings
+
+    public class PlayerShopController : Controller
+    {
+        /*[ApiVersion("1.1")]
+        [Route("1/api/v{version:apiVersion}/products/catalog")]
+        public IActionResult GetProductCatalog()
+        {
+            var catalog = System.IO.File.ReadAllText(StateSingleton.Instance.productCatalog);
+            return Content(catalog, "application/json");
+        }*/ // TODO: Needs config counterpart.
+    } // TODO: Needs Playfab counterpart. When that is in place we can implement buildplate previews.
 }
