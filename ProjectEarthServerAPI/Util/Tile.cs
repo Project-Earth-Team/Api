@@ -19,7 +19,7 @@ namespace ProjectEarthServerAPI.Util
             try
             {
                 Directory.CreateDirectory(Path.Combine(basePath, pos1.ToString()));
-                string downloadUrl = "https://mce-tiles.rtm516.co.uk/styles/mc-earth/16/" + pos1 + "/" + pos2 + ".png";
+                string downloadUrl = "https://tiles.projectearth.dev/styles/mc-earth/16/" + pos1 + "/" + pos2 + ".png";
                 webClient.DownloadFile(downloadUrl, Path.Combine(basePath, pos1.ToString(), $"{pos1}_{pos2}_16.png"));
                 webClient.Dispose();
                 return true;
