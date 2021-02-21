@@ -50,7 +50,7 @@ namespace ProjectEarthServerAPI.Controllers
                 return Forbid();
             }
 
-            var tokenpath = $"./{authtoken}/tokens.json";
+            var tokenpath = $"./data/players/{authtoken}/tokens.json";
             var tokentext = System.IO.File.ReadAllText(tokenpath);
             var parsedTokens = JsonConvert.DeserializeObject<TokenResponse>(tokentext);
             if (parsedTokens.Result.tokens.ContainsKey(token))

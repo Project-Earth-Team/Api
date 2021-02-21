@@ -10,7 +10,7 @@ namespace ProjectEarthServerAPI.Util
         private static int _streamVersion = 0;
         public static T ParseJsonFile<T>(string playerId, string fileNameWithoutJsonExtension) where T: new()
         {
-            var filepath = $"./{playerId}/{fileNameWithoutJsonExtension}.json";
+            var filepath = $"./data/players/{playerId}/{fileNameWithoutJsonExtension}.json";
             if (!File.Exists(filepath))
             {
                 SetupJsonFile<T>(playerId,filepath); // Generic setup for each player specific json type
@@ -46,7 +46,7 @@ namespace ProjectEarthServerAPI.Util
             try
             {
 
-                var filepath = $"./{playerId}/{fileNameWithoutJsonExtension}.json"; // Path should exist, as you cant really write to the file before reading it first
+                var filepath = $"./data/players/{playerId}/{fileNameWithoutJsonExtension}.json"; // Path should exist, as you cant really write to the file before reading it first
 
                 File.WriteAllText(filepath, JsonConvert.SerializeObject(objToWrite));
 

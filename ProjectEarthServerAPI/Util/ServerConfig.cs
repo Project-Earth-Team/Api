@@ -25,7 +25,7 @@ namespace ProjectEarthServerAPI.Util
         /// <returns></returns>
         public static ServerConfig getFromFile()
         {
-            String file = File.ReadAllText("./config/apiconfig.json");
+            String file = File.ReadAllText("./data/config/apiconfig.json");
             return JsonConvert.DeserializeObject<ServerConfig>(file);
         }
     }

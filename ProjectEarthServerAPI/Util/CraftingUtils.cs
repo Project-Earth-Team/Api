@@ -13,7 +13,7 @@ namespace ProjectEarthServerAPI.Util
         private static Dictionary<string,Dictionary<int, CraftingSlotInfo>> craftingJobs = new Dictionary<string, Dictionary<int, CraftingSlotInfo>>();
         public static bool StartCraftingJob(string playerId, int slot,CraftingRequest request) // TODO: Check if slot not unlocked (not a big priority)
         {
-            recipeList ??= Recipes.FromFile("./recipes");
+            recipeList ??= Recipes.FromFile("./data/recipes");
 
 
             var recipe = recipeList.result.crafting.Find(match => match.id == request.RecipeId);

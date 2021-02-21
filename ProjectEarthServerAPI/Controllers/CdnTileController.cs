@@ -19,7 +19,7 @@ namespace ProjectEarthServerAPI.Controllers
         public IActionResult Get(int _, int tilePos1, int tilePos2) // _ used because we dont care :|
         {
 
-            String targetTilePath = $"./tiles/16/{tilePos1}/{tilePos1}_{tilePos2}_16.png"; 
+            String targetTilePath = $"./data/tiles/16/{tilePos1}/{tilePos1}_{tilePos2}_16.png"; 
 
             if (!System.IO.File.Exists(targetTilePath))
             {
@@ -32,7 +32,7 @@ namespace ProjectEarthServerAPI.Controllers
                     return Content("hi!");
                 } // Error 400 on Tile download error
             }
-            //String targetTilePath = $"./tiles/creeper_tile.png";
+            //String targetTilePath = $"./data/tiles/creeper_tile.png";
             byte[] fileData = System.IO.File.ReadAllBytes(targetTilePath);//Namespaces
             var cd = new System.Net.Mime.ContentDisposition
             {
