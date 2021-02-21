@@ -1,4 +1,3 @@
-  
 Project-Earth-Api
 Copyright (C) 2021  Project Earth Team
 
