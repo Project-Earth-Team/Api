@@ -1,13 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using ProjectEarthServerAPI.Models;
 using Newtonsoft.Json;
 using ProjectEarthServerAPI.Util;
+using Microsoft.AspNetCore.Authorization;
+
 namespace ProjectEarthServerAPI.Controllers
 {
+    [Authorize]
     [ApiVersion("1.1")]
     [Route("1/api/v{version:apiVersion}/locations/{latitude}/{longitude}")]
     public class LocationController : Controller
@@ -16,9 +17,6 @@ namespace ProjectEarthServerAPI.Controllers
         {
             //Nab tile loc
             int[] cords = Tile.getTileForCords(latitude, longitude);
-
-
-
 
             //Create Active Locations - not done inline with the LocationResponse.root because eventually this will be a randomly generated fed in list.
             LocationResponse.ActiveLocation testActiveLocation = new LocationResponse.ActiveLocation

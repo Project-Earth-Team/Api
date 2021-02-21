@@ -1,13 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using ProjectEarthServerAPI.Models;
 
 namespace ProjectEarthServerAPI.Controllers
 {
+    [Authorize]
     [ApiVersion("1.1")]
     [Route("1/api/v{version:apiVersion}/adventures/scrolls")]
     public class AdventureScrollsController : Controller

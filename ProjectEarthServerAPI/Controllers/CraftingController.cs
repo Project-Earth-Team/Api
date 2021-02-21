@@ -2,31 +2,24 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using ProjectEarthServerAPI.Models.Features;
-using ProjectEarthServerAPI.Models.Player;
 using ProjectEarthServerAPI.Util;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace ProjectEarthServerAPI.Controllers
 {
     // TODO: Not done. Rewards need inventory implementation, timers for crafting process, and recipeId -> recipe time checks
+    [Authorize]
     public class CraftingController : Controller
     {
         [ApiVersion("1.1")]
         [Route("1/api/v{version:apiVersion}/crafting/{slot}/start")]
         public async Task<IActionResult> PostNewCraftingJob(int slot)
         {
-            string authtoken;
-            try
-            {
-                authtoken = HttpContext.Request.Headers["Authorization"].ToString().Remove(0, 6);
-            }
-            catch
-            {
-                return Forbid();
-            }
+            string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var stream = new StreamReader(Request.Body);
             var body = await stream.ReadToEndAsync();
@@ -74,20 +67,11 @@ namespace ProjectEarthServerAPI.Controllers
         [Route("1/api/v{version:apiVersion}/crafting/{slot}")]
         public IActionResult GetCraftingStatus(int slot)
         {
-            string authtoken;
-            try
-            {
-                authtoken = HttpContext.Request.Headers["Authorization"].ToString().Remove(0, 6);
-            }
-            catch
-            {
-                return Forbid();
-            }
+            string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var craftingStatus = CraftingUtils.GetCraftingJobInfo(authtoken, slot);
 
             Console.WriteLine($"User with id {authtoken} requested crafting slot {slot} status.");
-
 
             return Content(JsonConvert.SerializeObject(craftingStatus),"application/json");
             //return Accepted(Content(returnTokens, "application/json"));
@@ -97,15 +81,7 @@ namespace ProjectEarthServerAPI.Controllers
         [Route("1/api/v{version:apiVersion}/crafting/{slot}/collectItems")]
         public IActionResult GetCollectCraftingItems(int slot)
         {
-            string authtoken;
-            try
-            {
-                authtoken = HttpContext.Request.Headers["Authorization"].ToString().Remove(0, 6);
-            }
-            catch
-            {
-                return Forbid();
-            }
+            string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var returnUpdates = CraftingUtils.FinishCraftingJob(authtoken, slot);
 
@@ -120,15 +96,7 @@ namespace ProjectEarthServerAPI.Controllers
         [Route("1/api/v{version:apiVersion}/crafting/{slot}/stop")]
         public IActionResult GetStopCraftingJob(int slot)
         {
-            string authtoken;
-            try
-            {
-                authtoken = HttpContext.Request.Headers["Authorization"].ToString().Remove(0, 6);
-            }
-            catch
-            {
-                return Forbid();
-            }
+            string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var returnUpdates = CraftingUtils.CancelCraftingJob(authtoken, slot);
 
@@ -144,15 +112,7 @@ namespace ProjectEarthServerAPI.Controllers
         [Route("1/api/v{version:apiVersion}/crafting/{slot}/unlock")]
         public IActionResult GetUnlockCraftingSlot(int slot)
         {
-            string authtoken;
-            try
-            {
-                authtoken = HttpContext.Request.Headers["Authorization"].ToString().Remove(0, 6);
-            }
-            catch
-            {
-                return Forbid();
-            }
+            string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var returnUpdates = CraftingUtils.UnlockCraftingSlot(authtoken, slot);
 
