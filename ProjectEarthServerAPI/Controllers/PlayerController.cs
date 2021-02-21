@@ -94,11 +94,12 @@ namespace ProjectEarthServerAPI.Controllers
     {
         public IActionResult Get()
         {
-            var response = UtilityBlockUtils.ReadUtilityBlocks(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var response = UtilityBlockUtils.ReadUtilityBlocks(authtoken);
             return Content(JsonConvert.SerializeObject(response), "application/json");
             //return Content("{\"result\":{\"crafting\":{\"1\":{\"sessionId\":null,\"recipeId\":null,\"output\":null,\"escrow\":[],\"completed\":0,\"available\":0,\"total\":0,\"nextCompletionUtc\":null,\"totalCompletionUtc\":null,\"state\":\"Empty\",\"boostState\":null,\"unlockPrice\":null,\"streamVersion\":4},\"2\":{\"sessionId\":null,\"recipeId\":null,\"output\":null,\"escrow\":[],\"completed\":0,\"available\":0,\"total\":0,\"nextCompletionUtc\":null,\"totalCompletionUtc\":null,\"state\":\"Locked\",\"boostState\":null,\"unlockPrice\":{\"cost\":1,\"discount\":0},\"streamVersion\":4},\"3\":{\"sessionId\":null,\"recipeId\":null,\"output\":null,\"escrow\":[],\"completed\":0,\"available\":0,\"total\":0,\"nextCompletionUtc\":null,\"totalCompletionUtc\":null,\"state\":\"Locked\",\"boostState\":null,\"unlockPrice\":{\"cost\":1,\"discount\":0},\"streamVersion\":4}},\"smelting\":{\"1\":{\"fuel\":null,\"burning\":null,\"hasSufficientFuel\":null,\"heatAppliedToCurrentItem\":null,\"sessionId\":null,\"recipeId\":null,\"output\":null,\"escrow\":[],\"completed\":0,\"available\":0,\"total\":0,\"nextCompletionUtc\":null,\"totalCompletionUtc\":null,\"state\":\"Empty\",\"boostState\":null,\"unlockPrice\":null,\"streamVersion\":4},\"2\":{\"fuel\":null,\"burning\":null,\"hasSufficientFuel\":null,\"heatAppliedToCurrentItem\":null,\"sessionId\":null,\"recipeId\":null,\"output\":null,\"escrow\":[],\"completed\":0,\"available\":0,\"total\":0,\"nextCompletionUtc\":null,\"totalCompletionUtc\":null,\"state\":\"Locked\",\"boostState\":null,\"unlockPrice\":{\"cost\":1,\"discount\":0},\"streamVersion\":4},\"3\":{\"fuel\":null,\"burning\":null,\"hasSufficientFuel\":null,\"heatAppliedToCurrentItem\":null,\"sessionId\":null,\"recipeId\":null,\"output\":null,\"escrow\":[],\"completed\":0,\"available\":0,\"total\":0,\"nextCompletionUtc\":null,\"totalCompletionUtc\":null,\"state\":\"Locked\",\"boostState\":null,\"unlockPrice\":{\"cost\":1,\"discount\":0},\"streamVersion\":4}}},\"expiration\":null,\"continuationToken\":null,\"updates\":{}}", "application/json");
         }
-    }  // TODO: Fixed String
+    }
 
     [Authorize]
     [ApiVersion("1.1")]
@@ -141,48 +142,10 @@ namespace ProjectEarthServerAPI.Controllers
             var body = await stream.ReadToEndAsync();
 
             string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var newHotbar = JsonConvert.DeserializeObject<InventoryResponse.Hotbar[]>(body);
+            var returnHotbar = InventoryUtils.EditHotbar(authtoken, newHotbar);
 
-            var newhotbar = JsonConvert.DeserializeObject<InventoryResponse.Hotbar[]>(body);
-            var inv = InventoryUtils.ReadInventory(authtoken);
-
-            for (int i = 0; i < inv.result.hotbar.Length-1; i++)
-            {
-                if (newhotbar[i]?.id != inv.result.hotbar[i]?.id | newhotbar[i]?.count != inv.result.hotbar[i]?.count)
-                {
-                    if (newhotbar[i] == null)
-                    {
-                        if (inv.result.hotbar[i].instanceId == null)
-                        {
-                            InventoryUtils.AddItemToInv(authtoken, inv.result.hotbar[i].id, inv.result.hotbar[i].count,
-                                true);
-                        }
-                        else
-                        {
-                            InventoryUtils.AddItemToInv(authtoken, inv.result.hotbar[i].id, 1, false, inv.result.hotbar[i].instanceId.id);
-                        }
-                    }
-                    else
-                    {
-                        if (inv.result.hotbar[i] != null)
-                        {
-                            InventoryUtils.RemoveItemFromInv(authtoken, newhotbar[i].id,
-                                newhotbar[i].instanceId?.id, newhotbar[i].count - inv.result.hotbar[i].count);
-                        }
-                        else
-                        {
-                            InventoryUtils.RemoveItemFromInv(authtoken, newhotbar[i].id,
-                                newhotbar[i].instanceId?.id, newhotbar[i].count);
-                        }
-                    }
-                }
-            }
-
-            var newinv = InventoryUtils.ReadInventory(authtoken);
-            newinv.result.hotbar = newhotbar;
-
-            InventoryUtils.WriteInventory(authtoken, newinv);
-
-            return Content(JsonConvert.SerializeObject(newinv.result.hotbar));
+            return Content(JsonConvert.SerializeObject(returnHotbar.Item2));
         }
     }
 
@@ -204,8 +167,8 @@ namespace ProjectEarthServerAPI.Controllers
     {
         public IActionResult Get()
         {
-            var fs = new StreamReader(StateSingleton.Instance.config.recipiesFileLocation);
-            return Content(fs.ReadToEnd(), "application/json");
+            var recipeString = System.IO.File.ReadAllText(StateSingleton.Instance.config.recipesFileLocation);  // Since the serialized version has the properties mixed up
+            return Content(recipeString, "application/json");
         }
     }
 
@@ -222,26 +185,38 @@ namespace ProjectEarthServerAPI.Controllers
     }
 
     [Authorize]
-    [ApiVersion("1.1")]
-    [Route("1/api/v{version:apiVersion}/boosts")]
     public class PlayerBoostController : Controller
     {
+        [ApiVersion("1.1")]
+        [Route("1/api/v{version:apiVersion}/boosts")]
         public IActionResult Get()
         {
-            var responseobj = new BoostResponse
-            {
-                result = new BoostResult
-                {
-                    miniFigRecords = new MiniFigRecords(),
-                    scenarioBoosts = new ScenarioBoosts(),
-                    statusEffects = new StatusEffects()
-                }
-            };
+            string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var responseobj = BoostUtils.UpdateBoosts(authtoken);
             var response = JsonConvert.SerializeObject(responseobj);
             return Content(response, "application/json");
-            //return Content("{\"result\":{\"potions\":[null,null,null,null,null],\"miniFigs\":[null,null,null,null,null],\"miniFigRecords\":{},\"activeEffects\":[],\"statusEffects\":{\"tappableInteractionRadius\":null,\"experiencePointRate\":null,\"itemExperiencePointRates\":[],\"attackDamageRate\":null,\"playerDefenseRate\":null,\"blockDamageRate\":null,\"maximumPlayerHealth\":null,\"craftingSpeed\":null,\"smeltingFuelIntensity\":null,\"foodHealthRate\":null},\"scenarioBoosts\":{},\"expiration\":null}}", "application/json");
         }
-    } // TODO: Fixed String/Object
+
+        [ApiVersion("1.1")]
+        [Route("1/api/v{version:apiVersion}/boosts/potions/{boostId}/activate")]
+        public IActionResult GetRedeemBoost(string boostId)
+        {
+            string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var returnUpdates = BoostUtils.ActivateBoost(authtoken, boostId);
+            return Content(JsonConvert.SerializeObject(returnUpdates), "application/json");
+        }
+
+        [ApiVersion("1.1")]
+        [Route("1/api/v{version:apiVersion}/boosts/{boostInstanceId}")]
+        public IActionResult DeleteBoost(string boostInstanceId)
+        {
+            string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var returnUpdates = BoostUtils.RemoveBoost(authtoken, boostInstanceId);
+            return Content(JsonConvert.SerializeObject(returnUpdates), "application/json");
+        }
+
+
+    } // TODO: In Progress
 
     [Authorize]
     [ApiVersion("1.1")]
@@ -259,12 +234,12 @@ namespace ProjectEarthServerAPI.Controllers
     [Authorize]
     public class PlayerShopController : Controller
     {
-        /*[ApiVersion("1.1")]
+        [ApiVersion("1.1")]
         [Route("1/api/v{version:apiVersion}/products/catalog")]
         public IActionResult GetProductCatalog()
         {
-            var catalog = System.IO.File.ReadAllText(StateSingleton.Instance.productCatalog);
+            var catalog = System.IO.File.ReadAllText(StateSingleton.Instance.config.productCatalogFileLocation); // Since the serialized version has the properties mixed up
             return Content(catalog, "application/json");
-        }*/ // TODO: Needs config counterpart.
+        }
     } // TODO: Needs Playfab counterpart. When that is in place we can implement buildplate previews.
 }

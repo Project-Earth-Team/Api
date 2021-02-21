@@ -32,7 +32,7 @@ namespace ProjectEarthServerAPI.Models
 
     public class ActiveBoost
     {
-        public List<ActiveEffect> effects { get; set; }
+        public List<CatalogResponse.Effect> effects { get; set; }
         public bool enabled { get; set; }
         public DateTime? expiration { get; set; }
         public string instanceId { get; set; }
@@ -41,11 +41,17 @@ namespace ProjectEarthServerAPI.Models
     public class BoostResult
     {
         public List<Potion> potions { get; set; }
+
         public List<object> miniFigs { get; set; }
+
         public MiniFigRecords miniFigRecords { get; set; }
+
         public List<ActiveEffect> activeEffects { get; set; }
+
         public StatusEffects statusEffects { get; set; }
+
         public ScenarioBoosts scenarioBoosts { get; set; }
+
         public DateTime? expiration { get; set; }
     }
 
@@ -67,23 +73,6 @@ namespace ProjectEarthServerAPI.Models
     {
         public BoostResult result { get; set; }
         public Dictionary<string, int> updates { get; set; }
-
-        public BoostResponse(bool shouldInitDefault = false) // TODO: This works, but doesnt initialize default properly. Find a way to init either init properly or empty with bool?
-        {
-            result = new BoostResult
-            {
-                activeEffects = new List<ActiveEffect>(),
-                miniFigRecords = new MiniFigRecords(),
-                miniFigs = null,
-                potions = null,
-                scenarioBoosts = new ScenarioBoosts(),
-                statusEffects = new StatusEffects
-                {
-                    itemExperiencePointRates = new List<int?>()
-                }
-            };
-            updates = new Dictionary<string, int>();
-        }
 
         public BoostResponse() // TODO: This works, but doesnt initialize default properly. Find a way to init either init properly or empty with bool?
         {

@@ -1,8 +1,17 @@
-﻿namespace ProjectEarthServerAPI.Models
+﻿using System.IO;
+using Newtonsoft.Json;
+
+namespace ProjectEarthServerAPI.Models
 {
     public class SettingsResponse
     {
         public SettingsResult result { get; set; }
+
+        public static SettingsResponse FromFile(string path)
+        {
+            var jsontext = File.ReadAllText(path);
+            return JsonConvert.DeserializeObject<SettingsResponse>(jsontext);
+        }
     }
 
     public class SettingsResult

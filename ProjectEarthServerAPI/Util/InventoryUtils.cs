@@ -152,6 +152,49 @@ namespace ProjectEarthServerAPI.Util
             }
         }
 
+        public static Tuple<InventoryUtilResult, InventoryResponse.Hotbar[]> EditHotbar(string playerId, InventoryResponse.Hotbar[] newHotbar)
+        {
+            var inv = ReadInventory(playerId);
+
+            for (int i = 0; i < inv.result.hotbar.Length - 1; i++)
+            {
+                if (newHotbar[i]?.id != inv.result.hotbar[i]?.id | newHotbar[i]?.count != inv.result.hotbar[i]?.count)
+                {
+                    if (newHotbar[i] == null)
+                    {
+                        if (inv.result.hotbar[i].instanceId == null)
+                        {
+                            AddItemToInv(playerId, inv.result.hotbar[i].id, inv.result.hotbar[i].count,
+                                true);
+                        }
+                        else
+                        {
+                            AddItemToInv(playerId, inv.result.hotbar[i].id, 1, false, inv.result.hotbar[i].instanceId.id);
+                        }
+                    }
+                    else
+                    {
+                        if (inv.result.hotbar[i] != null)
+                        {
+                            RemoveItemFromInv(playerId, newHotbar[i].id,
+                                newHotbar[i].instanceId?.id, newHotbar[i].count - inv.result.hotbar[i].count);
+                        }
+                        else
+                        {
+                            RemoveItemFromInv(playerId, newHotbar[i].id,
+                                newHotbar[i].instanceId?.id, newHotbar[i].count);
+                        }
+                    }
+                }
+            }
+            var newinv = ReadInventory(playerId);
+            newinv.result.hotbar = newHotbar;
+
+            WriteInventory(playerId, newinv);
+
+            return new Tuple<InventoryUtilResult, InventoryResponse.Hotbar[]>(InventoryUtilResult.Success, newHotbar);
+        }
+
         /*
          * Theoretically we can just replace these function with their generic variants,
          * but I thought keeping them for ease of use would be nice.
@@ -162,7 +205,7 @@ namespace ProjectEarthServerAPI.Util
             return GenericUtils.ParseJsonFile<InventoryResponse>(playerId, "inventory");
         }
 
-        public static bool WriteInventory(string playerId, InventoryResponse inv)
+        private static bool WriteInventory(string playerId, InventoryResponse inv)
         {
             return GenericUtils.WriteJsonFile(playerId, inv, "inventory");
         }

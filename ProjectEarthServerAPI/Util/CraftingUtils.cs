@@ -9,7 +9,7 @@ namespace ProjectEarthServerAPI.Util
 {
     public class CraftingUtils
     {
-        private static Recipes recipeList = StateSingleton.Instance.recipies;
+        private static Recipes recipeList = StateSingleton.Instance.recipes;
         private static Dictionary<string, Dictionary<int, CraftingSlotInfo>> craftingJobs = new Dictionary<string, Dictionary<int, CraftingSlotInfo>>();
         public static bool StartCraftingJob(string playerId, int slot, CraftingRequest request) // TODO: Check if slot not unlocked (not a big priority)
         {
