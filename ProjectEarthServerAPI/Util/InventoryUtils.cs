@@ -53,7 +53,7 @@ namespace ProjectEarthServerAPI.Util
             }
         }
 
-        public static Tuple<InventoryUtilResult,int> GetItemCountFromInv(string playerId, string itemId)
+        public static Tuple<InventoryUtilResult, int> GetItemCountFromInv(string playerId, string itemId)
         {
             var inv = ReadInventory(playerId);;
 
@@ -61,7 +61,7 @@ namespace ProjectEarthServerAPI.Util
 
             if (itementry != null)
             {
-                return new Tuple<InventoryUtilResult, int>(InventoryUtilResult.Success,itementry.owned);
+                return new Tuple<InventoryUtilResult, int>(InventoryUtilResult.Success, itementry.owned);
             }
             else
             {
@@ -117,7 +117,7 @@ namespace ProjectEarthServerAPI.Util
                     }
                 }
 
-                WriteInventory(playerId,inv);
+                WriteInventory(playerId, inv);
 
                 Console.WriteLine($"Added item {itemIdToAdd} to inventory. User ID: {playerId}");
                 return InventoryUtilResult.Success;
@@ -164,7 +164,7 @@ namespace ProjectEarthServerAPI.Util
 
         public static bool WriteInventory(string playerId, InventoryResponse inv)
         {
-            return GenericUtils.WriteJsonFile(playerId,inv, "inventory");
+            return GenericUtils.WriteJsonFile(playerId, inv, "inventory");
         }
 
         public enum InventoryUtilResult

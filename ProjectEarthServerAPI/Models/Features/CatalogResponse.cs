@@ -246,7 +246,7 @@ namespace ProjectEarthServerAPI.Models.Features
             public List<object> consumeReturnItems { get; set; }
             public bool deprecated { get; set; }
             public int? experience { get; set; }
-            public Dictionary<string,int> experiencePoints { get; set; }
+            public Dictionary<string, int> experiencePoints { get; set; }
             public string category { get; set; }
         }
 

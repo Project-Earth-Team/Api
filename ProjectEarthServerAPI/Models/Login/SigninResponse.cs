@@ -35,10 +35,10 @@ namespace ProjectEarthServerAPI.Models
             public object Streams { get; set; }
 
             [JsonProperty("tokens")]
-            public Dictionary<string,Token> Tokens { get; set; }
+            public Dictionary<string, Token> Tokens { get; set; }
 
             [JsonProperty("updates")]
-            public Dictionary<string,int> Updates { get; set; }
+            public Dictionary<string, int> Updates { get; set; }
 
         }
     }

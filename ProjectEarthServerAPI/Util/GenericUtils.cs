@@ -13,7 +13,7 @@ namespace ProjectEarthServerAPI.Util
             var filepath = $"./data/players/{playerId}/{fileNameWithoutJsonExtension}.json";
             if (!File.Exists(filepath))
             {
-                SetupJsonFile<T>(playerId,filepath); // Generic setup for each player specific json type
+                SetupJsonFile<T>(playerId, filepath); // Generic setup for each player specific json type
             }
 
             var invjson = File.ReadAllText(filepath);
@@ -21,7 +21,7 @@ namespace ProjectEarthServerAPI.Util
             return parsedobj;
         }
 
-        private static bool SetupJsonFile<T>(string playerId,string filepath) where T: new()
+        private static bool SetupJsonFile<T>(string playerId, string filepath) where T: new()
         {
             try
             {

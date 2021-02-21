@@ -66,7 +66,7 @@ namespace ProjectEarthServerAPI.Models
     public class BoostResponse
     {
         public BoostResult result { get; set; }
-        public Dictionary<string,int> updates { get; set; }
+        public Dictionary<string, int> updates { get; set; }
 
         public BoostResponse(bool shouldInitDefault = false) // TODO: This works, but doesnt initialize default properly. Find a way to init either init properly or empty with bool?
         {

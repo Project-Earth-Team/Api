@@ -10,8 +10,8 @@ namespace ProjectEarthServerAPI.Util
     public class CraftingUtils
     {
         private static Recipes recipeList = StateSingleton.Instance.recipies;
-        private static Dictionary<string,Dictionary<int, CraftingSlotInfo>> craftingJobs = new Dictionary<string, Dictionary<int, CraftingSlotInfo>>();
-        public static bool StartCraftingJob(string playerId, int slot,CraftingRequest request) // TODO: Check if slot not unlocked (not a big priority)
+        private static Dictionary<string, Dictionary<int, CraftingSlotInfo>> craftingJobs = new Dictionary<string, Dictionary<int, CraftingSlotInfo>>();
+        public static bool StartCraftingJob(string playerId, int slot, CraftingRequest request) // TODO: Check if slot not unlocked (not a big priority)
         {
             recipeList ??= Recipes.FromFile("./data/recipes");
 
@@ -58,8 +58,8 @@ namespace ProjectEarthServerAPI.Util
 
                 if (!craftingJobs.ContainsKey(playerId))
                 {
-                    craftingJobs.Add(playerId,new Dictionary<int, CraftingSlotInfo>());
-                    craftingJobs[playerId].Add(1,new CraftingSlotInfo());
+                    craftingJobs.Add(playerId, new Dictionary<int, CraftingSlotInfo>());
+                    craftingJobs[playerId].Add(1, new CraftingSlotInfo());
                     craftingJobs[playerId].Add(2, new CraftingSlotInfo());
                     craftingJobs[playerId].Add(3, new CraftingSlotInfo());
                 }
@@ -82,7 +82,7 @@ namespace ProjectEarthServerAPI.Util
             {
                 var job = craftingJobs[playerId][slot];
                 var recipe = recipeList.result.crafting.Find(match => match.id == job.recipeId & !match.deprecated);
-                var updates = new Dictionary<string,int>();
+                var updates = new Dictionary<string, int>();
                 var nextStreamId = GenericUtils.GetNextStreamVersion();
 
                 job.streamVersion = nextStreamId;

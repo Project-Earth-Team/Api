@@ -8,12 +8,12 @@ namespace ProjectEarthServerAPI.Models.Features
     public class UtilityBlocksResponse
     {
         public Result result { get; set; }
-        public Dictionary<string,int> updates { get; set; }
+        public Dictionary<string, int> updates { get; set; }
 
         public class Result
         {
-            public Dictionary<string,CraftingSlotInfo> crafting { get; set; }
-            public Dictionary<string,SmeltingResponse> smelting { get; set; }
+            public Dictionary<string, CraftingSlotInfo> crafting { get; set; }
+            public Dictionary<string, SmeltingResponse> smelting { get; set; }
         }
 
         public UtilityBlocksResponse()
@@ -26,11 +26,11 @@ namespace ProjectEarthServerAPI.Models.Features
 
             var nextStreamId = GenericUtils.GetNextStreamVersion();
 
-            result.crafting.Add("1",new CraftingSlotInfo());
+            result.crafting.Add("1", new CraftingSlotInfo());
             result.crafting.Add("2", new CraftingSlotInfo());
             result.crafting.Add("3", new CraftingSlotInfo());
 
-            result.smelting.Add("1",new SmeltingResponse());
+            result.smelting.Add("1", new SmeltingResponse());
             result.smelting.Add("2", new SmeltingResponse());
             result.smelting.Add("3", new SmeltingResponse());
 

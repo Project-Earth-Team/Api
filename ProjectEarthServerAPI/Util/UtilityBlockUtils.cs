@@ -14,7 +14,7 @@ namespace ProjectEarthServerAPI.Util
             return GenericUtils.WriteJsonFile(playerId, obj, "utilityBlocks");
         }
 
-        public static bool UpdateUtilityBlocks(string playerId,int slot, CraftingSlotInfo job)
+        public static bool UpdateUtilityBlocks(string playerId, int slot, CraftingSlotInfo job)
         {
             var currentUtilBlocks = ReadUtilityBlocks(playerId);
             currentUtilBlocks.result.crafting[slot.ToString()] = job;

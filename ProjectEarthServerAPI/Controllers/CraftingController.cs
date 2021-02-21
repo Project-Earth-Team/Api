@@ -33,7 +33,7 @@ namespace ProjectEarthServerAPI.Controllers
 
             var req = JsonConvert.DeserializeObject<CraftingRequest>(body);
 
-            var craftingJob = CraftingUtils.StartCraftingJob(authtoken,slot,req); 
+            var craftingJob = CraftingUtils.StartCraftingJob(authtoken, slot, req); 
 
             Console.WriteLine($"User with id {authtoken} initiated crafting job in slot {slot}.");
 
@@ -107,7 +107,7 @@ namespace ProjectEarthServerAPI.Controllers
                 return Forbid();
             }
 
-            var returnUpdates = CraftingUtils.FinishCraftingJob(authtoken,slot);
+            var returnUpdates = CraftingUtils.FinishCraftingJob(authtoken, slot);
 
             Console.WriteLine($"User with id {authtoken} collected results of crafting slot {slot}.");
 

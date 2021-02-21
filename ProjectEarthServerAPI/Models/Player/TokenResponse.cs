@@ -13,7 +13,7 @@ namespace ProjectEarthServerAPI.Models
 
     public class TokenResult
     {
-        public Dictionary<string,Token> tokens { get; set; }
+        public Dictionary<string, Token> tokens { get; set; }
     }
 
     public class TokenProperties

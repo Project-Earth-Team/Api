@@ -11,12 +11,12 @@ namespace ProjectEarthServerAPI.Util
         public static Dictionary<string, Token> GetSigninTokens(string userid)
         {
             var origTokens = GetTokensForUserId(userid);
-            Dictionary<string,Token> returnTokens = new Dictionary<string, Token>();
-            foreach (KeyValuePair<string,Token> tok in origTokens)
+            Dictionary<string, Token> returnTokens = new Dictionary<string, Token>();
+            foreach (KeyValuePair<string, Token> tok in origTokens)
             {
                 if (!tok.Value.clientProperties.ContainsKey("challengeid"))
                 {
-                    returnTokens.Add(tok.Key,tok.Value);
+                    returnTokens.Add(tok.Key, tok.Value);
                 }
             }
 
@@ -32,7 +32,7 @@ namespace ProjectEarthServerAPI.Util
         {
             var returntokens = GetSerializedTokenResponse(userid);
 
-            var serializedTokens = JsonConvert.DeserializeObject<TokenResponse>(returntokens,new JsonSerializerSettings
+            var serializedTokens = JsonConvert.DeserializeObject<TokenResponse>(returntokens, new JsonSerializerSettings
             {
                 NullValueHandling = NullValueHandling.Ignore
             });
@@ -83,7 +83,7 @@ namespace ProjectEarthServerAPI.Util
                 }
             };
 
-            File.WriteAllText(tokenpath,JsonConvert.SerializeObject(response));
+            File.WriteAllText(tokenpath, JsonConvert.SerializeObject(response));
         }
     }
 }

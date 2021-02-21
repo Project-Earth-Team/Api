@@ -67,8 +67,8 @@ namespace ProjectEarthServerAPI.Models.Player
         public class Result
         {
             public Hotbar[] hotbar { get; set; } // Items you have in your hotbar
-            public List<StackableItem> stackableItems { get; set; } // Stackable items (dirt,cobble,torches)
-            public List<NonStackableItem> nonStackableItems { get; set; } // Unstackable items (picks,axes,swords)
+            public List<StackableItem> stackableItems { get; set; } // Stackable items (dirt, cobble, torches)
+            public List<NonStackableItem> nonStackableItems { get; set; } // Unstackable items (picks, axes, swords)
         }
 
         public class Updates
