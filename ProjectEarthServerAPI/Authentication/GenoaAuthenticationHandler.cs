@@ -25,6 +25,10 @@ namespace ProjectEarthServerAPI.Authentication
             if (endpoint?.Metadata?.GetMetadata<IAllowAnonymous>() != null)
                 return AuthenticateResult.NoResult();
 
+            // Check if we should really authenticate
+            if (endpoint?.Metadata?.GetMetadata<IAuthorizeData>() == null)
+                return AuthenticateResult.NoResult();
+
             if (!Request.Headers.ContainsKey("Authorization"))
                 return AuthenticateResult.Fail("Missing Authorization Header");
 

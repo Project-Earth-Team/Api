@@ -24,7 +24,7 @@ namespace ProjectEarthServerAPI.Controllers
             if (!System.IO.File.Exists(targetTilePath))
             {
 
-                var boo = Tile.DownloadTile(tilePos1, tilePos2, @".\tiles\16\");
+                var boo = Tile.DownloadTile(tilePos1, tilePos2, @"./data/tiles/16/");
 
                 //Lets download that lovely tile now, Shall we?
                 if (boo == false)

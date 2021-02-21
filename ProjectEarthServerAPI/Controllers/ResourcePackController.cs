@@ -45,7 +45,7 @@ namespace ProjectEarthServerAPI.Controllers
         public IActionResult Get() 
         {
 
-            String resourcePackFilePath = @".\resourcepacks\vanilla.zip"; //resource packs are distributed as renamed zip files containing an MCpack
+            String resourcePackFilePath = @"./data/resourcepacks/vanilla.zip"; //resource packs are distributed as renamed zip files containing an MCpack
 
             if (!System.IO.File.Exists(resourcePackFilePath))
             {
