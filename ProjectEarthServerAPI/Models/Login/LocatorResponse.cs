@@ -23,16 +23,10 @@ namespace ProjectEarthServerAPI.Models
             public Production production { get; set; }
         }
 
-        public class SupportedEnvironments
-        {
-            [JsonProperty("2020.1217.02")]
-            public List<string> _2020121702 { get; set; }
-        }
-
         public class Result
         {
             public ServiceEnvironments serviceEnvironments { get; set; }
-            public SupportedEnvironments supportedEnvironments { get; set; }
+            public Dictionary<String, List<string>> supportedEnvironments { get; set; }
         }
 
         public class Updates
