@@ -45,7 +45,6 @@ namespace ProjectEarthServerAPI.Controllers
                     supportedEnvironments = new LocatorResponse.SupportedEnvironments()
                     {
                         _2020121702 = new List<string>()
-
                     }
                 },
                 //updates = new LocatorResponse.Updates()
