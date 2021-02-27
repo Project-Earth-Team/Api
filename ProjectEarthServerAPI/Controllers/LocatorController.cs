@@ -42,15 +42,14 @@ namespace ProjectEarthServerAPI.Controllers
                             //playfabTitleId = "F0DE2" //maybe make our own soon? - Mojang could kill this anytime after server sunset with no warning. 
                         }
                     },
-                    supportedEnvironments = new LocatorResponse.SupportedEnvironments()
+                    supportedEnvironments = new Dictionary<string, List<string>>()
                     {
-                        _2020121702 = new List<string>()
+                        { "2020.1217.02", new List<string>() { "production" } }
                     }
                 },
                 //updates = new LocatorResponse.Updates()
             };
 
-            response.result.supportedEnvironments._2020121702.Add("production");
             var resp = JsonConvert.SerializeObject(response);
             return Content(resp,"application/json");
 
