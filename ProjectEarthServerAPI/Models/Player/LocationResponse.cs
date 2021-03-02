@@ -3,11 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using ProjectEarthServerAPI.Util;
 
 namespace ProjectEarthServerAPI.Models
 {
     public class LocationResponse
     {
+        public enum Rarity
+		{
+            Common,
+            Uncommon,
+            Rare,
+            Epic
+        }
+
         public class Coordinate
         {
             public double latitude { get; set; }
@@ -16,13 +25,13 @@ namespace ProjectEarthServerAPI.Models
 
         public class Metadata
         {
-            public string rarity { get; set; }
+            public Rarity rarity { get; set; }
             public string rewardId { get; set; }
         }
 
         public class TappableMetadata
         {
-            public string rarity { get; set; }
+            public Rarity rarity { get; set; }
         }
 
         public class ActiveLocation
@@ -30,7 +39,9 @@ namespace ProjectEarthServerAPI.Models
             public string id { get; set; }
             public string tileId { get; set; }
             public Coordinate coordinate { get; set; }
+            [JsonConverter(typeof(DateTimeConverter))]
             public DateTime spawnTime { get; set; }
+            [JsonConverter(typeof(DateTimeConverter))]
             public DateTime expirationTime { get; set; }
             public string type { get; set; }
             public string icon { get; set; }
