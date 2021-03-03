@@ -84,11 +84,6 @@ namespace ProjectEarthServerAPI.Models.Buildplate
             public bool serverReady { get; set; }
             public string serverStatus { get; set; }
         }
-
-        public class Updates
-        {
-        }
-
       
         public object continuationToken { get; set; }
         public object expiration { get; set; }

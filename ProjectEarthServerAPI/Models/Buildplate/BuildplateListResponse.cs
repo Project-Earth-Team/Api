@@ -42,10 +42,6 @@ namespace ProjectEarthServerAPI.Models.Buildplate
             public string type { get; set; }
         }
 
-        public class Updates
-        {
-        }
-
         public object continuationToken { get; set; }
         public object expiration { get; set; }
         public List<Result> result { get; set; }

@@ -14,7 +14,6 @@ namespace ProjectEarthServerAPI.Models
             public string resourcePackId { get; set; } 
             public string resourcePackVersion { get; set; }
         }
-        public class Updates { }
 
         public object continuationToken { get; set; } 
         public object expiration { get; set; } 

@@ -62,8 +62,6 @@ namespace ProjectEarthServerAPI.Models
             levels.Add("25", new ProfileLevel { experienceRequired = 185000 });
         }
 
-        public class Updates { }
-
         public ProfileResult result { get; set; }
         public object continuationToken { get; set; }
         public object expiration { get; set; }

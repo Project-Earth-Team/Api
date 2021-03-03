@@ -9,12 +9,12 @@ namespace ProjectEarthServerAPI.Models
 {
     public class LocationResponse
     {
-        public enum Rarity
+        public class Rarity
 		{
-            Common,
-            Uncommon,
-            Rare,
-            Epic
+            public const string Common = "Common";
+            public const string Uncommon = "Uncommon";
+            public const string Rare = "Rare";
+            public const string Epic = "Epic";
         }
 
         public class Coordinate
@@ -25,13 +25,13 @@ namespace ProjectEarthServerAPI.Models
 
         public class Metadata
         {
-            public Rarity rarity { get; set; }
+            public string rarity { get; set; }
             public string rewardId { get; set; }
         }
 
         public class TappableMetadata
         {
-            public Rarity rarity { get; set; }
+            public string rarity { get; set; }
         }
 
         public class ActiveLocation
@@ -54,10 +54,6 @@ namespace ProjectEarthServerAPI.Models
         {
             public List<object> killSwitchedTileIds { get; set; }
             public List<ActiveLocation> activeLocations { get; set; }
-        }
-
-        public class Updates
-        {
         }
 
         public class Root

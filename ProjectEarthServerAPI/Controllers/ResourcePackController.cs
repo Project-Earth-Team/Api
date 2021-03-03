@@ -31,7 +31,7 @@ namespace ProjectEarthServerAPI.Controllers
                         resourcePackId = "dba38e59-091a-4826-b76a-a08d7de5a9e2"
                     }
                 },
-                updates = new ResourcePackResponse.Updates(),
+                updates = new Updates(),
                 continuationToken = null,
                 expiration = null
             };

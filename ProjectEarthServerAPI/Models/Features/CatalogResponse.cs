@@ -276,9 +276,6 @@ namespace ProjectEarthServerAPI.Models.Features
             public List<Item> items { get; set; }
         }
 
-        public class Updates
-        {
-        }
         public Result result { get; set; }
         public object expiration { get; set; }
         public object continuationToken { get; set; }

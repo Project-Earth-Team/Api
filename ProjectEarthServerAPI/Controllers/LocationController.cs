@@ -58,7 +58,7 @@ namespace ProjectEarthServerAPI.Controllers
                 },
                 expiration = null,
                 continuationToken = null,
-                updates = new LocationResponse.Updates()
+                updates = new Updates()
             };
 
             //serialize

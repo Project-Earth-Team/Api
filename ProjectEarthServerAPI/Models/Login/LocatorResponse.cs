@@ -29,10 +29,6 @@ namespace ProjectEarthServerAPI.Models
             public Dictionary<String, List<string>> supportedEnvironments { get; set; }
         }
 
-        public class Updates
-        {
-        }
-
         public class Root
         {
             public Result result { get; set; }

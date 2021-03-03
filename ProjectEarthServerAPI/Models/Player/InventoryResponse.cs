@@ -71,9 +71,6 @@ namespace ProjectEarthServerAPI.Models.Player
             public List<NonStackableItem> nonStackableItems { get; set; } // Unstackable items (picks, axes, swords)
         }
 
-        public class Updates
-        {
-        }
         #endregion
         #region Functions
 
