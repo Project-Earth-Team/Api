@@ -13,7 +13,7 @@ namespace ProjectEarthServerAPI.Models.Features
         public class Result
         {
             public Dictionary<string, CraftingSlotInfo> crafting { get; set; }
-            public Dictionary<string, SmeltingResponse> smelting { get; set; }
+            public Dictionary<string, SmeltingSlotInfo> smelting { get; set; }
         }
 
         public UtilityBlocksResponse()
@@ -21,7 +21,7 @@ namespace ProjectEarthServerAPI.Models.Features
             result = new Result
             {
                 crafting = new Dictionary<string, CraftingSlotInfo>(),
-                smelting = new Dictionary<string, SmeltingResponse>()
+                smelting = new Dictionary<string, SmeltingSlotInfo>()
             };
 
             var nextStreamId = GenericUtils.GetNextStreamVersion();
@@ -30,9 +30,9 @@ namespace ProjectEarthServerAPI.Models.Features
             result.crafting.Add("2", new CraftingSlotInfo());
             result.crafting.Add("3", new CraftingSlotInfo());
 
-            result.smelting.Add("1", new SmeltingResponse());
-            result.smelting.Add("2", new SmeltingResponse());
-            result.smelting.Add("3", new SmeltingResponse());
+            result.smelting.Add("1", new SmeltingSlotInfo());
+            result.smelting.Add("2", new SmeltingSlotInfo());
+            result.smelting.Add("3", new SmeltingSlotInfo());
 
             result.crafting["1"].state = "Empty";
 

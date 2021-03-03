@@ -19,6 +19,7 @@ namespace ProjectEarthServerAPI.Models.Features
     public class Result
     {
         public List<Recipe> crafting { get; set; }
+        public List<SmeltingRecipe> smelting { get; set; }
     }
 
     public class Recipe
@@ -30,6 +31,17 @@ namespace ProjectEarthServerAPI.Models.Features
         public RecipeOutput output { get; set; }
         public bool deprecated { get; set; }
         public ReturnItem[] returnItems { get; set; }
+    }
+
+    public class SmeltingRecipe
+    {
+        public string inputItemId { get; set; }
+        public int heatRequired { get; set; }
+        public string id { get; set; }
+        public RecipeOutput output { get; set; }
+        public bool deprecated { get; set; }
+        public ReturnItem[] returnItems { get; set; }
+
     }
 
     public class RecipeIngredients

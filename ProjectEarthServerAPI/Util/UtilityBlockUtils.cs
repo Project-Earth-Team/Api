@@ -26,5 +26,17 @@ namespace ProjectEarthServerAPI.Util
             return true;
         }
 
+        public static bool UpdateUtilityBlocks(string playerId, int slot, SmeltingSlotInfo job)
+        {
+            var currentUtilBlocks = ReadUtilityBlocks(playerId);
+            currentUtilBlocks.result.smelting[slot.ToString()] = job;
+            currentUtilBlocks.result.smelting["2"].streamVersion = job.streamVersion;
+            currentUtilBlocks.result.smelting["3"].streamVersion = job.streamVersion;
+
+            WriteUtilityBlocks(playerId, currentUtilBlocks);
+
+            return true;
+        }
+
     }
 }

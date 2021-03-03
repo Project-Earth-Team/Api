@@ -40,7 +40,7 @@ namespace ProjectEarthServerAPI.Models.Buildplate
             public string snapshotTriggerConditions { get; set; }
             public string snapshotWorldStorage { get; set; }
             public List<string> triggerConditions { get; set; }
-            public string triggerInterval { get; set; }
+            public TimeSpan triggerInterval { get; set; }
         }
 
         public class GameplayMetadata
@@ -74,7 +74,7 @@ namespace ProjectEarthServerAPI.Models.Buildplate
             public string applicationStatus { get; set; }
             public string fqdn { get; set; }
             public GameplayMetadata gameplayMetadata { get; set; }
-            public HostCoordinate hostCoordinate { get; set; }
+            public PlayerCoordinate hostCoordinate { get; set; }
             public string instanceId { get; set; }
             public string ipV4Address { get; set; }
             public string metadata { get; set; }
@@ -89,8 +89,13 @@ namespace ProjectEarthServerAPI.Models.Buildplate
         public object expiration { get; set; }
         public Result result { get; set; }
         public Updates updates { get; set; }
-        
 
+        public class InstanceMetadata
+        {
+            public string buildplateid { get; set; }
+        }
 
     }
+
+
 }

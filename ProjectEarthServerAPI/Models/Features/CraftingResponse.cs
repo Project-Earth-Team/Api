@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ProjectEarthServerAPI.Models.Player;
 
 namespace ProjectEarthServerAPI.Models.Features
 {
@@ -55,7 +56,7 @@ namespace ProjectEarthServerAPI.Models.Features
     {
         // TODO: Use boost to find out how to structure this
         public int multiplier { get; set; }
-        public ItemInstance boostItem { get; set; } // Hope
+        public InventoryResponse.ItemInstance boostItem { get; set; } // Hope
     }
 
     public class UnlockPrice
@@ -67,13 +68,8 @@ namespace ProjectEarthServerAPI.Models.Features
     public class InputItem
     {
         public string itemId { get; set; } // Item ID
-        public ItemInstance[] itemInstanceIds { get; set; } // Only used in unstackable items (tools, etc.)
+        public InventoryResponse.ItemInstance[] itemInstanceIds { get; set; } // Only used in unstackable items (tools, etc.)
         public int quantity { get; set; } // Quantity of item
     }
 
-    public class ItemInstance
-    {
-        public string id { get; set; } // ID of instance
-        public double health { get; set; } // Durability of instanced item
-    }
 }
