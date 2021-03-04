@@ -50,7 +50,7 @@ namespace ProjectEarthServerAPI.Util
                     burning = new BurningItems
                     {
                         burnStartTime = currentDateTime,
-                        burnsUntil = currentDateTime.AddSeconds(fuelInfo.burnRate.burnTime).TimeOfDay,
+                        burnsUntil = currentDateTime.AddSeconds(fuelInfo.burnRate.burnTime),
                         fuel = fuelInfo,
                         heatDepleted = 0,
                         remainingBurnTime = new TimeSpan(0,0,fuelInfo.burnRate.burnTime)
@@ -104,6 +104,7 @@ namespace ProjectEarthServerAPI.Util
 
             try
             {
+                var currentTime = DateTime.UtcNow;
                 var job = SmeltingJobs[playerId][slot];
                 var recipe = recipeList.result.smelting.Find(match => match.id == job.recipeId & !match.deprecated);
                 var updates = new Updates();
@@ -115,7 +116,7 @@ namespace ProjectEarthServerAPI.Util
                 {                                                                                                                                  
                                                                                                                                                    
                     job.available = job.total - job.completed;
-                    //job.completed = job.total;
+                    job.completed += job.available;
                     job.nextCompletionUtc = null;
                     job.state = "Completed";
                     job.escrow = new InputItem[0];
@@ -136,8 +137,17 @@ namespace ProjectEarthServerAPI.Util
                     }
 
                 }*/
+
                 if (recipe != null)
-                    job.heatAppliedToCurrentItem = (float)job.burning.heatDepleted - (job.available) * recipe.heatRequired;
+                {
+                    job.burning.remainingBurnTime = job.burning.burnsUntil.Value.TimeOfDay - currentTime.TimeOfDay;
+
+                    job.burning.heatDepleted = (currentTime - job.burning.burnStartTime.Value).TotalSeconds *
+                                               job.burning.fuel.burnRate.heatPerSecond;
+
+                    job.heatAppliedToCurrentItem =
+                        (float)job.burning.heatDepleted - job.available * recipe.heatRequired;
+                }
 
                 updates.smelting = (uint) nextStreamId;
 
@@ -172,7 +182,9 @@ namespace ProjectEarthServerAPI.Util
 
             var returnResponse = new CollectItemsResponse
             {
-                rewards = new Rewards(),
+                result = new CollectItemsInfo { 
+                    rewards = new Rewards(),
+                },
                 updates = new Dictionary<string, int>()
             };
 
@@ -213,7 +225,7 @@ namespace ProjectEarthServerAPI.Util
                 returnResponse.updates.Add("tokens", nextStreamId);
             }
 
-            returnResponse.rewards.Inventory = returnResponse.rewards.Inventory.Append(new RewardComponent
+            returnResponse.result.rewards.Inventory = returnResponse.result.rewards.Inventory.Append(new RewardComponent
             {
                 Amount = job.output.quantity*craftedAmount,
                 Id = job.output.itemId

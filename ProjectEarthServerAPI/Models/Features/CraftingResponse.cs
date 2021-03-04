@@ -31,8 +31,13 @@ namespace ProjectEarthServerAPI.Models.Features
 
     public class CollectItemsResponse
     {
-        public Rewards rewards { get; set; }
+        public CollectItemsInfo result { get; set; }
         public Dictionary<string, int> updates { get; set; }
+    }
+
+    public class CollectItemsInfo
+    {
+        public Rewards rewards { get; set; }
     }
 
     public class CraftingSlotInfo // crafting/slot, crafting/1, crafting/2 - Also used in utilityBlocks

@@ -91,7 +91,7 @@ namespace ProjectEarthServerAPI.Util
                 {                                                                                                                                  
                                                                                                                                                    
                     job.available = job.total - job.completed;
-                    //job.completed = job.total;
+                    job.completed += job.available;
                     job.nextCompletionUtc = null;
                     job.state = "Completed";
                     job.escrow = new InputItem[0];
@@ -143,7 +143,10 @@ namespace ProjectEarthServerAPI.Util
 
             var returnResponse = new CollectItemsResponse
             {
-                rewards = new Rewards(),
+                result = new CollectItemsInfo
+                {
+                    rewards = new Rewards(),
+                },
                 updates = new Dictionary<string, int>()
             };
 
@@ -184,7 +187,7 @@ namespace ProjectEarthServerAPI.Util
                 returnResponse.updates.Add("tokens", nextStreamId);
             }
 
-            returnResponse.rewards.Inventory = returnResponse.rewards.Inventory.Append(new RewardComponent
+            returnResponse.result.rewards.Inventory = returnResponse.result.rewards.Inventory.Append(new RewardComponent
             {
                 Amount = job.output.quantity*craftedAmount,
                 Id = job.output.itemId

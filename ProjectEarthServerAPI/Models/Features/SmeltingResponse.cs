@@ -30,11 +30,11 @@ namespace ProjectEarthServerAPI.Models.Features
         public SmeltingSlotInfo result { get; set; }
         public Updates updates { get; set; }
     }
-
+    
     public class BurningItems
     {
         public DateTime? burnStartTime { get; set; } // When the items started burning
-        public TimeSpan? burnsUntil { get; set; } // How long the items are burning
+        public DateTime? burnsUntil { get; set; } // How long the items are burning
         public FuelInfo fuel { get; set; } // What is burning
         public double heatDepleted { get; set; } // How much heat has been generated
         public TimeSpan remainingBurnTime { get; set; } // Burning time remaining

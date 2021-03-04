@@ -18,6 +18,7 @@ namespace ProjectEarthServerAPI.Controllers
 
         public ContentResult Get(double latitude, double longitude)
         {
+            var currentTime = DateTime.UtcNow;
             //Nab tile loc
             int[] cords = Tile.getTileForCords(latitude, longitude);
 
@@ -31,19 +32,19 @@ namespace ProjectEarthServerAPI.Controllers
                     latitude = Math.Round(latitude, 6), // Round off for the client to be happy
                     longitude = Math.Round(longitude, 6)
                 },
-                spawnTime = DateTime.Now,
-                expirationTime = DateTime.Now.AddMinutes(10), //Packet captures show that typically earth keeps Tappables around for 10 minutes
+                spawnTime = currentTime,
+                expirationTime = currentTime.AddMinutes(10), //Packet captures show that typically earth keeps Tappables around for 10 minutes
                 type = "Tappable", // who wouldve guessed?
                 icon = "genoa:chest_tappable_map", //see the github wiki link at the top for a list of these that we know about
                 metadata = new LocationResponse.Metadata
                 {
-                    rarity = LocationResponse.Rarity.Rare,
+                    rarity = LocationResponse.Rarity.Common,
                     rewardId = version4Generator.NewUuid().ToString() // Seems to always be uuidv4 from official responses so generate one
                 },
                 encounterMetadata = null, //working captured responses have this, its fine
                 tappableMetadata = new LocationResponse.TappableMetadata
                 {
-                    rarity = LocationResponse.Rarity.Rare //assuming this and the above need to allign. Why have 2 occurances? who knows.
+                    rarity = LocationResponse.Rarity.Common //assuming this and the above need to allign. Why have 2 occurances? who knows.
                 }
             };
 
