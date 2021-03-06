@@ -43,21 +43,6 @@ namespace ProjectEarthServerAPI.Controllers
 								{
 									Amount = 10,
 									Id = "1eaa0d8c-2d89-2b84-aa1f-b75ccc85faff"
-								},
-								new Models.RewardComponent()
-                                {
-                                    Amount = 10,
-                                    Id = "11111111-1111-1111-1111-111111111111"
-								},
-								new RewardComponent()
-                                {
-                                    Amount = 10,
-                                    Id = "0d78acb3-3dc9-bbc4-01ae-8b10c76867f9"
-								},
-                                new RewardComponent()
-                                {
-                                    Amount = 10,
-                                    Id = "6c5210db-3c17-6731-5abe-1853bced8b3b"
 								}
 							}
 						}
