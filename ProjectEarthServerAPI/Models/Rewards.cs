@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
+using Uma.Uuid;
+
 namespace ProjectEarthServerAPI.Models
 {
     public class Rewards
@@ -15,7 +17,7 @@ namespace ProjectEarthServerAPI.Models
         [JsonProperty("challenges")]
         public RewardComponent[] Challenges { get; set; }
         [JsonProperty("personaItems")]
-        public RewardComponent[] PersonaItems { get; set; }
+        public Uuid[] PersonaItems { get; set; }
         [JsonProperty("utilityBlocks")]
         public RewardComponent[] UtilityBlocks { get; set; }
 
@@ -24,7 +26,7 @@ namespace ProjectEarthServerAPI.Models
             Inventory = Array.Empty<RewardComponent>();
             Buildplates = Array.Empty<RewardComponent>();
             Challenges = Array.Empty<RewardComponent>();
-            PersonaItems = Array.Empty<RewardComponent>();
+            PersonaItems = Array.Empty<Uuid>();
             UtilityBlocks = Array.Empty<RewardComponent>();
         }
     }
