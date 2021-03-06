@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using ProjectEarthServerAPI.Models;
 
 namespace ProjectEarthServerAPI.Controllers
 {
@@ -28,17 +29,17 @@ namespace ProjectEarthServerAPI.Controllers
 			{
 				result = new TappableResponse.Result()
 				{
-					token = new Models.Token()
+					token = new Token()
 					{
 						clientProperties = new Dictionary<string, string>(),
 						clientType = "redeemtappable",
 						lifetime = "Persistent",
-						rewards = new Models.Rewards()
+						rewards = new Rewards()
 						{
 							ExperiencePoints = 100,
-							Inventory = new Models.RewardComponent[]
+							Inventory = new RewardComponent[]
 							{
-								new Models.RewardComponent()
+								new RewardComponent()
 								{
 									Amount = 10,
 									Id = new Guid("1eaa0d8c-2d89-2b84-aa1f-b75ccc85faff")
