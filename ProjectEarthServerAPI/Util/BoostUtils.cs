@@ -37,7 +37,7 @@ namespace ProjectEarthServerAPI.Util
             return GenericUtils.WriteJsonFile(playerId,resp, "boosts");
         }
 
-        public static CraftingUpdates ActivateBoost(string playerId, string boostId)
+        public static CraftingUpdates ActivateBoost(string playerId, Guid boostId)
         {
             var updates = new CraftingUpdates
             {
@@ -85,10 +85,10 @@ namespace ProjectEarthServerAPI.Util
             } 
             else
             {
-                Dictionary<string,string> uuidDict = new Dictionary<string, string>();
+                Dictionary<Guid, string> uuidDict = new Dictionary<Guid, string>();
                 if (boostToApply.item.boostMetadata.scenario == null)
                 {
-                    foreach (CatalogResponse.Effect effect in boostToApply.item.boostMetadata.effects)
+                    foreach (Item.Effect effect in boostToApply.item.boostMetadata.effects)
                     {
                         baseBoosts.result.activeEffects.Add(new ActiveEffect
                             {
@@ -103,13 +103,13 @@ namespace ProjectEarthServerAPI.Util
 
                     baseBoosts.result.scenarioBoosts.death.Add(new ActiveBoost
                     {
-                        effects = new List<CatalogResponse.Effect>(),
+                        effects = new List<Item.Effect>(),
                         enabled = true,
                         expiration = currentTime.Add(boostToApply.item.boostMetadata.activeDuration.Value.TimeOfDay),
                         instanceId = Guid.NewGuid().ToString()
                     });
 
-                    foreach (CatalogResponse.Effect effect in boostToApply.item.boostMetadata.effects)
+                    foreach (Item.Effect effect in boostToApply.item.boostMetadata.effects)
                     {
                         baseBoosts.result.scenarioBoosts.death[indexNum].effects.Add(effect);
                     }

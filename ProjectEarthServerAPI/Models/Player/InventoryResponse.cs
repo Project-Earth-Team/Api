@@ -19,7 +19,7 @@ namespace ProjectEarthServerAPI.Models.Player
         public class Hotbar
         {
             //I havent done adventures recently. Health is **Probably wrong**
-            public string id { get; set; }
+            public Guid id { get; set; }
             public ItemInstance instanceId { get; set; }
             public int count { get; set; }
         }
@@ -43,7 +43,7 @@ namespace ProjectEarthServerAPI.Models.Player
         public class StackableItem
         {
             public int owned { get; set; } // How many you have
-            public string id { get; set; } // Item UUID 
+            public Guid id { get; set; } // Item UUID 
             public Seen seen { get; set; } // When you last used/got this item
             public Unlocked unlocked { get; set; } // When you first unlocked the item
             public int fragments { get; set; } // Not used
@@ -58,7 +58,7 @@ namespace ProjectEarthServerAPI.Models.Player
         public class NonStackableItem
         {
             public List<Instance> instances { get; set; } // List of Instances, see above explanation
-            public string id { get; set; } // Item UUID
+            public Guid id { get; set; } // Item UUID
             public Seen seen { get; set; } // When you last used/got this item
             public Unlocked unlocked { get; set; } // When you first unlocked the item
             public int fragments { get; set; } // Not used

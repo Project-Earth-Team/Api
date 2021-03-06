@@ -339,4 +339,3 @@ ASALocalRun/
 # BeatPulse healthcheck temp database
 healthchecksdb
 /ProjectEarthServerAPI/Properties/ServiceDependencies/projectearthdev - Web Deploy/profile.arm.json
-/ProjectEarthServerAPI/data

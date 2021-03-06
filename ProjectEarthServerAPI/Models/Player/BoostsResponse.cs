@@ -32,7 +32,7 @@ namespace ProjectEarthServerAPI.Models
 
     public class ActiveBoost
     {
-        public List<CatalogResponse.Effect> effects { get; set; }
+        public List<Item.Effect> effects { get; set; }
         public bool enabled { get; set; }
         public DateTime? expiration { get; set; }
         public string instanceId { get; set; }
@@ -60,12 +60,12 @@ namespace ProjectEarthServerAPI.Models
         public bool enabled { get; set; }
         public DateTime? expiration { get; set; }
         public string instanceId { get; set; }
-        public string itemId { get; set; }
+        public Guid itemId { get; set; }
     }
 
     public class ActiveEffect
     {
-        public CatalogResponse.Effect effect { get; set; }
+        public Item.Effect effect { get; set; }
         public DateTime? expiration { get; set; }
     }
 

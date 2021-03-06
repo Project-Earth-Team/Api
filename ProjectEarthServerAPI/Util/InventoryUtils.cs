@@ -16,7 +16,7 @@ namespace ProjectEarthServerAPI.Util
     public class InventoryUtils
     {
 
-        public static InventoryUtilResult RemoveItemFromInv(string playerId, string itemIdToRemove,
+        public static InventoryUtilResult RemoveItemFromInv(string playerId, Guid itemIdToRemove,
             [Optional] string unstackableItemId, int countToRemove = 1)
         {
             var inv = ReadInventory(playerId);
@@ -53,7 +53,7 @@ namespace ProjectEarthServerAPI.Util
             }
         }
 
-        public static Tuple<InventoryUtilResult, int> GetItemCountFromInv(string playerId, string itemId)
+        public static Tuple<InventoryUtilResult, int> GetItemCountFromInv(string playerId, Guid itemId)
         {
             var inv = ReadInventory(playerId);;
 
@@ -75,7 +75,7 @@ namespace ProjectEarthServerAPI.Util
             return new Tuple<InventoryUtilResult, int>(InventoryUtilResult.ItemNotFoundInInv, 0); // Item not in inventory, so count 0
         }
 
-        public static InventoryUtilResult AddItemToInv(string playerId, string itemIdToAdd, int count = 1, bool isStackableItem = true, string instanceId = null)
+        public static InventoryUtilResult AddItemToInv(string playerId, Guid itemIdToAdd, int count = 1, bool isStackableItem = true, string instanceId = null)
         {
             try
             {
@@ -130,7 +130,7 @@ namespace ProjectEarthServerAPI.Util
             }
         }
 
-        public static Tuple<InventoryUtilResult, double> EditHealthOfItem(string playerId, string itemId, string unstackableItemInstanceId, double newHealth) // TODO: Actually Edit lmao
+        public static Tuple<InventoryUtilResult, double> EditHealthOfItem(string playerId, Guid itemId, string unstackableItemInstanceId, double newHealth) // TODO: Actually Edit lmao
         {
             try
             {

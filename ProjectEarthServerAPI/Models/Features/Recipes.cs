@@ -35,18 +35,18 @@ namespace ProjectEarthServerAPI.Models.Features
     public class RecipeIngredients
     {
         public int quantity { get; set; }
-        public string[] items { get; set; }
+        public Guid[] items { get; set; }
     }
 
     public class RecipeOutput
     {
-        public string itemId { get; set; }
+        public Guid itemId { get; set; }
         public int quantity { get; set; }
     }
 
     public class ReturnItem
     {
-        public string id { get; set; }
+        public Guid id { get; set; }
         public int amount { get; set; }
     }
 }

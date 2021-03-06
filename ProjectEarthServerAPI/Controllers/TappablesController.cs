@@ -41,7 +41,7 @@ namespace ProjectEarthServerAPI.Controllers
 								new Models.RewardComponent()
 								{
 									Amount = 10,
-									Id = "1eaa0d8c-2d89-2b84-aa1f-b75ccc85faff"
+									Id = new Guid("1eaa0d8c-2d89-2b84-aa1f-b75ccc85faff")
 								}
 							}
 						}

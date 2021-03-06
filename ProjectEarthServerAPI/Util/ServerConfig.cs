@@ -14,7 +14,8 @@ namespace ProjectEarthServerAPI.Util
     {
         //Properties
         public string baseServerIP { get; set; }
-        public string catalogFileLocation { get; set; }
+        public string itemsFolderLocation { get; set; }
+        public string efficiencyCategoriesFolderLocation { get; set; }
         public string journalCatalogFileLocation { get; set; }
         public string recipesFileLocation { get; set; }
         public string settingsFileLocation { get; set; }

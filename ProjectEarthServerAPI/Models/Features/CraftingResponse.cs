@@ -66,7 +66,7 @@ namespace ProjectEarthServerAPI.Models.Features
 
     public class InputItem
     {
-        public string itemId { get; set; } // Item ID
+        public Guid itemId { get; set; } // Item ID
         public ItemInstance[] itemInstanceIds { get; set; } // Only used in unstackable items (tools, etc.)
         public int quantity { get; set; } // Quantity of item
     }

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace ProjectEarthServerAPI.Models
@@ -21,17 +22,17 @@ namespace ProjectEarthServerAPI.Models
                     {
                         new RewardComponent
                         {
-                            Id = "730573d1-ba59-4fd4-89e0-85d4647466c2",
+                            Id = new Guid("730573d1-ba59-4fd4-89e0-85d4647466c2"),
                             Amount = 1
                         },
                         new RewardComponent
                         {
-                            Id = "20dbd5fc-06b7-1aa1-5943-7ddaa2061e6a",
+                            Id = new Guid("20dbd5fc-06b7-1aa1-5943-7ddaa2061e6a"),
                             Amount = 8
                         },
                         new RewardComponent
                         {
-                            Id = "1eaa0d8c-2d89-2b84-aa1f-b75ccc85faff",
+                            Id = new Guid("1eaa0d8c-2d89-2b84-aa1f-b75ccc85faff"),
                             Amount = 64
                         }
                     }

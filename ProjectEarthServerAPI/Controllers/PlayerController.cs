@@ -121,8 +121,7 @@ namespace ProjectEarthServerAPI.Controllers
         [Route("1/api/v{version:apiVersion}/inventory/catalogv3")]
         public IActionResult GetCatalog()
         {
-            var fs = new StreamReader(StateSingleton.Instance.config.catalogFileLocation);
-            return Content(fs.ReadToEnd(), "application/json");
+            return Content(JsonConvert.SerializeObject(StateSingleton.Instance.catalog), "application/json");
         }
 
         [ApiVersion("1.1")]
@@ -199,7 +198,7 @@ namespace ProjectEarthServerAPI.Controllers
 
         [ApiVersion("1.1")]
         [Route("1/api/v{version:apiVersion}/boosts/potions/{boostId}/activate")]
-        public IActionResult GetRedeemBoost(string boostId)
+        public IActionResult GetRedeemBoost(Guid boostId)
         {
             string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var returnUpdates = BoostUtils.ActivateBoost(authtoken, boostId);
