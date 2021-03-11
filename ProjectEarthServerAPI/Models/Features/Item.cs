@@ -45,7 +45,7 @@ namespace ProjectEarthServerAPI.Models.Features
 
 		public class BlockMetadata
 		{
-			public int? health { get; set; }
+			public float? health { get; set; }
 			public string efficiencyCategory { get; set; }
 		}
 
@@ -53,13 +53,13 @@ namespace ProjectEarthServerAPI.Models.Features
 		{
 			public string useType { get; set; }
 			public string alternativeUseType { get; set; }
-			public int? mobDamage { get; set; }
-			public int? blockDamage { get; set; }
-			public int? weakDamage { get; set; }
-			public int? nutrition { get; set; }
-			public int? heal { get; set; }
+			public float? mobDamage { get; set; }
+			public float? blockDamage { get; set; }
+			public float? weakDamage { get; set; }
+			public float? nutrition { get; set; }
+			public float? heal { get; set; }
 			public string? efficiencyType { get; set; }
-			public int? maxHealth { get; set; }
+			public float? maxHealth { get; set; }
 		}
 
 		public class BoostMetadata

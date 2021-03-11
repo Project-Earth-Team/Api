@@ -43,7 +43,7 @@ namespace ProjectEarthServerAPI.Models.Features
     public class FuelInfo
     {
         public BurnInfo burnRate { get; set; } // How fast the items are burning
-        public string itemId { get; set; } // Item ID of fuel
+        public Guid itemId { get; set; } // Item ID of fuel
         public InventoryResponse.ItemInstance[] itemInstanceIds { get; set; } // Instance of the fuel item (Probably used when burning tools
         public int quantity { get; set; } // How many items are used as fuel
     }
