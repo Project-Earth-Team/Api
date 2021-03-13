@@ -7,19 +7,22 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using ProjectEarthServerAPI.Models;
+using ProjectEarthServerAPI.Util;
 
 namespace ProjectEarthServerAPI.Controllers
 {
 	[Authorize]
-	[ApiVersion("1.1")]
-	[Route("1/api/v{version:apiVersion}/tappables/{x}_{y}")]
-	public class TappablesController : Controller
+    public class TappablesController : Controller
 	{
 		[HttpPost]
+        [ApiVersion("1.1")]
+        [Route("1/api/v{version:apiVersion}/tappables/{x}_{y}")]
 		public async Task<IActionResult> Post(int x, int y)
 		{
+            string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
 			var stream = new StreamReader(Request.Body);
 			var body = await stream.ReadToEndAsync();
 
@@ -46,13 +49,14 @@ namespace ProjectEarthServerAPI.Controllers
 								}
 							}
 						}
-					},
-					updates = new Models.Updates()
-				},
-				updates = new Models.Updates()
-			};
+					}
+				}
+            };
+
+            response.updates = RewardUtils.RedeemRewards(authtoken, response.result.token.rewards);
+            response.result.updates = response.updates;
 
 			return Content(JsonConvert.SerializeObject(response), "application/json");
 		}
-	}
+    }
 }

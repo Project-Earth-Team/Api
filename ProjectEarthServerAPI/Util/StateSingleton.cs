@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using ProjectEarthServerAPI.Models;
 using ProjectEarthServerAPI.Util;
 using ProjectEarthServerAPI.Models.Features;
+using ProjectEarthServerAPI.Models.Player;
 
 namespace ProjectEarthServerAPI.Util
 {
@@ -32,6 +33,7 @@ namespace ProjectEarthServerAPI.Util
         public ServerConfig config { get; set; }
         public Recipes recipes { get; set; }
         public SettingsResponse settings { get; set; }
+        public ChallengesResponse seasonChallenges { get; set; }
         public ProductCatalogResponse productCatalog { get; set; }
 
     }

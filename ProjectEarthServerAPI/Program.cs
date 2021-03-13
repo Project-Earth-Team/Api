@@ -27,6 +27,7 @@ namespace ProjectEarthServerAPI
             StateSingleton.Instance.catalog = CatalogResponse.FromFiles(StateSingleton.Instance.config.itemsFolderLocation, StateSingleton.Instance.config.efficiencyCategoriesFolderLocation);
             StateSingleton.Instance.recipes = Recipes.FromFile(StateSingleton.Instance.config.recipesFileLocation);
             StateSingleton.Instance.settings = SettingsResponse.FromFile(StateSingleton.Instance.config.settingsFileLocation);
+            StateSingleton.Instance.seasonChallenges = ChallengesResponse.FromFile(StateSingleton.Instance.config.seasonChallengesFileLocation);
             StateSingleton.Instance.productCatalog = ProductCatalogResponse.FromFile(StateSingleton.Instance.config.productCatalogFileLocation);
 
             //Start api

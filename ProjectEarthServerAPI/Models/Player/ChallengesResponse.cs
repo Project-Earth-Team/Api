@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Uma.Uuid;
@@ -10,17 +11,23 @@ namespace ProjectEarthServerAPI.Models.Player
     {
         public ChallengesList result { get; set; }
         public Updates updates { get; set; }
+
+        public static ChallengesResponse FromFile(string path)
+        {
+            var jsontext = File.ReadAllText(path);
+            return JsonConvert.DeserializeObject<ChallengesResponse>(jsontext);
+        }
     }
 
     public class ChallengesList
     {
-        public Dictionary<Uuid,ChallengeInfo> challenges { get; set; }
-        public Uuid activeSeasonChallenge { get; set; }
+        public Dictionary<Guid,ChallengeInfo> challenges { get; set; }
+        public Guid activeSeasonChallenge { get; set; }
     }
 
     public class ChallengeInfo
     {
-        public Uuid referenceId { get; set; }
+        public Guid referenceId { get; set; }
         [JsonConverter(typeof(StringEnumConverter))]
         public ChallengeDuration duration { get; set; }
         [JsonConverter(typeof(StringEnumConverter))]
@@ -35,13 +42,13 @@ namespace ProjectEarthServerAPI.Models.Player
         public ChallengeCategory category { get; set; }
         public int currentCount { get; set; }
         public int totalThreshold { get; set; }
-        public Uuid parentId { get; set; }
+        public Guid? parentId { get; set; }
         public int order { get; set; }
         public string rarity { get; set; }
         [JsonConverter(typeof(StringEnumConverter))]
         public ChallengeLogicCondition prerequisiteLogicalCondition { get; set; }
-        public List<Uuid> prerequisiteIds { get; set; }
-        public Uuid groupId { get; set; }
+        public List<Guid> prerequisiteIds { get; set; }
+        public Guid groupId { get; set; }
         public ChallengeProperties clientProperties { get; set; }
     }
 

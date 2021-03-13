@@ -19,6 +19,7 @@ namespace ProjectEarthServerAPI.Util
         public string journalCatalogFileLocation { get; set; }
         public string recipesFileLocation { get; set; }
         public string settingsFileLocation { get; set; }
+        public string seasonChallengesFileLocation { get; set; }
         public string productCatalogFileLocation { get; set; }
         //Load method
 
