@@ -88,6 +88,30 @@ namespace ProjectEarthServerAPI.Controllers
     }
 
     [Authorize]
+    public class PlayerChallengesController : Controller
+    {
+        [ApiVersion("1.1")]
+        [Route("1/api/v{version:apiVersion}/player/challenges")]
+        public IActionResult GetChallenges()
+        {
+            var authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var challenges = ChallengeUtils.ReloadChallenges(authtoken);
+            return Content(JsonConvert.SerializeObject(challenges), "application/json");
+        }
+
+        [ApiVersion("1.1")]
+        [Route("1/api/v{version:apiVersion}/challenges/season/active/{challengeId}")]
+        public IActionResult PutActivateChallenge(Guid challengeId)
+        {
+            var authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var success = ChallengeUtils.ActivateChallengeForPlayer(authtoken, challengeId);
+
+            if (success) return Ok();
+            else return Unauthorized();
+        }
+    }
+
+    [Authorize]
     [ApiVersion("1.1")]
     [Route("1/api/v{version:apiVersion}/player/utilityBlocks")]
     public class PlayerUtilityBlocksController : Controller

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using ProjectEarthServerAPI.Util;
 using Uma.Uuid;
 
 namespace ProjectEarthServerAPI.Models.Player
@@ -16,6 +17,12 @@ namespace ProjectEarthServerAPI.Models.Player
         {
             var jsontext = File.ReadAllText(path);
             return JsonConvert.DeserializeObject<ChallengesResponse>(jsontext);
+        }
+
+        public ChallengesResponse()
+        {
+            if (StateSingleton.Instance.seasonChallenges != null)
+                result = StateSingleton.Instance.seasonChallenges.result;
         }
     }
 

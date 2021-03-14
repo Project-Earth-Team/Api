@@ -10,7 +10,7 @@ namespace ProjectEarthServerAPI.Util
     public class ChallengeUtils
     {
         private static readonly ChallengesList ChallengeList = StateSingleton.Instance.seasonChallenges.result;
-        public static bool AddChallengeToPlayer(string playerId, Guid challengeId)
+        public static bool ActivateChallengeForPlayer(string playerId, Guid challengeId)
         {
             var challenge = ChallengeList.challenges.First(pred => pred.Key == challengeId).Value;
             var playerChallenges = ReadChallenges(playerId);
@@ -40,7 +40,12 @@ namespace ProjectEarthServerAPI.Util
 
             if (challenge.duration == ChallengeDuration.Season)
                 playerChallenges.result.activeSeasonChallenge = challengeId;
+            else
+            {
+                playerChallenges.result.challenges[challengeId].state = ChallengeState.Active;
+            }
 
+            Console.WriteLine($"Activating challenge {challengeId} for player id {playerId}!");
             WriteChallenges(playerId, playerChallenges);
 
             return true;
@@ -60,7 +65,13 @@ namespace ProjectEarthServerAPI.Util
             return RewardUtils.RedeemRewards(playerId, challenge.rewards);
         }
 
-        public static ChallengesResponse ReadChallenges(string playerId)
+        public static ChallengesResponse ReloadChallenges(string playerId)
+        {
+            var playerChallenges = ReadChallenges(playerId);
+            return playerChallenges;
+        }
+
+        private static ChallengesResponse ReadChallenges(string playerId)
         {
             return GenericUtils.ParseJsonFile<ChallengesResponse>(playerId, "challenges");
         }
