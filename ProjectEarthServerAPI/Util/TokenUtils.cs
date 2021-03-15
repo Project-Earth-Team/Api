@@ -46,7 +46,7 @@ namespace ProjectEarthServerAPI.Util
         public static string GetSerializedTokenResponse(string playerId)
         {
             return JsonConvert.SerializeObject(
-                GenericUtils.ParseJsonFile<TokenResponse>(playerId, "newtokens"));
+                GenericUtils.ParseJsonFile<TokenResponse>(playerId, "tokens"));
         }
 
         public static void AddItemToken(string playerId, Guid itemId)
@@ -108,7 +108,7 @@ namespace ProjectEarthServerAPI.Util
                     tokens = tokenlist
                 }
             };
-            GenericUtils.WriteJsonFile(playerId, tokenResp,"newtokens");
+            GenericUtils.WriteJsonFile(playerId, tokenResp,"tokens");
         }
     }
 }
