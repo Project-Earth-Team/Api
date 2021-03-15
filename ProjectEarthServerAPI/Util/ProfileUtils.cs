@@ -1,4 +1,5 @@
-﻿using ProjectEarthServerAPI.Models;
+﻿using System.Dynamic;
+using ProjectEarthServerAPI.Models;
 
 namespace ProjectEarthServerAPI.Util
 {
@@ -9,9 +10,28 @@ namespace ProjectEarthServerAPI.Util
             return GenericUtils.ParseJsonFile<ProfileData>(playerId, "profile");
         }
 
-        public static bool WriteProfile(string playerId, ProfileData ruby)
+        public static void AddExperienceToPlayer(string playerId, int experiencePoints)
         {
-            return GenericUtils.WriteJsonFile(playerId, ruby, "profile");
+            var playerProfile = ReadProfile(playerId);
+            var currentLvl = playerProfile.level;
+            playerProfile.totalExperience += experiencePoints;
+            while (currentLvl < 25 && playerProfile.experienceRemaining <= 0)
+            {
+                playerProfile.level++;
+                RewardLevelupRewards(playerId, playerProfile.level);
+            }
+
+            WriteProfile(playerId, playerProfile);
+        }
+
+        private static void RewardLevelupRewards(string playerId, int level)
+        {
+            RewardUtils.RedeemRewards(playerId, ProfileResponse.levels[level.ToString()].rewards);
+        }
+
+        private static bool WriteProfile(string playerId, ProfileData playerProfile)
+        {
+            return GenericUtils.WriteJsonFile(playerId, playerProfile, "profile");
         }
     }
 }

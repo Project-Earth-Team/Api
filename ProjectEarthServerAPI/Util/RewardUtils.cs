@@ -37,8 +37,11 @@ namespace ProjectEarthServerAPI.Util
                 // PersonaUtils.AddToPlayer(playerId, personaItem) If we can ever implement CC, this is already in place
             }
 
-            //if (rewards.ExperiencePoints != null)
-            //    PlayerUtils.AddExperience(playerId, rewards.ExperiencePoints.Value);
+            if (rewards.ExperiencePoints != null)
+            {
+                ProfileUtils.AddExperienceToPlayer(playerId, rewards.ExperiencePoints.Value);
+                updates.characterProfile = nextStreamId;
+            }
 
             return updates;
         }

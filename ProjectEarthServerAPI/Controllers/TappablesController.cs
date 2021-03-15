@@ -39,7 +39,7 @@ namespace ProjectEarthServerAPI.Controllers
 						lifetime = "Persistent",
 						rewards = new Rewards()
 						{
-							ExperiencePoints = 100,
+							ExperiencePoints = 400,
 							Inventory = new RewardComponent[]
 							{
 								new RewardComponent()
