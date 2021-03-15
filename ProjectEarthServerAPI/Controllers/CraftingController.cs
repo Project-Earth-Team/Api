@@ -102,9 +102,9 @@ namespace ProjectEarthServerAPI.Controllers
 
             Console.WriteLine($"User with id {authtoken} cancelled crafting job in slot {slot}.");
 
-            return Accepted();
+            //return Accepted();
 
-            //return Content(JsonConvert.SerializeObject(returnUpdates), "application/json");
+            return Content(JsonConvert.SerializeObject(returnUpdates), "application/json");
             //return Accepted(Content(returnTokens, "application/json"));
         }
 

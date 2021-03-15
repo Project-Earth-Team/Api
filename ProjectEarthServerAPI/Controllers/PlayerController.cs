@@ -8,6 +8,7 @@ using ProjectEarthServerAPI.Models.Player;
 using ProjectEarthServerAPI.Util;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using Uma.Uuid;
 
 namespace ProjectEarthServerAPI.Controllers
 {
@@ -29,33 +30,13 @@ namespace ProjectEarthServerAPI.Controllers
 
         [ApiVersion("1.1")]
         [Route("1/api/v{version:apiVersion}/player/tokens/{token}/redeem")] // TODO: Proper testing
-        public IActionResult RedeemToken(string token)
+        public IActionResult RedeemToken(Uuid token)
         {
             string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var tokenpath = $"./data/players/{authtoken}/tokens.json";
-            var tokentext = System.IO.File.ReadAllText(tokenpath);
-            var parsedTokens = JsonConvert.DeserializeObject<TokenResponse>(tokentext);
-            if (parsedTokens.Result.tokens.ContainsKey(token))
-            {
-                var tokenToDelete = parsedTokens.Result.tokens[token];
-                if (tokenToDelete.rewards != null)
-                {
-                    var rewardsToGive = tokenToDelete.rewards; // TODO: Implement Rewards 1/5
-                    foreach (RewardComponent reward in rewardsToGive.Inventory)
-                    {
-                        InventoryUtils.AddItemToInv(authtoken, reward.Id, reward.Amount,
-                            StateSingleton.Instance.catalog.result.items.Find(match => match.id == reward.Id).stacks); // If this catalog entry is a null reference we have a big problem
-                    }
-                }
 
-                parsedTokens.Result.tokens.Remove(token);
+            var redeemedToken = TokenUtils.RedeemToken(authtoken, token);
 
-                Console.WriteLine($"Redeemed token {token} for user with id {authtoken}.");
-
-                return Content(JsonConvert.SerializeObject(tokenToDelete), "application/json");
-            }
-
-            return BadRequest();
+            return Content(JsonConvert.SerializeObject(redeemedToken), "application/json");
         }
     }
 

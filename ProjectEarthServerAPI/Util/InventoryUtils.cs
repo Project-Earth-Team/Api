@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using ProjectEarthServerAPI.Models;
 using ProjectEarthServerAPI.Models.Player;
 using ProjectEarthServerAPI.Util;
 
@@ -117,7 +118,10 @@ namespace ProjectEarthServerAPI.Util
                     }
                 }
 
+
                 WriteInventory(playerId, inv);
+
+                TokenUtils.AddItemToken(playerId, itemIdToAdd);
 
                 Console.WriteLine($"Added item {itemIdToAdd} to inventory. User ID: {playerId}");
                 return InventoryUtilResult.Success;

@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using Newtonsoft.Json.Bson;
+using Microsoft.OpenApi.Extensions;
 using ProjectEarthServerAPI.Models;
 using ProjectEarthServerAPI.Models.Player;
 
@@ -40,12 +41,10 @@ namespace ProjectEarthServerAPI.Util
 
             if (challenge.duration == ChallengeDuration.Season)
                 playerChallenges.result.activeSeasonChallenge = challengeId;
-            else
-            {
-                playerChallenges.result.challenges[challengeId].state = ChallengeState.Active;
-            }
 
-            Console.WriteLine($"Activating challenge {challengeId} for player id {playerId}!");
+            playerChallenges.result.challenges[challengeId].state = ChallengeState.Active;
+
+                Console.WriteLine($"Activating challenge {challengeId} for player id {playerId}!");
             WriteChallenges(playerId, playerChallenges);
 
             return true;
@@ -62,7 +61,23 @@ namespace ProjectEarthServerAPI.Util
 
 
             WriteChallenges(playerId, playerChallenges);
-            return RewardUtils.RedeemRewards(playerId, challenge.rewards);
+
+            var completionToken = new Token
+            {
+                clientProperties = new Dictionary<string, string>(),
+                clientType = "challenge.completed",
+                lifetime = "Persistent",
+                rewards = challenge.rewards
+            };
+            completionToken.clientProperties.Add("challengeid",challengeId.ToString());
+            completionToken.clientProperties.Add("category",challenge.category.GetDisplayName());
+            completionToken.clientProperties.Add("expirationtimeutc",playerChallenges.result.challenges[challengeId].endTimeUtc.Value.ToString(CultureInfo.InvariantCulture));
+
+            var returnUpdates = RewardUtils.RedeemRewards(playerId, challenge.rewards);
+            if (TokenUtils.AddToken(playerId, completionToken))
+                returnUpdates.tokens = 1; // Not the actual stream id ofc, but we just need to tell the game to reload the tokens
+
+            return returnUpdates;
         }
 
         public static ChallengesResponse ReloadChallenges(string playerId)

@@ -7,7 +7,8 @@ using ProjectEarthServerAPI.Models.Features;
 
 namespace ProjectEarthServerAPI.Util
 {
-    public class CraftingUtils
+    public class CraftingUtils // TODO: Bug Fix: Cancelling a crafting task that you already collected some results
+                               // TODO: for returns the entire crafting cost, not just the remaining part
     {
         private static Recipes recipeList = StateSingleton.Instance.recipes;
         private static Dictionary<string, Dictionary<int, CraftingSlotInfo>> craftingJobs = new Dictionary<string, Dictionary<int, CraftingSlotInfo>>();
@@ -82,7 +83,7 @@ namespace ProjectEarthServerAPI.Util
             {
                 var job = craftingJobs[playerId][slot];
                 var recipe = recipeList.result.crafting.Find(match => match.id == job.recipeId & !match.deprecated);
-                var updates = new Dictionary<string, int>();
+                var updates = new Updates();
                 var nextStreamId = GenericUtils.GetNextStreamVersion();
 
                 job.streamVersion = nextStreamId;
@@ -112,7 +113,7 @@ namespace ProjectEarthServerAPI.Util
 
                 }*/
 
-                updates.Add("crafting", nextStreamId);
+                updates.crafting = (uint) nextStreamId;
 
                 var returnResponse = new CraftingSlotResponse
                 {
@@ -176,7 +177,7 @@ namespace ProjectEarthServerAPI.Util
             }
             else
             {
-                craftedAmount = job.total - job.completed;
+                craftedAmount = job.available;
                 InventoryUtils.AddItemToInv(playerId, job.output.itemId, job.output.quantity * craftedAmount);
                 // TODO: Add to challenges, tokens, journal (when implemented)
             }
@@ -219,10 +220,15 @@ namespace ProjectEarthServerAPI.Util
 
         }
 
-        public static bool CancelCraftingJob(string playerId, int slot)
+        public static CraftingSlotResponse CancelCraftingJob(string playerId, int slot)
         {
             var job = craftingJobs[playerId][slot];
             var nextStreamId = GenericUtils.GetNextStreamVersion();
+            var resp = new CraftingSlotResponse
+            {
+                result = new CraftingSlotInfo(),
+                updates = new Updates()
+        };
 
             foreach (InputItem item in job.escrow)
             {
@@ -243,7 +249,9 @@ namespace ProjectEarthServerAPI.Util
             job.streamVersion = nextStreamId;
 
             UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
-            return true;
+
+            resp.updates.crafting = (uint) nextStreamId;
+            return resp;
         }
 
         public static CraftingUpdates UnlockCraftingSlot(string playerId, int slot)

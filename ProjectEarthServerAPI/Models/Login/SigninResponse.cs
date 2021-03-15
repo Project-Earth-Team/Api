@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
+using Uma.Uuid;
 
 namespace ProjectEarthServerAPI.Models
 {
@@ -35,7 +36,7 @@ namespace ProjectEarthServerAPI.Models
             public object Streams { get; set; }
 
             [JsonProperty("tokens")]
-            public Dictionary<string, Token> Tokens { get; set; }
+            public Dictionary<Uuid, Token> Tokens { get; set; }
 
             [JsonProperty("updates")]
             public Dictionary<string, int> Updates { get; set; }

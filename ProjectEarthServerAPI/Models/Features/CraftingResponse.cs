@@ -26,7 +26,7 @@ namespace ProjectEarthServerAPI.Models.Features
     public class CraftingSlotResponse
     {
         public CraftingSlotInfo result { get; set; }
-        public Dictionary<string, int> updates { get; set; } 
+        public Updates updates { get; set; } 
     }
 
     public class CollectItemsResponse

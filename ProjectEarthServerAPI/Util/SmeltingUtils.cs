@@ -214,7 +214,7 @@ namespace ProjectEarthServerAPI.Util
             }
             else
             {
-                craftedAmount = job.total - job.completed;
+                craftedAmount = job.available;
                 InventoryUtils.AddItemToInv(playerId, job.output.itemId, job.output.quantity * craftedAmount);
                 // TODO: Add to challenges, tokens, journal (when implemented)
             }
