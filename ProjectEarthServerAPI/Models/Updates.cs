@@ -20,7 +20,9 @@ namespace ProjectEarthServerAPI.Models
         public uint smelting { get; set; }
 		[JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
 		public uint tokens { get; set; }
-    }
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public uint challenges { get; set; }
+	}
 
     public class UpdateResponse
     {

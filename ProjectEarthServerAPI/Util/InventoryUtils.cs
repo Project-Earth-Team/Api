@@ -18,20 +18,20 @@ namespace ProjectEarthServerAPI.Util
     {
 
         public static InventoryUtilResult RemoveItemFromInv(string playerId, Guid itemIdToRemove,
-            [Optional] string unstackableItemId, int countToRemove = 1)
+            int count = 1, string unstackableItemId = null)
         {
             var inv = ReadInventory(playerId);
 
             var itementry = inv.result.stackableItems.Find(match => match.id == itemIdToRemove);
             if (itementry != null)
             {
-                if (countToRemove > itementry.owned)
+                if (count > itementry.owned)
                 {
                     return InventoryUtilResult.NotEnoughItemsAvailable;
                 }
                 else
                 {
-                    itementry.owned -= countToRemove;
+                    itementry.owned -= count;
                     itementry.seen.on = DateTime.UtcNow;
                 }
                 WriteInventory(playerId, inv);
@@ -52,6 +52,15 @@ namespace ProjectEarthServerAPI.Util
 
                 return InventoryUtilResult.ItemNotFoundInInv; // Item not in inventory, so not able to be removed
             }
+        }
+
+        public static InventoryUtilResult RemoveItemFromInv(string playerId, string itemIdentifier, int count = 1,
+            string unstackableItemId = null)
+        {
+            var itemId = StateSingleton.Instance.catalog.result.items.Find(match => match.item.name == itemIdentifier)
+                .id;
+
+            return RemoveItemFromInv(playerId, itemId, count, unstackableItemId);
         }
 
         public static Tuple<InventoryUtilResult, int> GetItemCountFromInv(string playerId, Guid itemId)
@@ -134,6 +143,14 @@ namespace ProjectEarthServerAPI.Util
             }
         }
 
+        public static InventoryUtilResult AddItemToInv(string playerId, string itemIdentifier, int count = 1,
+            bool isStackableItem = true, string instanceId = null)
+        {
+            var itemId = StateSingleton.Instance.catalog.result.items.Find(match => match.item.name == itemIdentifier)
+                .id;
+            return AddItemToInv(playerId, itemId, count, isStackableItem, instanceId);
+        }
+
         public static Tuple<InventoryUtilResult, double> EditHealthOfItem(string playerId, Guid itemId, string unstackableItemInstanceId, double newHealth) // TODO: Actually Edit lmao
         {
             try
@@ -181,12 +198,12 @@ namespace ProjectEarthServerAPI.Util
                         if (inv.result.hotbar[i] != null)
                         {
                             RemoveItemFromInv(playerId, newHotbar[i].id,
-                                newHotbar[i].instanceId?.id, newHotbar[i].count - inv.result.hotbar[i].count);
+                                newHotbar[i].count - inv.result.hotbar[i].count, newHotbar[i].instanceId?.id);
                         }
                         else
                         {
-                            RemoveItemFromInv(playerId, newHotbar[i].id,
-                                newHotbar[i].instanceId?.id, newHotbar[i].count);
+                            RemoveItemFromInv(playerId, newHotbar[i].id, newHotbar[i].count,
+                                newHotbar[i].instanceId?.id);
                         }
                     }
                 }

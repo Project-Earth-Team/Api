@@ -17,8 +17,8 @@ namespace ProjectEarthServerAPI.Util
 
             foreach (var challenge in rewards.Challenges)
             {
-                // ChallengeUtils.AddToPlayer(playerId, challenge.id);
-                // updates.challenges = nextStreamId;
+                 //ChallengeUtils.AddToPlayer(playerId, challenge.id);
+                 updates.challenges = nextStreamId;
             }
 
             foreach (var item in rewards.Inventory)

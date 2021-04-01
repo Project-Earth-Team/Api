@@ -28,7 +28,7 @@ namespace ProjectEarthServerAPI.Util
                     if (itemsToReturn.Find(match =>
                         match.id == ingredient.items[0] && match.amount == ingredient.quantity) == null)
                     {
-                        InventoryUtils.RemoveItemFromInv(playerId, ingredient.items[0], null, ingredient.quantity*request.Multiplier);
+                        InventoryUtils.RemoveItemFromInv(playerId, ingredient.items[0], ingredient.quantity * request.Multiplier);
                     }
                 }
 
