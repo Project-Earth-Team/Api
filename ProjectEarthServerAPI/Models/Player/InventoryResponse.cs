@@ -49,15 +49,9 @@ namespace ProjectEarthServerAPI.Models.Player
             public int fragments { get; set; } // Not used
         }
 
-        public class Instance
-        {
-            public string id { get; set; } // Maybe? Instance id of last multiplayer instance you visited
-            public double health { get; set; } // Same as above, just health of the tool
-        }
-
         public class NonStackableItem
         {
-            public List<Instance> instances { get; set; } // List of Instances, see above explanation
+            public List<ItemInstance> instances { get; set; } // List of Instances, see above explanation
             public Guid id { get; set; } // Item UUID
             public Seen seen { get; set; } // When you last used/got this item
             public Unlocked unlocked { get; set; } // When you first unlocked the item

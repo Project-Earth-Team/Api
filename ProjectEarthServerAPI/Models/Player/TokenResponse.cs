@@ -10,6 +10,7 @@ namespace ProjectEarthServerAPI.Models
     {
         [JsonProperty("result")]
         public TokenResult Result { get; set; }
+        public Updates updates { get; set; }
 
         public TokenResponse()
         {

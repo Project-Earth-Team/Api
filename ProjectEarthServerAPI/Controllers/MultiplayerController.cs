@@ -68,7 +68,9 @@ namespace ProjectEarthServerAPI.Controllers
             var stream = new StreamReader(Request.Body);
             var body = await stream.ReadToEndAsync();
             var parsedRequest = JsonConvert.DeserializeObject<ServerCommandRequest>(body);
+
             var response = MultiplayerUtils.ExecuteServerCommand(parsedRequest);
+
             if (response == "ok") return Ok();
             else return Content(response, "application/json");
         }

@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using ProjectEarthServerAPI.Models;
+using ProjectEarthServerAPI.Models.Multiplayer;
 using ProjectEarthServerAPI.Models.Player;
 using ProjectEarthServerAPI.Util;
 
@@ -16,26 +17,62 @@ namespace ProjectEarthServerAPI.Util
     /// </summary>
     public class InventoryUtils
     {
+        public static InventoryUtilResult RemoveItemFromInv(string playerId, Guid itemIdToRemove, int count,
+            float health)
+        {
+            var inv = ReadInventory(playerId);
+            var item = inv.result.nonStackableItems.Find(match =>
+                match.id == itemIdToRemove && match.instances.Any(match => match.health == health));
+            if (item == null)
+            {
+                InventoryResponse.Hotbar instanceItem = Array.Find(inv.result.hotbar, match =>
+                    match.id == itemIdToRemove && match.instanceId.health == health);
+                return RemoveItemFromInv(playerId, itemIdToRemove, count, instanceItem.instanceId.id);
+            }
+            else
+            {
+                return RemoveItemFromInv(playerId, itemIdToRemove, count,
+                    item.instances.Find(match => match.health == health).id);
+            }
+        }
 
         public static InventoryUtilResult RemoveItemFromInv(string playerId, Guid itemIdToRemove,
-            int count = 1, string unstackableItemId = null)
+            int count = 1, string unstackableItemId = null, bool includeHotbar = true)
         {
             var inv = ReadInventory(playerId);
 
-            var itementry = inv.result.stackableItems.Find(match => match.id == itemIdToRemove);
+            if (includeHotbar)
+            {
+                var hotbarItem = unstackableItemId != null
+                    ? inv.result.hotbar.First(match =>
+                        match.id == itemIdToRemove && match.count >= count && match.instanceId.id == unstackableItemId)
+                    : inv.result.hotbar.First(match => match.id == itemIdToRemove && match.count >= count);
+
+                if (hotbarItem != null)
+                {
+                    var hotbar = inv.result.hotbar;
+                    var index = Array.IndexOf(hotbar, hotbarItem);
+
+                    if (hotbarItem.count == count) hotbarItem = null;
+                    else hotbarItem.count -= count;
+
+                    hotbar[index] = hotbarItem;
+
+                    EditHotbar(playerId, hotbar, false);
+
+                    return InventoryUtilResult.Success;
+
+                }
+
+            }
+
+            var itementry = inv.result.stackableItems.Find(match => match.id == itemIdToRemove && match.owned >= count);
             if (itementry != null)
             {
-                if (count > itementry.owned)
-                {
-                    return InventoryUtilResult.NotEnoughItemsAvailable;
-                }
-                else
-                {
-                    itementry.owned -= count;
-                    itementry.seen.on = DateTime.UtcNow;
-                }
+                itementry.owned -= count;
+                itementry.seen.on = DateTime.UtcNow;
+
                 WriteInventory(playerId, inv);
-                return InventoryUtilResult.Success;
             }
             else
             {
@@ -47,11 +84,15 @@ namespace ProjectEarthServerAPI.Util
                     unstackableItem.seen.on = DateTime.UtcNow;
 
                     WriteInventory(playerId, inv);
-                    return InventoryUtilResult.Success;
+                }
+                else
+                {
+                    return InventoryUtilResult.NotEnoughItemsAvailable;
                 }
 
-                return InventoryUtilResult.ItemNotFoundInInv; // Item not in inventory, so not able to be removed
             }
+
+            return InventoryUtilResult.Success;
         }
 
         public static InventoryUtilResult RemoveItemFromInv(string playerId, string itemIdentifier, int count = 1,
@@ -97,12 +138,12 @@ namespace ProjectEarthServerAPI.Util
 
                     if (itementry != null && instanceId != null)
                     {
-                        itementry.instances.Add(new InventoryResponse.Instance{health = 100.00, id = instanceId});
+                        itementry.instances.Add(new InventoryResponse.ItemInstance{health = 100.00, id = instanceId});
                         itementry.seen.on = DateTime.UtcNow;
                     }
                     else
                     {
-                        // TODO: Figure out what to do here. New instance somehow?
+                        itementry?.instances.Add(new InventoryResponse.ItemInstance{health = 100.00, id = Guid.NewGuid().ToString()});
                     }
                 }
                 else
@@ -173,41 +214,70 @@ namespace ProjectEarthServerAPI.Util
             }
         }
 
-        public static Tuple<InventoryUtilResult, InventoryResponse.Hotbar[]> EditHotbar(string playerId, InventoryResponse.Hotbar[] newHotbar)
+        public static Tuple<InventoryUtilResult, InventoryResponse.Hotbar[]> GetHotbar(string playerId)
+        {
+            var inv = ReadInventory(playerId);
+            return new Tuple<InventoryUtilResult, InventoryResponse.Hotbar[]>(InventoryUtilResult.Success,
+                inv.result.hotbar);
+        }
+
+        public static Tuple<InventoryUtilResult, InventoryResponse.Hotbar[]> EditHotbar(string playerId, InventoryResponse.Hotbar[] newHotbar, bool moveItemsToInventory = true)
         {
             var inv = ReadInventory(playerId);
 
-            for (int i = 0; i < inv.result.hotbar.Length - 1; i++)
+            for (int i = 0; i < inv.result.hotbar.Length; i++)
             {
-                if (newHotbar[i]?.id != inv.result.hotbar[i]?.id | newHotbar[i]?.count != inv.result.hotbar[i]?.count)
+                if (newHotbar[i]?.id != inv.result.hotbar[i]?.id |
+                    newHotbar[i]?.count != inv.result.hotbar[i]?.count)
                 {
                     if (newHotbar[i] == null)
                     {
-                        if (inv.result.hotbar[i].instanceId == null)
+                        if (moveItemsToInventory)
                         {
-                            AddItemToInv(playerId, inv.result.hotbar[i].id, inv.result.hotbar[i].count,
-                                true);
-                        }
-                        else
-                        {
-                            AddItemToInv(playerId, inv.result.hotbar[i].id, 1, false, inv.result.hotbar[i].instanceId.id);
+                            if (inv.result.hotbar[i].instanceId == null)
+                            {
+                                AddItemToInv(playerId, inv.result.hotbar[i].id, inv.result.hotbar[i].count);
+                            }
+                            else
+                            {
+                                AddItemToInv(playerId, inv.result.hotbar[i].id, 1, false,
+                                    inv.result.hotbar[i].instanceId.id);
+                            }
                         }
                     }
                     else
                     {
-                        if (inv.result.hotbar[i] != null)
+
+                        if (moveItemsToInventory)
                         {
-                            RemoveItemFromInv(playerId, newHotbar[i].id,
-                                newHotbar[i].count - inv.result.hotbar[i].count, newHotbar[i].instanceId?.id);
+                            if (inv.result.hotbar[i] != null)
+                            {
+                                RemoveItemFromInv(playerId, newHotbar[i].id,
+                                    newHotbar[i].count - inv.result.hotbar[i].count, newHotbar[i].instanceId?.id, false);
+                            }
+                            else
+                            {
+                                RemoveItemFromInv(playerId, newHotbar[i].id, newHotbar[i].count,
+                                    newHotbar[i].instanceId?.id, false);
+                            }
                         }
-                        else
+                        else // Not adding the actual item, just the item id since earth can only transfer items already in the inventory item lists
                         {
-                            RemoveItemFromInv(playerId, newHotbar[i].id, newHotbar[i].count,
-                                newHotbar[i].instanceId?.id);
+                            if (newHotbar[i].instanceId == null)
+                            {
+                                AddItemToInv(playerId, newHotbar[i].id, 0);
+                            }
+                            else
+                            {
+                                AddItemToInv(playerId, newHotbar[i].id, 0, false,
+                                    newHotbar[i].instanceId.id);
+                            }
                         }
                     }
                 }
+
             }
+
             var newinv = ReadInventory(playerId);
             newinv.result.hotbar = newHotbar;
 
@@ -224,6 +294,39 @@ namespace ProjectEarthServerAPI.Util
         public static InventoryResponse ReadInventory(string playerId)
         {
             return GenericUtils.ParseJsonFile<InventoryResponse>(playerId, "inventory");
+        }
+
+        public static MultiplayerInventoryResponse ReadInventoryForMultiplayer(string playerId)
+        {
+            var normalInv = ReadInventory(playerId);
+            var multiplayerInv = new MultiplayerInventoryResponse();
+
+            var hotbar = new MultiplayerItem[normalInv.result.hotbar.Length];
+
+            for (int i = 0; i < normalInv.result.hotbar.Length; i++)
+            {
+                hotbar[i] = MultiplayerItem.ConvertToMultiplayerItem(normalInv.result.hotbar[i]);
+            }
+
+            var inv = new List<MultiplayerItem>();
+
+            for (int i = 0; i < normalInv.result.stackableItems.Count; i++)
+            {
+                var item = normalInv.result.stackableItems[i];
+                inv.Add(MultiplayerItem.ConvertToMultiplayerItem(item));
+            }
+
+            for (int i = 0; i < normalInv.result.nonStackableItems.Count; i++)
+            {
+                var item = normalInv.result.nonStackableItems[i];
+                MultiplayerItem.ConvertToMultiplayerItems(item)
+                    .ForEach(match => inv.Add(match));
+            }
+
+            multiplayerInv.hotbar = hotbar;
+            multiplayerInv.inventory = inv.ToArray();
+
+            return multiplayerInv;
         }
 
         private static bool WriteInventory(string playerId, InventoryResponse inv)

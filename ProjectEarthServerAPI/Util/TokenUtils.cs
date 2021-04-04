@@ -66,6 +66,8 @@ namespace ProjectEarthServerAPI.Util
             if (tokenlist.All(pred => pred.Value.clientProperties["itemid"] != itemId.ToString()))
                 tokenlist.Add(Version4Generator.NewUuid(), itemtoken);
 
+            Console.WriteLine($"Added item token {itemId} for player {playerId}!");
+
             WriteTokensForPlayer(playerId, tokenlist);
 
         }
@@ -106,7 +108,8 @@ namespace ProjectEarthServerAPI.Util
                 Result = new TokenResult
                 {
                     tokens = tokenlist
-                }
+                },
+                updates = new Updates()
             };
             GenericUtils.WriteJsonFile(playerId, tokenResp,"tokens");
         }

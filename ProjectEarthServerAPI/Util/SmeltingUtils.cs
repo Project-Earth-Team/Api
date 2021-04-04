@@ -202,9 +202,9 @@ namespace ProjectEarthServerAPI.Util
                     job.nextCompletionUtc = job.nextCompletionUtc.Value.AddSeconds((double)recipe.heatRequired / job.burning.fuel.burnRate.heatPerSecond);
                     job.completed += craftedAmount;
                     //job.available -= craftedAmount;
-                    for (int i = 0; i < job.escrow.Length-1; i++)
+                    foreach (var inputItem in job.escrow)
                     {
-                        job.escrow[i].quantity -= 1;
+                        inputItem.quantity -= 1;
                     }
 
                     job.streamVersion = nextStreamId;

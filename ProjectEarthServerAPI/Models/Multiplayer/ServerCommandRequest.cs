@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using Newtonsoft.Json;
 
 namespace ProjectEarthServerAPI.Models.Multiplayer
 {
@@ -18,18 +19,31 @@ namespace ProjectEarthServerAPI.Models.Multiplayer
         public string buildplateId { get; set; }
     }
 
-    public class InventoryItemRequest
+    public class HotbarTranslation
     {
-        public string itemIdentifier { get; set; }
+        public string identifier { get; set; }
+        public int meta { get; set; }
         public int count { get; set; }
+        public int slotId { get; set; }
+    }
+
+    public class EditInventoryRequest
+    {
+        public string identifier { get; set; }
+        public int meta { get; set; }
+        public int count { get; set; }
+        public int slotIndex { get; set; }
+        public float health { get; set; }
         public bool removeItem { get; set; }
     }
 
     public enum ServerCommandType
     {
         GetInventory,
-        GetBuildplate,
         EditInventory,
-        EditBuildplate
+        EditHotbar,
+        GetBuildplate,
+        EditBuildplate,
+        MarkServerAsReady
     }
 }
