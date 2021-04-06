@@ -40,6 +40,7 @@ namespace ProjectEarthServerAPI.Models.Multiplayer
     public enum ServerCommandType
     {
         GetInventory,
+        GetInventoryForClient,
         EditInventory,
         EditHotbar,
         GetBuildplate,

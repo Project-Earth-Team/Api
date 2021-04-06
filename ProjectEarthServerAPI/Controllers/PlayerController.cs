@@ -8,6 +8,7 @@ using ProjectEarthServerAPI.Models.Player;
 using ProjectEarthServerAPI.Util;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using Serilog;
 using Uma.Uuid;
 
 namespace ProjectEarthServerAPI.Controllers
@@ -23,7 +24,7 @@ namespace ProjectEarthServerAPI.Controllers
             string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var returnTokens = TokenUtils.GetSerializedTokenResponse(authtoken);
 
-            Console.WriteLine($"User with id {authtoken} requested tokens.");
+            Log.Debug($"[{authtoken}]: Requested tokens."); // Debug since this is spammed a lot
 
             return Content(returnTokens, "application/json");
         }

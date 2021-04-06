@@ -4,6 +4,7 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 using ProjectEarthServerAPI.Models;
 using ProjectEarthServerAPI.Models.Features;
+using Serilog;
 
 namespace ProjectEarthServerAPI.Util
 {
@@ -92,6 +93,8 @@ namespace ProjectEarthServerAPI.Util
 
                 UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
 
+                Log.Debug($"[{playerId}]: Initiated smelting job in slot {slot}.");
+
                 return true;
             }
 
@@ -160,12 +163,14 @@ namespace ProjectEarthServerAPI.Util
 
                 UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
 
+                Log.Debug($"[{playerId}]: Requested smelting slot {slot} status.");
+
                 return returnResponse;
             }
             catch (Exception e )
             {
-                Console.WriteLine($"Error while getting Smelting job info: Player ID: {playerId} Smelting Slot: {slot}");
-                Console.WriteLine($"Exception: {e.StackTrace}");
+                Log.Error($"[{playerId}]: Error while getting smelting job info: Smelting Slot: {slot}");
+                Log.Debug($"Exception: {e.StackTrace}");
                 return null;
             }
 
@@ -260,6 +265,8 @@ namespace ProjectEarthServerAPI.Util
 
             UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
 
+            Log.Debug($"[{playerId}]: Collected results of smelting slot {slot}.");
+
             return returnResponse;
 
         }
@@ -299,6 +306,9 @@ namespace ProjectEarthServerAPI.Util
             job.streamVersion = nextStreamId;
 
             UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
+
+            Log.Debug($"[{playerId}]: Cancelled smelting job in slot {slot}.");
+
             return true;
         }
 
@@ -317,6 +327,8 @@ namespace ProjectEarthServerAPI.Util
             };
 
             UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
+
+            Log.Debug($"[{playerId}]: Unlocked smelting slot {slot}.");
 
             returnUpdates.updates.Add("smelting", nextStreamId);
 

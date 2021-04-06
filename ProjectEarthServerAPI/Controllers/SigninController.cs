@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using ProjectEarthServerAPI.Models;
 using ProjectEarthServerAPI.Util;
+using Serilog;
 
 namespace ProjectEarthServerAPI.Controllers
 {
@@ -42,7 +43,7 @@ namespace ProjectEarthServerAPI.Controllers
                 NullValueHandling = NullValueHandling.Ignore
             });
 
-            Console.WriteLine($"User with id {playerid} logged in.");
+            Log.Information($"[{playerid}]: Logged in.");
 
             return Content(resp, "application/json");
             //return Content(

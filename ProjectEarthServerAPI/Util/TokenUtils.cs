@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
 using ProjectEarthServerAPI.Models;
+using Serilog;
 using Uma.Uuid;
 
 namespace ProjectEarthServerAPI.Util
@@ -66,7 +67,7 @@ namespace ProjectEarthServerAPI.Util
             if (tokenlist.All(pred => pred.Value.clientProperties["itemid"] != itemId.ToString()))
                 tokenlist.Add(Version4Generator.NewUuid(), itemtoken);
 
-            Console.WriteLine($"Added item token {itemId} for player {playerId}!");
+            Log.Information($"[{playerId}]: Added item token {itemId}!");
 
             WriteTokensForPlayer(playerId, tokenlist);
 
@@ -93,7 +94,7 @@ namespace ProjectEarthServerAPI.Util
 
                 parsedTokens.Result.tokens.Remove(tokenId);
 
-                Console.WriteLine($"Redeemed token {tokenId} for user with id {playerId}.");
+                Log.Information($"[{playerId}]: Redeemed token {tokenId}.");
 
                 return tokenToRedeem;
             }

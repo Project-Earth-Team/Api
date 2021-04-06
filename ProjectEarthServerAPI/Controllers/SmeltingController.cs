@@ -9,6 +9,7 @@ using ProjectEarthServerAPI.Util;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using ProjectEarthServerAPI.Models;
+using Serilog;
 
 namespace ProjectEarthServerAPI.Controllers
 {
@@ -27,9 +28,7 @@ namespace ProjectEarthServerAPI.Controllers
 
             var req = JsonConvert.DeserializeObject<SmeltingRequest>(body);
 
-            var smeltingJob = SmeltingUtils.StartSmeltingJob(authtoken, slot, req); 
-
-            Console.WriteLine($"User with id {authtoken} initiated smelting job in slot {slot}.");
+            var smeltingJob = SmeltingUtils.StartSmeltingJob(authtoken, slot, req);
 
             var updateResponse = new UpdateResponse {updates = new Updates()};
 
@@ -69,8 +68,6 @@ namespace ProjectEarthServerAPI.Controllers
 
             var smeltingStatus = SmeltingUtils.GetSmeltingJobInfo(authtoken, slot);
 
-            Console.WriteLine($"User with id {authtoken} requested smelting slot {slot} status.");
-
             return Content(JsonConvert.SerializeObject(smeltingStatus),"application/json");
             //return Accepted(Content(returnTokens, "application/json"));
         }
@@ -83,9 +80,6 @@ namespace ProjectEarthServerAPI.Controllers
 
             var returnUpdates = SmeltingUtils.FinishSmeltingJob(authtoken, slot);
 
-            Console.WriteLine($"User with id {authtoken} collected results of smelting slot {slot}.");
-
-
             return Content(JsonConvert.SerializeObject(returnUpdates), "application/json");
             //return Accepted(Content(returnTokens, "application/json"));
         }
@@ -97,8 +91,6 @@ namespace ProjectEarthServerAPI.Controllers
             string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var returnUpdates = SmeltingUtils.CancelSmeltingJob(authtoken, slot);
-
-            Console.WriteLine($"User with id {authtoken} cancelled smelting job in slot {slot}.");
 
             return Accepted();
 
@@ -113,8 +105,6 @@ namespace ProjectEarthServerAPI.Controllers
             string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var returnUpdates = SmeltingUtils.UnlockSmeltingSlot(authtoken, slot);
-
-            Console.WriteLine($"User with id {authtoken} cancelled smelting job in slot {slot}.");
 
             return Content(JsonConvert.SerializeObject(returnUpdates),"application/json");
         }

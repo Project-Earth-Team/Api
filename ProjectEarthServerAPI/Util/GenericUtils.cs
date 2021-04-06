@@ -2,6 +2,7 @@
 using System.IO;
 using Newtonsoft.Json;
 using ProjectEarthServerAPI.Models.Player;
+using Serilog;
 
 namespace ProjectEarthServerAPI.Util
 {
@@ -25,7 +26,7 @@ namespace ProjectEarthServerAPI.Util
         {
             try
             {
-                Console.WriteLine($"Creating default json for User ID: {playerId} with Type: {typeof(T)}.");
+                Log.Information($"[{playerId}]: Creating default json with Type: {typeof(T)}.");
                 var obj = new T();                                                                              // TODO: Implement Default Values for each player property/json we store for them
                 File.WriteAllText(filepath, JsonConvert.SerializeObject(obj));
                 return true;
@@ -34,8 +35,8 @@ namespace ProjectEarthServerAPI.Util
             catch (Exception ex)
             {
 
-                Console.WriteLine($"Creating default json failed! User ID: {playerId} Type: {typeof(T)}");
-                Console.WriteLine($"Exception: {ex}");
+                Log.Error($"[{playerId}]: Creating default json failed! Type: {typeof(T)}");
+                Log.Debug($"Exception: {ex}");
                 return false;
 
             }

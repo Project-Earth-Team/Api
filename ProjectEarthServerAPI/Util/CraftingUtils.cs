@@ -4,6 +4,7 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 using ProjectEarthServerAPI.Models;
 using ProjectEarthServerAPI.Models.Features;
+using Serilog;
 
 namespace ProjectEarthServerAPI.Util
 {
@@ -15,7 +16,6 @@ namespace ProjectEarthServerAPI.Util
         public static bool StartCraftingJob(string playerId, int slot, CraftingRequest request) // TODO: Check if slot not unlocked (not a big priority)
         {
             recipeList ??= Recipes.FromFile("./data/recipes");
-
 
             var recipe = recipeList.result.crafting.Find(match => match.id == request.RecipeId);
 
@@ -68,6 +68,8 @@ namespace ProjectEarthServerAPI.Util
                 craftingJobs[playerId][slot] = job;
 
                 UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
+
+                Log.Debug($"[{playerId}]: Initiated crafting job in slot {slot}.");
 
                 return true;
             }
@@ -123,12 +125,14 @@ namespace ProjectEarthServerAPI.Util
 
                 UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
 
+                Log.Debug($"[{playerId}]: Requested crafting slot {slot} status.");
+
                 return returnResponse;
             }
             catch (Exception e )
             {
-                Console.WriteLine($"Error while getting crafting job info: Player ID: {playerId} Crafting Slot: {slot}");
-                Console.WriteLine($"Exception: {e.StackTrace}");
+                Log.Error($"[{playerId}]: Error while getting crafting job info! Crafting Slot: {slot}");
+                Log.Debug($"Exception: {e.StackTrace}");
                 return null;
             }
 
@@ -216,6 +220,8 @@ namespace ProjectEarthServerAPI.Util
 
             UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
 
+            Log.Debug($"[{playerId}]: Collected results of crafting slot {slot}.");
+
             return returnResponse;
 
         }
@@ -250,6 +256,8 @@ namespace ProjectEarthServerAPI.Util
 
             UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
 
+            Log.Debug($"[{playerId}]: Cancelled crafting job in slot {slot}.");
+
             resp.updates.crafting = (uint) nextStreamId;
             return resp;
         }
@@ -269,6 +277,8 @@ namespace ProjectEarthServerAPI.Util
             };
 
             UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
+
+            Log.Debug($"[{playerId}]: Unlocked crafting slot {slot}.");
 
             returnUpdates.updates.Add("crafting", nextStreamId);
 

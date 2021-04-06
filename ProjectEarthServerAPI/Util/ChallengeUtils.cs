@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.OpenApi.Extensions;
 using ProjectEarthServerAPI.Models;
 using ProjectEarthServerAPI.Models.Player;
+using Serilog;
 
 namespace ProjectEarthServerAPI.Util
 {
@@ -44,7 +45,7 @@ namespace ProjectEarthServerAPI.Util
 
             playerChallenges.result.challenges[challengeId].state = ChallengeState.Active;
 
-                Console.WriteLine($"Activating challenge {challengeId} for player id {playerId}!");
+            Log.Information($"[{playerId}]: Activating challenge {challengeId}!");
             WriteChallenges(playerId, playerChallenges);
 
             return true;

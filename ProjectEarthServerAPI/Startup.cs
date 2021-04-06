@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.ResponseCompression;
 using ProjectEarthServerAPI.Util;
 using Microsoft.AspNetCore.Authentication;
 using ProjectEarthServerAPI.Authentication;
+using Serilog;
 
 namespace ProjectEarthServerAPI
 {
@@ -58,6 +59,8 @@ namespace ProjectEarthServerAPI
             {
                 //app.UseDeveloperExceptionPage();
             }
+
+            //app.UseSerilogRequestLogging();
 
             app.UseETagger();
             //app.UseHttpsRedirection();

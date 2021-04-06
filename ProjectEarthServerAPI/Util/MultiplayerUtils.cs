@@ -9,6 +9,7 @@ using ProjectEarthServerAPI.Models.Buildplate;
 using ProjectEarthServerAPI.Models.Features;
 using ProjectEarthServerAPI.Models.Multiplayer;
 using ProjectEarthServerAPI.Models.Player;
+using Serilog;
 
 namespace ProjectEarthServerAPI.Util
 {
@@ -22,7 +23,7 @@ namespace ProjectEarthServerAPI.Util
         {
             // TODO: Actually start the server
 
-            Console.WriteLine($"Creating new buildplate instance: Player {playerId} Buildplate {buildplateId}");
+            Log.Information($"[{playerId}]: Creating new buildplate instance: Buildplate {buildplateId}");
 
             var ServerIp = "192.168.2.100";
             var ServerPort = 19132;
@@ -80,7 +81,7 @@ namespace ProjectEarthServerAPI.Util
                 result = new BuildplateServerResponse.Result
                 {
                     applicationStatus = "Unknown",
-                    fqdn = "dns2527870c-89c6-420e-8378-996a2c40304a-azurebatch-cloudservice.westeurope.cloudapp.azure.com", // figure out why this breaks everything
+                    //fqdn = "dns2527870c-89c6-420e-8378-996a2c40304a-azurebatch-cloudservice.westeurope.cloudapp.azure.com", // figure out why this breaks everything
                     gameplayMetadata = buildplateData,
                     hostCoordinate = playerCoords, 
                     instanceId = serverInstanceId,
@@ -197,6 +198,43 @@ namespace ProjectEarthServerAPI.Util
             return response;
         }
 
+        private static HotbarTranslation[] GetHotbarForPlayer(string playerId)
+        {
+            var inv = InventoryUtils.ReadInventory(playerId);
+            var hotbar = inv.result.hotbar;
+            HotbarTranslation[] response = new HotbarTranslation[hotbar.Length];
+
+            for (int i = 0; i < hotbar.Length; i++)
+            {
+                InventoryResponse.Hotbar item = hotbar[i];
+
+                if (item != null)
+                {
+                    var catalogItem = StateSingleton.Instance.catalog.result.items.Find(match => match.id == item.id);
+
+                    response[i] = new HotbarTranslation
+                    {
+                        count = item.count,
+                        identifier = catalogItem.item.name,
+                        meta = catalogItem.item.aux,
+                        slotId = i
+                    };
+                }
+                else
+                {
+                    response[i] = new HotbarTranslation
+                    {
+                        count = 0,
+                        identifier = "air",
+                        meta = 0,
+                        slotId = i
+                    };
+                }
+            }
+
+            return response;
+        }
+
         public static void EditInventoryForPlayer(string playerId, EditInventoryRequest request)
         {
             var damage = request.meta == -1 ? 0 : request.meta;
@@ -236,6 +274,7 @@ namespace ProjectEarthServerAPI.Util
 
         public static string ExecuteServerCommand(ServerCommandRequest request)
         {
+            Log.Information($"Received command from Server {request.serverId}!");
             if (!apiKeyList.ContainsValue(request.apiKey))
             {
                 var command = request.command;
@@ -246,9 +285,13 @@ namespace ProjectEarthServerAPI.Util
                         var buildplate = JsonConvert.DeserializeObject<BuildplateRequest>(request.requestData);
                         return JsonConvert.SerializeObject(GetBuildplateById(playerId, buildplate.buildplateId));
 
-                    case ServerCommandType.GetInventory:
+                    case ServerCommandType.GetInventoryForClient:
                         var inv = InventoryUtils.ReadInventoryForMultiplayer(playerId);
                         return JsonConvert.SerializeObject(inv);
+
+                    case ServerCommandType.GetInventory:
+                        var hotbarForServer = GetHotbarForPlayer(playerId);
+                        return JsonConvert.SerializeObject(hotbarForServer);
 
                     case ServerCommandType.EditInventory:
                         var invEdits = JsonConvert.DeserializeObject<EditInventoryRequest>(request.requestData);

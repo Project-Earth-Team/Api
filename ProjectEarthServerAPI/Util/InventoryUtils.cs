@@ -9,6 +9,7 @@ using ProjectEarthServerAPI.Models;
 using ProjectEarthServerAPI.Models.Multiplayer;
 using ProjectEarthServerAPI.Models.Player;
 using ProjectEarthServerAPI.Util;
+using Serilog;
 
 namespace ProjectEarthServerAPI.Util
 {
@@ -43,10 +44,16 @@ namespace ProjectEarthServerAPI.Util
 
             if (includeHotbar)
             {
-                var hotbarItem = unstackableItemId != null
-                    ? inv.result.hotbar.First(match =>
-                        match.id == itemIdToRemove && match.count >= count && match.instanceId.id == unstackableItemId)
-                    : inv.result.hotbar.First(match => match.id == itemIdToRemove && match.count >= count);
+                InventoryResponse.Hotbar hotbarItem = null;
+                foreach (InventoryResponse.Hotbar item in inv.result.hotbar)
+                {
+                    if (item != null && item.id == itemIdToRemove && item.count == count)
+                    {
+                        if (unstackableItemId == null || item.instanceId.id == unstackableItemId)
+                            hotbarItem = item;
+                        break;
+                    }
+                }
 
                 if (hotbarItem != null)
                 {
@@ -173,13 +180,13 @@ namespace ProjectEarthServerAPI.Util
 
                 TokenUtils.AddItemToken(playerId, itemIdToAdd);
 
-                Console.WriteLine($"Added item {itemIdToAdd} to inventory. User ID: {playerId}");
+                Log.Information($"[{playerId}]: Added item {itemIdToAdd} to inventory.");
                 return InventoryUtilResult.Success;
 
             }
             catch
             {
-                Console.WriteLine($"Adding item to inventory failed! User ID: {playerId} Item to add: {itemIdToAdd}");
+                Log.Error($"[{playerId}]: Adding item to inventory failed! Item to add: {itemIdToAdd}");
                 return InventoryUtilResult.NoSpecificError;
             }
         }

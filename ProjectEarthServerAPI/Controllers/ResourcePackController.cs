@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.IO;
 using Newtonsoft.Json;
 using ProjectEarthServerAPI.Models;
+using Serilog;
 
 namespace ProjectEarthServerAPI.Controllers
 {
@@ -50,7 +51,7 @@ namespace ProjectEarthServerAPI.Controllers
 
             if (!System.IO.File.Exists(resourcePackFilePath))
             {
-                Console.WriteLine("[Resourcepacks] Error! Resource pack file not found.");
+                Log.Error("[Resourcepacks] Error! Resource pack file not found.");
                 return BadRequest(); //we cannot serve you.
             }
 

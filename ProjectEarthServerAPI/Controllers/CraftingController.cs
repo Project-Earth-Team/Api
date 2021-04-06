@@ -8,6 +8,7 @@ using ProjectEarthServerAPI.Models.Features;
 using ProjectEarthServerAPI.Util;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using Serilog;
 
 namespace ProjectEarthServerAPI.Controllers
 {
@@ -28,7 +29,6 @@ namespace ProjectEarthServerAPI.Controllers
 
             var craftingJob = CraftingUtils.StartCraftingJob(authtoken, slot, req); 
 
-            Console.WriteLine($"User with id {authtoken} initiated crafting job in slot {slot}.");
 
             var updateResponse = new CraftingUpdates
             {
@@ -71,8 +71,6 @@ namespace ProjectEarthServerAPI.Controllers
 
             var craftingStatus = CraftingUtils.GetCraftingJobInfo(authtoken, slot);
 
-            Console.WriteLine($"User with id {authtoken} requested crafting slot {slot} status.");
-
             return Content(JsonConvert.SerializeObject(craftingStatus),"application/json");
             //return Accepted(Content(returnTokens, "application/json"));
         }
@@ -85,9 +83,6 @@ namespace ProjectEarthServerAPI.Controllers
 
             var returnUpdates = CraftingUtils.FinishCraftingJob(authtoken, slot);
 
-            Console.WriteLine($"User with id {authtoken} collected results of crafting slot {slot}.");
-
-
             return Content(JsonConvert.SerializeObject(returnUpdates), "application/json");
             //return Accepted(Content(returnTokens, "application/json"));
         }
@@ -99,8 +94,6 @@ namespace ProjectEarthServerAPI.Controllers
             string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var returnUpdates = CraftingUtils.CancelCraftingJob(authtoken, slot);
-
-            Console.WriteLine($"User with id {authtoken} cancelled crafting job in slot {slot}.");
 
             //return Accepted();
 
@@ -115,8 +108,6 @@ namespace ProjectEarthServerAPI.Controllers
             string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var returnUpdates = CraftingUtils.UnlockCraftingSlot(authtoken, slot);
-
-            Console.WriteLine($"User with id {authtoken} cancelled crafting job in slot {slot}.");
 
             return Content(JsonConvert.SerializeObject(returnUpdates),"application/json");
         }
