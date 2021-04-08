@@ -6,6 +6,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using ProjectEarthServerAPI.Models.Buildplate;
 using ProjectEarthServerAPI.Models.Multiplayer;
@@ -26,7 +27,7 @@ namespace ProjectEarthServerAPI.Controllers
             var body = await stream.ReadToEndAsync();
             var parsedRequest = JsonConvert.DeserializeObject<BuildplateServerRequest>(body);
 
-            var response = MultiplayerUtils.CreateBuildplateInstance(authtoken, buildplateId, parsedRequest.playerCoordinate);
+            var response = await MultiplayerUtils.CreateBuildplateInstance(authtoken, buildplateId, parsedRequest.playerCoordinate);
             return Content(JsonConvert.SerializeObject(response), "application/json");
         }
 
@@ -46,7 +47,7 @@ namespace ProjectEarthServerAPI.Controllers
         [Authorize]
         [ApiVersion("1.1")]
         [Route("1/api/v{version:apiVersion}/multiplayer/partitions/{worldId}/instances/{instanceId}")]
-        public IActionResult GetInstanceStatus(string worldId, string instanceId)
+        public IActionResult GetInstanceStatus(string worldId, Guid instanceId)
         {
             string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -73,6 +74,17 @@ namespace ProjectEarthServerAPI.Controllers
 
             if (response == "ok") return Ok();
             else return Content(response, "application/json");
+        }
+
+        [ApiVersion("1.1")]
+        [Route("1/api/v{version:apiVersion}/private/server/ws")]
+        public async Task GetWebSocketServer()
+        {
+            if (HttpContext.WebSockets.IsWebSocketRequest)
+            {
+                var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
+                await MultiplayerUtils.AuthenticateServer(webSocket);
+            }
         }
     }
 }

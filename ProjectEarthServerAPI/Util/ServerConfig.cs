@@ -21,6 +21,7 @@ namespace ProjectEarthServerAPI.Util
         public string settingsFileLocation { get; set; }
         public string seasonChallengesFileLocation { get; set; }
         public string productCatalogFileLocation { get; set; }
+        public Dictionary<string, string> multiplayerAuthKeys { get; set; }
         //Load method
 
         /// <summary>

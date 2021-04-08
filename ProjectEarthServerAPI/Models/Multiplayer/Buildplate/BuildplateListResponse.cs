@@ -23,7 +23,7 @@ namespace ProjectEarthServerAPI.Models.Buildplate
             public double z { get; set; }
         }
 
-        public class Result
+        public class BuildplateData
         {
             public double blocksPerMeter { get; set; }
             public Dimension dimension { get; set; }
@@ -44,8 +44,19 @@ namespace ProjectEarthServerAPI.Models.Buildplate
 
         public object continuationToken { get; set; }
         public object expiration { get; set; }
-        public List<Result> result { get; set; }
+        public List<BuildplateData> result { get; set; }
         public Updates updates { get; set; }
         
+    }
+
+    public class BuildplateShareResponse
+    {
+        public BuildplateShareInfo result { get; set; }
+
+        public class BuildplateShareInfo
+        {
+            public string playerId { get; set; }
+            public BuildplateListResponse.BuildplateData buildplateData { get; set; }
+        }
     }
 }

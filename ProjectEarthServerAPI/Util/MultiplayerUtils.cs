@@ -1,6 +1,14 @@
 ﻿using System;
+using System.Buffers.Text;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.WebSockets;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Xml.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -10,38 +18,42 @@ using ProjectEarthServerAPI.Models.Features;
 using ProjectEarthServerAPI.Models.Multiplayer;
 using ProjectEarthServerAPI.Models.Player;
 using Serilog;
+using Uma.Uuid;
 
 namespace ProjectEarthServerAPI.Util
 {
     public class MultiplayerUtils
     {
-        private static Dictionary<string, BuildplateServerResponse> instanceList = new();
-        private static Dictionary<string, Guid> apiKeyList = new();
+        private static Dictionary<Guid, BuildplateServerResponse> instanceList = new();
+        private static Dictionary<Guid, Guid> apiKeyList = new();
+        private static Dictionary<Guid, ServerInformation> serverInfoList = new();
+        private static Dictionary<Guid, WebSocket> serverSocketList = new();
+        private static Dictionary<Guid, bool> instanceReadyList = new();
 
-        public static BuildplateServerResponse CreateBuildplateInstance(string playerId, string buildplateId,
+        public static async Task<BuildplateServerResponse> CreateBuildplateInstance(string playerId, string buildplateId,
             PlayerCoordinate playerCoords)
         {
             // TODO: Actually start the server
 
+            var server = serverInfoList.First();
+            var ServerIp = server.Value.ip;
+            var ServerPort = server.Value.port;
+            var serverInstanceId = await NotifyServerInstance(server.Key, buildplateId, playerId); // TODO: Allocator 
+
             Log.Information($"[{playerId}]: Creating new buildplate instance: Buildplate {buildplateId}");
 
-            var ServerIp = "192.168.2.100";
-            var ServerPort = 19132;
-            var BlocksPerMeter = 14.0;
-            var serverInstanceId = Guid.NewGuid().ToString();
-            var BuildplateOffset = new BuildplateServerResponse.Offset {x = 0.0, y = 34.0, z = 0.0};
+            var buildplate = GetBuildplateDataForId(playerId, Guid.Parse(buildplateId));
+
+            var BlocksPerMeter = buildplate.blocksPerMeter;
+            var BuildplateOffset = buildplate.offset;
             var instanceMetadata = new BuildplateServerResponse.InstanceMetadata
             {
                 buildplateid = buildplateId
             };
 
-            var dimensions = new BuildplateServerResponse.Dimension
-            {
-                x = 8,
-                z = 8
-            };
-            var templateId = "44e6e34f-f9a8-d92f-7f78-816f6493e753"; // Not used AFAIK
-            var surfaceOrientation = "Horizontal"; // Can also be vertical
+            var dimensions = buildplate.dimension;
+            var templateId = buildplate.templateId; // Not used AFAIK
+            var surfaceOrientation = buildplate.surfaceOrientation; // Can also be vertical
 
             var buildplateData = new BuildplateServerResponse.GameplayMetadata
             {
@@ -82,9 +94,10 @@ namespace ProjectEarthServerAPI.Util
                 {
                     applicationStatus = "Unknown",
                     //fqdn = "dns2527870c-89c6-420e-8378-996a2c40304a-azurebatch-cloudservice.westeurope.cloudapp.azure.com", // figure out why this breaks everything
+                    fqdn = "test_woop.projectearth.dev",
                     gameplayMetadata = buildplateData,
                     hostCoordinate = playerCoords, 
-                    instanceId = serverInstanceId,
+                    instanceId = serverInstanceId.ToString(),
                     ipV4Address = ServerIp,
                     metadata = JsonConvert.SerializeObject(instanceMetadata),
                     partitionId = playerId,
@@ -96,29 +109,46 @@ namespace ProjectEarthServerAPI.Util
                 updates = new Updates()
             };
 
-            var apiKey = Guid.NewGuid();
-            apiKeyList.Add(serverInstanceId,apiKey);
-            instanceList.Add(serverInstanceId,result);
+            if (instanceReadyList[serverInstanceId])
+            {
+                result.result.applicationStatus = "Ready";
+                result.result.serverReady = true;
+            }
 
+            instanceList.Add(serverInstanceId, result);
 
             return result;
         }
 
-        public static BuildplateServerResponse CheckInstanceStatus(string playerId, string instanceId)
+        public static async Task<Guid> NotifyServerInstance(Guid serverId, string buildplateId, string playerId)
         {
-            // TODO: Refresh instance list from server & check allocator if instance is ready or not
-            //return null;
-            instanceList[instanceId].result.applicationStatus = "Ready";
-            instanceList[instanceId].result.serverReady = true;
-            return instanceList[instanceId];
-            /*
-            if (instanceCheck == "Ready") {
+            var instanceId = Guid.NewGuid();
+
+            instanceReadyList.Add(instanceId, false);
+
+            ServerInstanceRequestInfo instanceInfo = new ServerInstanceRequestInfo
+            {
+                buildplateId = Guid.Parse(buildplateId), instanceId = instanceId, playerId = playerId
+            };
+
+            string requestString = JsonConvert.SerializeObject(instanceInfo);
+            byte[] requestArr = Encoding.UTF8.GetBytes(requestString);
+
+            await serverSocketList[serverId].SendAsync(new ArraySegment<byte>(requestArr, 0, requestArr.Length),
+                WebSocketMessageType.Text, true, CancellationToken.None);
             
-                instanceList[instanceId].serverReady = true;
-                instanceList[instanceId].applicationStatus = "Ready";
+            return instanceId;
+        }
+
+        public static BuildplateServerResponse CheckInstanceStatus(string playerId, Guid instanceId)
+        {
+            if (instanceReadyList[instanceId])
+            {
+                instanceList[instanceId].result.applicationStatus = "Ready";
+                instanceList[instanceId].result.serverReady = true;
                 return instanceList[instanceId];
             }
-            */
+            else return null;
         }
 
         private static HotbarTranslation[] EditHotbarForPlayer(string playerId, MultiplayerItem[] multiplayerHotbar)
@@ -274,16 +304,16 @@ namespace ProjectEarthServerAPI.Util
 
         public static string ExecuteServerCommand(ServerCommandRequest request)
         {
-            Log.Information($"Received command from Server {request.serverId}!");
-            if (!apiKeyList.ContainsValue(request.apiKey))
+            var command = request.command;
+            Log.Information($"Received {command} from Server {request.serverId}!");
+            if (apiKeyList.ContainsValue(request.apiKey))
             {
-                var command = request.command;
                 var playerId = request.playerId;
                 switch (command)
                 {
                     case ServerCommandType.GetBuildplate:
                         var buildplate = JsonConvert.DeserializeObject<BuildplateRequest>(request.requestData);
-                        return JsonConvert.SerializeObject(GetBuildplateById(playerId, buildplate.buildplateId));
+                        return JsonConvert.SerializeObject(GetBuildplateById(buildplate));
 
                     case ServerCommandType.GetInventoryForClient:
                         var inv = InventoryUtils.ReadInventoryForMultiplayer(playerId);
@@ -308,8 +338,8 @@ namespace ProjectEarthServerAPI.Util
                         throw new NotImplementedException();
 
                     case ServerCommandType.MarkServerAsReady:
-                        instanceList[apiKeyList.First(match => match.Value == request.apiKey).Key].result.serverReady =
-                            true;
+                        var instanceInfo = JsonConvert.DeserializeObject<ServerInstanceInfo>(request.requestData);
+                        MarkServerAsReady(instanceInfo);
                         return "ok";
 
                     default:
@@ -317,6 +347,99 @@ namespace ProjectEarthServerAPI.Util
                 }
             }
             else return null;
+        }
+
+        public static void MarkServerAsReady(ServerInstanceInfo info)
+        {
+            instanceReadyList[info.instanceId] = true;
+        }
+
+        public static async Task AuthenticateServer(WebSocket webSocketRequest)
+        {
+            byte[] messageBuffer = new byte[4096];
+            var result = await webSocketRequest.ReceiveAsync(new ArraySegment<byte>(messageBuffer), CancellationToken.None);
+            var authStatus = ServerAuthInformation.NotAuthed;
+            ServerInformation info = null;
+            string challenge = null;
+
+            while (!result.CloseStatus.HasValue)
+            {
+                info ??= JsonConvert.DeserializeObject<ServerInformation>(Encoding.UTF8.GetString(messageBuffer));
+
+                switch (authStatus)
+                {
+                    case ServerAuthInformation.NotAuthed: // Send Challenge
+
+                        challenge = Guid.NewGuid().ToString();
+                        byte[] challengeBytes = Encoding.UTF8.GetBytes(challenge);
+
+                        await webSocketRequest.SendAsync(
+                            new ArraySegment<byte>(challengeBytes, 0, challengeBytes.Length), result.MessageType, result.EndOfMessage, CancellationToken.None);
+
+                        authStatus = ServerAuthInformation.AuthStage1;
+
+                        Array.Clear(messageBuffer, 0, messageBuffer.Length);
+                        result = await webSocketRequest.ReceiveAsync(new ArraySegment<byte>(messageBuffer),
+                            CancellationToken.None);
+
+                        break;
+
+                    case ServerAuthInformation.AuthStage1: // Verify challenge response
+                        string challengeResponse = Encoding.UTF8.GetString(messageBuffer).TrimEnd('\0');
+                        var success = VerifyChallenge(challenge, challengeResponse, info);
+
+                        byte[] challengeResponseStatus = Encoding.UTF8.GetBytes(success.ToString().ToLower());
+
+                        await webSocketRequest.SendAsync(
+                            new ArraySegment<byte>(challengeResponseStatus, 0, challengeResponseStatus.Length), result.MessageType, result.EndOfMessage, CancellationToken.None);
+
+                        if (success) authStatus = ServerAuthInformation.AuthStage2;
+                        else
+                        {
+                            authStatus = ServerAuthInformation.FailedAuth;
+
+                            await webSocketRequest.CloseAsync(WebSocketCloseStatus.Empty, null, CancellationToken.None);
+
+                            return;
+                        }
+
+                        break;
+
+                    case ServerAuthInformation.AuthStage2:
+
+                        if (!apiKeyList.ContainsKey(info.serverId))
+                        {
+                            Log.Information($"Server {info.serverId} registered itself to the api.");
+
+                            var apiKey = Guid.NewGuid();
+                            apiKeyList.Add(info.serverId, apiKey);
+                            serverInfoList.Add(info.serverId, info);
+                            serverSocketList.Add(info.serverId, webSocketRequest);
+
+                            byte[] apiKeyBytes = Encoding.UTF8.GetBytes(apiKey.ToString().ToLower());
+
+                            await webSocketRequest.SendAsync(
+                                new ArraySegment<byte>(apiKeyBytes, 0, apiKeyBytes.Length), result.MessageType,
+                                result.EndOfMessage, CancellationToken.None);
+
+                            authStatus = ServerAuthInformation.Authed;
+
+                        }
+
+                        break;
+                }
+            }
+        }
+
+        private static bool VerifyChallenge(string challenge, string challengeResponse, ServerInformation info)
+        {
+            HMACSHA256 crypto = new HMACSHA256
+            {
+                Key = Convert.FromBase64String(StateSingleton.Instance.config.multiplayerAuthKeys[info.ip])
+            };
+
+            var expectedResult = Convert.ToHexString(crypto.ComputeHash(Encoding.UTF8.GetBytes(challenge)));
+            return expectedResult == challengeResponse;
         }
 
         public static BuildplateListResponse GetBuildplates(string playerId)
@@ -327,10 +450,27 @@ namespace ProjectEarthServerAPI.Util
 
         }
 
-        public static BuildplateListResponse.Result GetBuildplateById(string playerId, string buildplateId)
+        public static BuildplateShareResponse GetBuildplateById(BuildplateRequest buildplateReq)
+        {
+            var list = GetBuildplates(buildplateReq.playerId);
+            BuildplateListResponse.BuildplateData buildplate = list.result.Find(match => match.id == buildplateReq.buildplateId);
+            
+            return new BuildplateShareResponse
+            {
+                result = new BuildplateShareResponse.BuildplateShareInfo
+                {
+                    buildplateData = buildplate,
+                    playerId = null
+                }
+            };
+        }
+
+        public static BuildplateListResponse.BuildplateData GetBuildplateDataForId(string playerId, Guid buildplateId)
         {
             var list = GetBuildplates(playerId);
-            return list.result.Find(match => match.id == buildplateId);
+            BuildplateListResponse.BuildplateData buildplate = list.result.Find(match => match.id == buildplateId.ToString());
+            return buildplate;
+
         }
     }
 }

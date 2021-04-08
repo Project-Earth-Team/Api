@@ -17,6 +17,7 @@ namespace ProjectEarthServerAPI.Models.Multiplayer
     public class BuildplateRequest
     {
         public string buildplateId { get; set; }
+        public string playerId { get; set; }
     }
 
     public class HotbarTranslation
@@ -35,6 +36,19 @@ namespace ProjectEarthServerAPI.Models.Multiplayer
         public int slotIndex { get; set; }
         public float health { get; set; }
         public bool removeItem { get; set; }
+    }
+
+    public class ServerInstanceInfo
+    {
+        public Guid instanceId { get; set; }
+        public Guid buildplateId { get; set; }
+    }
+
+    public class ServerInstanceRequestInfo
+    {
+        public Guid instanceId { get; set; }
+        public Guid buildplateId { get; set; }
+        public String playerId { get; set; }
     }
 
     public enum ServerCommandType

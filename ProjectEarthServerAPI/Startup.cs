@@ -70,6 +70,8 @@ namespace ProjectEarthServerAPI
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseWebSockets();
+
             app.UseResponseCaching();
 
             app.UseResponseCompression();
