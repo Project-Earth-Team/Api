@@ -11,8 +11,8 @@ pipeline{
             }
             post{
                 success{
-                      archiveArtifacts artifacts: 'bin/Debug/net5.0/linux-x64/publish/ProjectEarthServerAPI'
-                      archiveArtifacts artifacts: 'bin/Debug/net5.0/linux-x64/publish/ProjectEarthServerAPI.pdb'
+                      archiveArtifacts artifacts: 'ProjectEarthServerAPI/bin/Debug/net5.0/linux-x64/publish/ProjectEarthServerAPI'
+                      archiveArtifacts artifacts: 'ProjectEarthServerAPI/bin/Debug/net5.0/linux-x64/publish/ProjectEarthServerAPI.pdb'
                 }
             }
         }
