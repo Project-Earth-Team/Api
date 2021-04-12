@@ -7,7 +7,7 @@ namespace ProjectEarthServerAPI.Models.Features
 
     public class CraftingUpdates
     {
-        public Dictionary<string, int> updates { get; set; }
+        public Updates updates { get; set; }
     }
 
     public class CraftingPrice
@@ -20,7 +20,7 @@ namespace ProjectEarthServerAPI.Models.Features
     public class CraftingPriceResponse
     {
         public CraftingPrice result { get; set; }
-        public Dictionary<string, int> updates { get; set; }
+        public Updates updates { get; set; }
     }
 
     public class CraftingSlotResponse
@@ -32,7 +32,7 @@ namespace ProjectEarthServerAPI.Models.Features
     public class CollectItemsResponse
     {
         public CollectItemsInfo result { get; set; }
-        public Dictionary<string, int> updates { get; set; }
+        public Updates updates { get; set; }
     }
 
     public class CollectItemsInfo
@@ -54,7 +54,7 @@ namespace ProjectEarthServerAPI.Models.Features
         public string state { get; set; } // State: Active, Completed or Locked
         public BoostState boostState { get; set; } // See class below
         public UnlockPrice unlockPrice { get; set; } // Price to unlock item
-        public long streamVersion { get; set; } // StreamVersion with changes, unused in our version
+        public uint streamVersion { get; set; } // StreamVersion with changes, unused in our version
     }
 
     public class BoostState

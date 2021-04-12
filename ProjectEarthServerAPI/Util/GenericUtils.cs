@@ -8,7 +8,7 @@ namespace ProjectEarthServerAPI.Util
 {
     public class GenericUtils
     {
-        private static int _streamVersion = 0;
+        private static uint _streamVersion = 0;
         public static T ParseJsonFile<T>(string playerId, string fileNameWithoutJsonExtension) where T: new()
         {
             var filepath = $"./data/players/{playerId}/{fileNameWithoutJsonExtension}.json";
@@ -62,7 +62,7 @@ namespace ProjectEarthServerAPI.Util
             }
         }
 
-        public static int GetNextStreamVersion()
+        public static uint GetNextStreamVersion()
         {
             _streamVersion++;
             return _streamVersion;

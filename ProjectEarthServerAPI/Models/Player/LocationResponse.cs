@@ -17,12 +17,6 @@ namespace ProjectEarthServerAPI.Models
             public const string Epic = "Epic";
         }
 
-        public class Coordinate
-        {
-            public double latitude { get; set; }
-            public double longitude { get; set; }
-        }
-
         public class Metadata
         {
             public string rarity { get; set; }

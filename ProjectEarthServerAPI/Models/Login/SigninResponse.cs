@@ -10,8 +10,7 @@ namespace ProjectEarthServerAPI.Models
         public class ResponseTemplate
         {
             public Result result { get; set; }
-            [JsonProperty("updates")]
-            public Dictionary<string, int> Updates { get; set; }
+            public Updates updates { get; set; }
         }
 
         [JsonObject(ItemNullValueHandling = NullValueHandling.Include)]
@@ -39,7 +38,7 @@ namespace ProjectEarthServerAPI.Models
             public Dictionary<Uuid, Token> Tokens { get; set; }
 
             [JsonProperty("updates")]
-            public Dictionary<string, int> Updates { get; set; }
+            public Updates Updates { get; set; }
 
         }
     }

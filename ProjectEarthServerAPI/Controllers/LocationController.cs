@@ -27,7 +27,7 @@ namespace ProjectEarthServerAPI.Controllers
             {
                 id = Guid.NewGuid().ToString(), // Just a GUID for the tappable
                 tileId = cords[0]+"_"+cords[1],
-                coordinate = new LocationResponse.Coordinate
+                coordinate = new Coordinate
                 {
                     latitude = Math.Round(latitude, 6), // Round off for the client to be happy
                     longitude = Math.Round(longitude, 6)

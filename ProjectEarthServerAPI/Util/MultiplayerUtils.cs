@@ -31,7 +31,7 @@ namespace ProjectEarthServerAPI.Util
         private static Dictionary<Guid, bool> instanceReadyList = new();
 
         public static async Task<BuildplateServerResponse> CreateBuildplateInstance(string playerId, string buildplateId,
-            PlayerCoordinate playerCoords)
+            Coordinate playerCoords)
         {
             // TODO: Actually start the server
 
@@ -61,7 +61,7 @@ namespace ProjectEarthServerAPI.Util
                 blocksPerMeter = BlocksPerMeter,
                 breakableItemToItemLootMap = new BuildplateServerResponse.BreakableItemToItemLootMap(),
                 dimension = dimensions, // TODO: BuildplateInfo
-                gameplayMode = "Buildplate",
+                gameplayMode = GameplayMode.Buildplate,
                 isFullSize = (dimensions.x >= 32 && dimensions.z >= 32), // TODO: BuildplateInfo
                 offset = BuildplateOffset, // Same for all buildplates
                 playerJoinCode = "AAALbMlbaG57sSuQMe0Yek2w", // 24 letters/Numbers, probably randomly generated

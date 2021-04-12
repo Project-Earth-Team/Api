@@ -8,6 +8,7 @@ using ProjectEarthServerAPI.Models.Features;
 using ProjectEarthServerAPI.Util;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using ProjectEarthServerAPI.Models;
 using Serilog;
 
 namespace ProjectEarthServerAPI.Controllers
@@ -32,13 +33,13 @@ namespace ProjectEarthServerAPI.Controllers
 
             var updateResponse = new CraftingUpdates
             {
-                updates = new Dictionary<string, int>()
+                updates = new Updates()
             };
 
             var nextStreamId = GenericUtils.GetNextStreamVersion();
 
-            updateResponse.updates.Add("crafting", nextStreamId);
-            updateResponse.updates.Add("inventory", nextStreamId);
+            updateResponse.updates.crafting = nextStreamId;
+            updateResponse.updates.inventory = nextStreamId;
 
             return Content(JsonConvert.SerializeObject(updateResponse), "application/json");
             //return Accepted(Content(returnUpdates, "application/json"));
@@ -56,7 +57,7 @@ namespace ProjectEarthServerAPI.Controllers
                 discount = 0,
                 validTime = remainingTime
                 },
-                updates = new Dictionary<string, int>()
+                updates = new Updates()
             };
 
             return Content(JsonConvert.SerializeObject(returnPrice), "application/json");

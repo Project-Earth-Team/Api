@@ -48,7 +48,7 @@ namespace ProjectEarthServerAPI.Models.Multiplayer
     {
         public Guid instanceId { get; set; }
         public Guid buildplateId { get; set; }
-        public String playerId { get; set; }
+        public string playerId { get; set; }
     }
 
     public enum ServerCommandType

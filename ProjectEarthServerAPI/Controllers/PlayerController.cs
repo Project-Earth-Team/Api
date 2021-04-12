@@ -229,7 +229,7 @@ namespace ProjectEarthServerAPI.Controllers
     {
         public IActionResult Get()
         {
-            var responseobj = new FeaturesResponse() {result = new FeaturesResult(), updates = new object()};
+            var responseobj = new FeaturesResponse() {result = new FeaturesResult(), updates = new Updates()};
             var response = JsonConvert.SerializeObject(responseobj);
             return Content(response, "application/json");
         }

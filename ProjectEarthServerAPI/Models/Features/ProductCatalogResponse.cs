@@ -7,7 +7,7 @@ namespace ProjectEarthServerAPI.Models.Features
     public class ProductCatalogResponse
     {
         public List<ProductCatalogItem> result { get; set; }
-        public Dictionary<string,int> updates { get; set; }
+        public Updates updates { get; set; }
 
         public static ProductCatalogResponse FromFile(string path)
         {

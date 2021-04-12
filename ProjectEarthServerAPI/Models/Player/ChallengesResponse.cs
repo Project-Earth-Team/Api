@@ -60,12 +60,16 @@ namespace ProjectEarthServerAPI.Models.Player
     }
 
     public class ChallengeProperties {
+
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string topDecorationTexture { get; set; }
+
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string challengeCollectedAudioEvent { get; set; }
+
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string challengeSelectedAudioEvent { get; set; }
+
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string frameTexture { get; set; }
     }
@@ -112,5 +116,12 @@ namespace ProjectEarthServerAPI.Models.Player
     {
         And,
         Or
+    }
+
+    public enum ChallengeEventType
+    {
+        ItemAwarded,
+        TappableRedeemed,
+        MobKilled
     }
 }

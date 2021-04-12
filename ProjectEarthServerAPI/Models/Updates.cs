@@ -22,6 +22,8 @@ namespace ProjectEarthServerAPI.Models
 		public uint tokens { get; set; }
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public uint challenges { get; set; }
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public uint boosts { get; set; }
 	}
 
     public class UpdateResponse

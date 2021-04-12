@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace ProjectEarthServerAPI.Models.Buildplate
 {
@@ -37,7 +39,9 @@ namespace ProjectEarthServerAPI.Models.Buildplate
             public Offset offset { get; set; }
             public int order { get; set; }
             public int requiredLevel { get; set; }
-            public string surfaceOrientation { get; set; }
+
+            [JsonConverter(typeof(StringEnumConverter))]
+            public SurfaceOrientation surfaceOrientation { get; set; }
             public string templateId { get; set; }
             public string type { get; set; }
         }

@@ -33,9 +33,9 @@ namespace ProjectEarthServerAPI.Controllers
                     BasePath = "/1",
                     Tokens = TokenUtils.GetSigninTokens(playerid),
                     ClientProperties = new object(),
-                    Updates = new Dictionary<string, int>()
+                    Updates = new Updates()
                 },
-                Updates = new Dictionary<string, int>()
+                updates = new Updates()
             };
 
             var resp = JsonConvert.SerializeObject(response, new JsonSerializerSettings

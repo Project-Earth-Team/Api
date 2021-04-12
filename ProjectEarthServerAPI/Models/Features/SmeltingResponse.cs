@@ -22,7 +22,7 @@ namespace ProjectEarthServerAPI.Models.Features
         public string state { get; set; } // Active, completed, or locked (or Empty)
         public BoostState boostState { get; set; } // See crafting variant
         public UnlockPrice unlockPrice { get; set; } // See crafting variant
-        public int streamVersion { get; set; } // See crafting variant
+        public uint streamVersion { get; set; } // See crafting variant
     }
 
     public class SmeltingSlotResponse

@@ -169,8 +169,8 @@ namespace ProjectEarthServerAPI.Util
                             fragments = 1,
                             id = itemIdToAdd,
                             owned = count,
-                            seen = new InventoryResponse.Seen(){on = DateTime.UtcNow},
-                            unlocked = new InventoryResponse.Unlocked(){on = DateTime.UtcNow}
+                            seen = new InventoryResponse.DateTimeOn(){on = DateTime.UtcNow},
+                            unlocked = new InventoryResponse.DateTimeOn(){on = DateTime.UtcNow}
                         });
                     }
                 }

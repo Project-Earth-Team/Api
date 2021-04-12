@@ -30,32 +30,27 @@ namespace ProjectEarthServerAPI.Models.Player
             public double health { get; set; }
         }
 
-        public class Seen
+        public class DateTimeOn
         {
             public DateTime on { get; set; }
         }
 
-        public class Unlocked
+        public class BaseItem
         {
-            public DateTime on { get; set; }
-        }
-
-        public class StackableItem
-        {
-            public int owned { get; set; } // How many you have
             public Guid id { get; set; } // Item UUID 
-            public Seen seen { get; set; } // When you last used/got this item
-            public Unlocked unlocked { get; set; } // When you first unlocked the item
+            public DateTimeOn seen { get; set; } // When you last used/got this item
+            public DateTimeOn unlocked { get; set; } // When you first unlocked the item
             public int fragments { get; set; } // Not used
         }
 
-        public class NonStackableItem
+        public class StackableItem : BaseItem
+        { 
+            public int owned { get; set; } // How many you have
+        }
+
+        public class NonStackableItem : BaseItem
         {
             public List<ItemInstance> instances { get; set; } // List of Instances, see above explanation
-            public Guid id { get; set; } // Item UUID
-            public Seen seen { get; set; } // When you last used/got this item
-            public Unlocked unlocked { get; set; } // When you first unlocked the item
-            public int fragments { get; set; } // Not used
         }
 
         public class Result

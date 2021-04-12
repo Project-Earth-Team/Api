@@ -54,7 +54,7 @@ namespace ProjectEarthServerAPI.Controllers
             var response = MultiplayerUtils.CheckInstanceStatus(authtoken, instanceId);
             if (response == null)
             {
-                return NoContent();
+                return Ok();
             }
             else
             {

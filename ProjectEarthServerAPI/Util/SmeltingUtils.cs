@@ -152,7 +152,7 @@ namespace ProjectEarthServerAPI.Util
                         (float)job.burning.heatDepleted - job.available * recipe.heatRequired;
                 }
 
-                updates.smelting = (uint) nextStreamId;
+                updates.smelting = nextStreamId;
 
 
                 var returnResponse = new SmeltingSlotResponse
@@ -190,7 +190,7 @@ namespace ProjectEarthServerAPI.Util
                 result = new CollectItemsInfo { 
                     rewards = new Rewards(),
                 },
-                updates = new Dictionary<string, int>()
+                updates = new Updates()
             };
 
             if (job.completed != job.total && job.nextCompletionUtc != null)
@@ -227,7 +227,7 @@ namespace ProjectEarthServerAPI.Util
             if (!TokenUtils.GetTokenResponseForUserId(playerId).Result.tokens.Any(match => match.Value.clientProperties.ContainsKey("itemid") && match.Value.clientProperties["itemid"] == job.output.itemId.ToString()))
             {
                 //TokenUtils.AddItemToken(playerId, job.output.itemId); -> List of item tokens not known. Could cause issues later, for now we just disable it.
-                returnResponse.updates.Add("tokens", nextStreamId);
+                returnResponse.updates.tokens = nextStreamId;
             }
 
             returnResponse.result.rewards.Inventory = returnResponse.result.rewards.Inventory.Append(new RewardComponent
@@ -236,8 +236,8 @@ namespace ProjectEarthServerAPI.Util
                 Id = job.output.itemId
             }).ToArray();
 
-            returnResponse.updates.Add("smelting", nextStreamId);
-            returnResponse.updates.Add("inventory", nextStreamId);
+            returnResponse.updates.smelting = nextStreamId;
+            returnResponse.updates.inventory = nextStreamId;
 
 
             if (job.completed == job.total || job.nextCompletionUtc == null)
@@ -323,14 +323,14 @@ namespace ProjectEarthServerAPI.Util
             var nextStreamId = GenericUtils.GetNextStreamVersion();
             var returnUpdates = new CraftingUpdates
             {
-                updates = new Dictionary<string, int>()
+                updates = new Updates()
             };
 
             UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
 
             Log.Debug($"[{playerId}]: Unlocked smelting slot {slot}.");
 
-            returnUpdates.updates.Add("smelting", nextStreamId);
+            returnUpdates.updates.smelting = nextStreamId;
 
             return returnUpdates;
 

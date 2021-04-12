@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace ProjectEarthServerAPI.Models.Buildplate
 {
@@ -36,7 +38,9 @@ namespace ProjectEarthServerAPI.Models.Buildplate
             public double blocksPerMeter { get; set; }
             public BreakableItemToItemLootMap breakableItemToItemLootMap { get; set; }
             public BuildplateListResponse.Dimension dimension { get; set; }
-            public string gameplayMode { get; set; }
+
+            [JsonConverter(typeof(StringEnumConverter))]
+            public GameplayMode gameplayMode { get; set; }
             public bool isFullSize { get; set; }
             public BuildplateListResponse.Offset offset { get; set; }
             public string playerJoinCode { get; set; }
@@ -45,15 +49,11 @@ namespace ProjectEarthServerAPI.Models.Buildplate
             public SnapshotOptions snapshotOptions { get; set; }
             public string spawningClientBuildNumber { get; set; }
             public string spawningPlayerId { get; set; }
-            public string surfaceOrientation { get; set; }
+
+            [JsonConverter(typeof(StringEnumConverter))]
+            public SurfaceOrientation surfaceOrientation { get; set; }
             public string templateId { get; set; }
             public string worldId { get; set; }
-        }
-
-        public class HostCoordinate
-        {
-            public double latitude { get; set; }
-            public double longitude { get; set; }
         }
 
         public class Result
@@ -61,7 +61,7 @@ namespace ProjectEarthServerAPI.Models.Buildplate
             public string applicationStatus { get; set; }
             public string fqdn { get; set; }
             public GameplayMetadata gameplayMetadata { get; set; }
-            public PlayerCoordinate hostCoordinate { get; set; }
+            public Coordinate hostCoordinate { get; set; }
             public string instanceId { get; set; }
             public string ipV4Address { get; set; }
             public string metadata { get; set; }
@@ -84,5 +84,16 @@ namespace ProjectEarthServerAPI.Models.Buildplate
 
     }
 
+    public enum GameplayMode
+    {
+        Buildplate,
+        Encounter
+    }
+
+    public enum SurfaceOrientation
+    {
+        Horizontal,
+        Vertical
+    }
 
 }

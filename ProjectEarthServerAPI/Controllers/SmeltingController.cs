@@ -34,8 +34,8 @@ namespace ProjectEarthServerAPI.Controllers
 
             var nextStreamId = GenericUtils.GetNextStreamVersion();
 
-            updateResponse.updates.smelting = (uint) nextStreamId;
-            updateResponse.updates.inventory = (uint) nextStreamId;
+            updateResponse.updates.smelting = nextStreamId;
+            updateResponse.updates.inventory = nextStreamId;
 
             return Content(JsonConvert.SerializeObject(updateResponse), "application/json");
             //return Accepted(Content(returnUpdates, "application/json"));
@@ -53,7 +53,7 @@ namespace ProjectEarthServerAPI.Controllers
                 discount = 0,
                 validTime = remainingTime
                 },
-                updates = new Dictionary<string, int>()
+                updates = new Updates()
             };
 
             return Content(JsonConvert.SerializeObject(returnPrice), "application/json");

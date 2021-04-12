@@ -115,7 +115,7 @@ namespace ProjectEarthServerAPI.Util
 
                 }*/
 
-                updates.crafting = (uint) nextStreamId;
+                updates.crafting = nextStreamId;
 
                 var returnResponse = new CraftingSlotResponse
                 {
@@ -152,7 +152,7 @@ namespace ProjectEarthServerAPI.Util
                 {
                     rewards = new Rewards(),
                 },
-                updates = new Dictionary<string, int>()
+                updates = new Updates()
             };
 
             if (job.completed != job.total && job.nextCompletionUtc != null)
@@ -189,7 +189,7 @@ namespace ProjectEarthServerAPI.Util
             if (!TokenUtils.GetTokenResponseForUserId(playerId).Result.tokens.Any(match => match.Value.clientProperties.ContainsKey("itemid") && match.Value.clientProperties["itemid"] == job.output.itemId.ToString()))
             {
                 //TokenUtils.AddItemToken(playerId, job.output.itemId); -> List of item tokens not known. Could cause issues later, for now we just disable it.
-                returnResponse.updates.Add("tokens", nextStreamId);
+                returnResponse.updates.tokens = nextStreamId;
             }
 
             returnResponse.result.rewards.Inventory = returnResponse.result.rewards.Inventory.Append(new RewardComponent
@@ -198,8 +198,8 @@ namespace ProjectEarthServerAPI.Util
                 Id = job.output.itemId
             }).ToArray();
 
-            returnResponse.updates.Add("crafting", nextStreamId);
-            returnResponse.updates.Add("inventory", nextStreamId);
+            returnResponse.updates.crafting = nextStreamId;
+            returnResponse.updates.inventory = nextStreamId;
 
 
             if (job.completed == job.total || job.nextCompletionUtc == null)
@@ -258,7 +258,7 @@ namespace ProjectEarthServerAPI.Util
 
             Log.Debug($"[{playerId}]: Cancelled crafting job in slot {slot}.");
 
-            resp.updates.crafting = (uint) nextStreamId;
+            resp.updates.crafting = nextStreamId;
             return resp;
         }
 
@@ -273,14 +273,14 @@ namespace ProjectEarthServerAPI.Util
             var nextStreamId = GenericUtils.GetNextStreamVersion();
             var returnUpdates = new CraftingUpdates
             {
-                updates = new Dictionary<string, int>()
+                updates = new Updates()
             };
 
             UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
 
             Log.Debug($"[{playerId}]: Unlocked crafting slot {slot}.");
 
-            returnUpdates.updates.Add("crafting", nextStreamId);
+            returnUpdates.updates.crafting = nextStreamId;
 
             return returnUpdates;
 

@@ -26,11 +26,4 @@ namespace ProjectEarthServerAPI.Models
         public Dictionary<Uuid, Token> tokens { get; set; }
     }
 
-    public class TokenProperties
-    {
-        public string seasonId { get; set; }
-        public string challengeId { get; set; }
-        public string category { get; set; }
-
-    }
 }

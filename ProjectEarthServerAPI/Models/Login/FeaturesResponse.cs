@@ -5,7 +5,7 @@
         public FeaturesResult result { get; set; }
         public string expiration { get; set; }
         public string continuationTokem { get; set;  }
-        public object updates { get; set; }
+        public Updates updates { get; set; }
     }
 
     public class FeaturesResult

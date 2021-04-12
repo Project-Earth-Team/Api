@@ -8,7 +8,7 @@ namespace ProjectEarthServerAPI.Models.Features
     public class UtilityBlocksResponse
     {
         public Result result { get; set; }
-        public Dictionary<string, int> updates { get; set; }
+        public Updates updates { get; set; }
 
         public class Result
         {
@@ -81,7 +81,7 @@ namespace ProjectEarthServerAPI.Models.Features
             result.smelting["2"].streamVersion = nextStreamId;
             result.smelting["3"].streamVersion = nextStreamId;
 
-            updates = new Dictionary<string, int>();
+            updates = new Updates();
 
         }
     }

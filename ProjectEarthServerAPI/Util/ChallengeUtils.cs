@@ -81,6 +81,16 @@ namespace ProjectEarthServerAPI.Util
             return returnUpdates;
         }
 
+        public static Updates ProgressChallenge(string playerId, ChallengeEventType challengeEvent, Guid eventId, int amount = 1)
+        {
+            var playerChallenges = ReadChallenges(playerId);
+            var activeChallenges =
+                playerChallenges.result.challenges.Where(pred => pred.Value.state == ChallengeState.Active).ToDictionary(pred => pred.Key, pred => pred.Value);
+
+            // TODO: Implement challenge backend, since challenge requirements are not set in the response
+            return new Updates() {challenges = GenericUtils.GetNextStreamVersion()};
+        }
+
         public static ChallengesResponse ReloadChallenges(string playerId)
         {
             var playerChallenges = ReadChallenges(playerId);

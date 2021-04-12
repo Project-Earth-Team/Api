@@ -41,7 +41,7 @@ namespace ProjectEarthServerAPI.Util
         {
             var updates = new CraftingUpdates
             {
-                updates = new Dictionary<string, int>()
+                updates = new Updates()
             };
 
             List<DateTime> expirationTimes = new List<DateTime>(); // This looks bad (and it totally is), but we can optimize it at a later date
@@ -154,7 +154,7 @@ namespace ProjectEarthServerAPI.Util
             if (boostToApply.item.boostMetadata.canBeRemoved)
             {
                 InventoryUtils.RemoveItemFromInv(playerId, boostId); // UNCOMMENT/COMMENT THIS LINE TO REMOVE BOOSTS FROM INVENTORY WHEN USED
-                updates.updates.Add("inventory", nextStreamId);
+                updates.updates.inventory = nextStreamId;
             }
 
             foreach (ActiveEffect effect in baseBoosts.result.activeEffects)
@@ -173,7 +173,7 @@ namespace ProjectEarthServerAPI.Util
             baseBoosts.result.statusEffects = CalculateStatusEffects(baseBoosts);
 
             WriteBoosts(playerId, baseBoosts);
-            updates.updates.Add("boosts",nextStreamId);
+            updates.updates.boosts = nextStreamId;
             return updates;
         }
 
@@ -236,10 +236,10 @@ namespace ProjectEarthServerAPI.Util
 
             var updates = new CraftingUpdates
             {
-                updates = new Dictionary<string, int>()
+                updates = new Updates()
             };
 
-            updates.updates.Add("boosts",nextStreamId);
+            updates.updates.boosts = nextStreamId;
 
             return updates;
         }
