@@ -24,28 +24,28 @@ namespace ProjectEarthServerAPI.Util
 {
     public class MultiplayerUtils
     {
-        private static Dictionary<Guid, BuildplateServerResponse> instanceList = new();
-        private static Dictionary<Guid, Guid> apiKeyList = new();
-        private static Dictionary<Guid, ServerInformation> serverInfoList = new();
-        private static Dictionary<Guid, WebSocket> serverSocketList = new();
-        private static Dictionary<Guid, bool> instanceReadyList = new();
+        private static readonly Dictionary<Guid, BuildplateServerResponse> InstanceList = new();
+        private static readonly Dictionary<Guid, Guid> ApiKeyList = new();
+        private static readonly Dictionary<Guid, ServerInformation> ServerInfoList = new();
+        private static readonly Dictionary<Guid, WebSocket> ServerSocketList = new();
+        private static readonly Dictionary<Guid, bool> InstanceReadyList = new();
 
-        public static async Task<BuildplateServerResponse> CreateBuildplateInstance(string playerId, string buildplateId,
+        public static async Task<BuildplateServerResponse> CreateBuildplateInstance(string playerId,
+            string buildplateId,
             Coordinate playerCoords)
         {
             // TODO: Actually start the server
 
-            var server = serverInfoList.First();
-            var ServerIp = server.Value.ip;
-            var ServerPort = server.Value.port;
+            var server = ServerInfoList.First();
+            var serverIp = server.Value.ip;
+            var serverPort = server.Value.port;
             var serverInstanceId = await NotifyServerInstance(server.Key, buildplateId, playerId); // TODO: Allocator 
 
             Log.Information($"[{playerId}]: Creating new buildplate instance: Buildplate {buildplateId}");
 
-            var buildplate = GetBuildplateDataForId(playerId, Guid.Parse(buildplateId));
-
-            var BlocksPerMeter = buildplate.blocksPerMeter;
-            var BuildplateOffset = buildplate.offset;
+            var buildplate = BuildplateUtils.ReadBuildplate(Guid.Parse(buildplateId));
+            var blocksPerMeter = buildplate.blocksPerMeter;
+            var buildplateOffset = buildplate.offset;
             var instanceMetadata = new BuildplateServerResponse.InstanceMetadata
             {
                 buildplateid = buildplateId
@@ -58,15 +58,18 @@ namespace ProjectEarthServerAPI.Util
             var buildplateData = new BuildplateServerResponse.GameplayMetadata
             {
                 augmentedImageSetId = null,
-                blocksPerMeter = BlocksPerMeter,
+                blocksPerMeter = blocksPerMeter,
                 breakableItemToItemLootMap = new BuildplateServerResponse.BreakableItemToItemLootMap(),
-                dimension = dimensions, // TODO: BuildplateInfo
+                dimension = dimensions,
                 gameplayMode = GameplayMode.Buildplate,
-                isFullSize = (dimensions.x >= 32 && dimensions.z >= 32), // TODO: BuildplateInfo
-                offset = BuildplateOffset, // Same for all buildplates
+                isFullSize = (dimensions.x >= 32 && dimensions.z >= 32),
+                offset = buildplateOffset, // Same for all buildplates
                 playerJoinCode = "AAALbMlbaG57sSuQMe0Yek2w", // 24 letters/Numbers, probably randomly generated
                 rarity = null, // Why even is this here?
-                shutdownBehavior = new List<string>() { "ServerShutdownWhenAllPlayersQuit", "ServerShutdownWhenHostPlayerQuits"}, // Own instance server needs to respect this
+                shutdownBehavior = new List<string>()
+                {
+                    "ServerShutdownWhenAllPlayersQuit", "ServerShutdownWhenHostPlayerQuits"
+                }, // Own instance server needs to respect this
                 snapshotOptions = new BuildplateServerResponse.SnapshotOptions
                 {
                     saveState = new BuildplateServerResponse.SaveState // Should be the same for all buildplates
@@ -77,13 +80,14 @@ namespace ProjectEarthServerAPI.Util
                     },
                     snapshotTriggerConditions = "None",
                     snapshotWorldStorage = "Buildplate",
-                    triggerConditions = new List<string>() { "Interval", "PlayerExits"},
-                    triggerInterval = new TimeSpan(00,00,30)
+                    triggerConditions = new List<string>() {"Interval", "PlayerExits"},
+                    triggerInterval = new TimeSpan(00, 00, 30)
                 },
-                spawningClientBuildNumber = "2020.1217.02", // How should we figure this out? Should probably just be the latest every time
+                spawningClientBuildNumber =
+                    "2020.1217.02", // How should we figure this out? Should probably just be the latest every time
                 spawningPlayerId = playerId,
-                surfaceOrientation = surfaceOrientation, // TODO: BuildplateInfo
-                templateId = templateId, // TODO: BuildplateInfo
+                surfaceOrientation = surfaceOrientation,
+                templateId = templateId,
                 worldId = buildplateId
 
             };
@@ -94,28 +98,28 @@ namespace ProjectEarthServerAPI.Util
                 {
                     applicationStatus = "Unknown",
                     //fqdn = "dns2527870c-89c6-420e-8378-996a2c40304a-azurebatch-cloudservice.westeurope.cloudapp.azure.com", // figure out why this breaks everything
-                    fqdn = "test_woop.projectearth.dev",
+                    fqdn = "192.168.2.100",
                     gameplayMetadata = buildplateData,
-                    hostCoordinate = playerCoords, 
+                    hostCoordinate = playerCoords,
                     instanceId = serverInstanceId.ToString(),
-                    ipV4Address = ServerIp,
+                    ipV4Address = serverIp,
                     metadata = JsonConvert.SerializeObject(instanceMetadata),
                     partitionId = playerId,
-                    port = ServerPort,
-                    roleInstance = "776932eeeb69", // Maybe randomly generated for each instance?
-                    serverReady = false,           // Maybe we can get this from our own server, but right now, it 100% will never be ready on request lol
+                    port = serverPort,
+                    roleInstance = "776932eeeb69",
+                    serverReady = false,
                     serverStatus = "Running"
                 },
                 updates = new Updates()
             };
 
-            if (instanceReadyList[serverInstanceId])
+            if (InstanceReadyList[serverInstanceId])
             {
                 result.result.applicationStatus = "Ready";
                 result.result.serverReady = true;
             }
 
-            instanceList.Add(serverInstanceId, result);
+            InstanceList.Add(serverInstanceId, result);
 
             return result;
         }
@@ -124,7 +128,7 @@ namespace ProjectEarthServerAPI.Util
         {
             var instanceId = Guid.NewGuid();
 
-            instanceReadyList.Add(instanceId, false);
+            InstanceReadyList.Add(instanceId, false);
 
             ServerInstanceRequestInfo instanceInfo = new ServerInstanceRequestInfo
             {
@@ -134,19 +138,19 @@ namespace ProjectEarthServerAPI.Util
             string requestString = JsonConvert.SerializeObject(instanceInfo);
             byte[] requestArr = Encoding.UTF8.GetBytes(requestString);
 
-            await serverSocketList[serverId].SendAsync(new ArraySegment<byte>(requestArr, 0, requestArr.Length),
+            await ServerSocketList[serverId].SendAsync(new ArraySegment<byte>(requestArr, 0, requestArr.Length),
                 WebSocketMessageType.Text, true, CancellationToken.None);
-            
+
             return instanceId;
         }
 
         public static BuildplateServerResponse CheckInstanceStatus(string playerId, Guid instanceId)
         {
-            if (instanceReadyList[instanceId])
+            if (InstanceReadyList[instanceId])
             {
-                instanceList[instanceId].result.applicationStatus = "Ready";
-                instanceList[instanceId].result.serverReady = true;
-                return instanceList[instanceId];
+                InstanceList[instanceId].result.applicationStatus = "Ready";
+                InstanceList[instanceId].result.serverReady = true;
+                return InstanceList[instanceId];
             }
             else return null;
         }
@@ -161,7 +165,7 @@ namespace ProjectEarthServerAPI.Util
             if (multiplayerHotbar.Length != 7)
             {
                 var tempArr = new MultiplayerItem[7];
-                multiplayerHotbar.CopyTo(tempArr,0);
+                multiplayerHotbar.CopyTo(tempArr, 0);
                 for (int i = 0; i < tempArr.Length; i++)
                 {
                     tempArr[i] ??= new MultiplayerItem
@@ -306,14 +310,14 @@ namespace ProjectEarthServerAPI.Util
         {
             var command = request.command;
             Log.Information($"Received {command} from Server {request.serverId}!");
-            if (apiKeyList.ContainsValue(request.apiKey))
+            if (ApiKeyList.ContainsValue(request.apiKey))
             {
                 var playerId = request.playerId;
                 switch (command)
                 {
                     case ServerCommandType.GetBuildplate:
                         var buildplate = JsonConvert.DeserializeObject<BuildplateRequest>(request.requestData);
-                        return JsonConvert.SerializeObject(GetBuildplateById(buildplate));
+                        return JsonConvert.SerializeObject(BuildplateUtils.GetBuildplateById(buildplate));
 
                     case ServerCommandType.GetInventoryForClient:
                         var inv = InventoryUtils.ReadInventoryForMultiplayer(playerId);
@@ -335,7 +339,10 @@ namespace ProjectEarthServerAPI.Util
                         return JsonConvert.SerializeObject(newHotbarInfo);
 
                     case ServerCommandType.EditBuildplate:
-                        throw new NotImplementedException();
+                        var newBuildplateData =
+                            JsonConvert.DeserializeObject<BuildplateShareResponse>(request.requestData);
+                        BuildplateUtils.WriteBuildplate(newBuildplateData);
+                        return "ok";
 
                     case ServerCommandType.MarkServerAsReady:
                         var instanceInfo = JsonConvert.DeserializeObject<ServerInstanceInfo>(request.requestData);
@@ -351,13 +358,14 @@ namespace ProjectEarthServerAPI.Util
 
         public static void MarkServerAsReady(ServerInstanceInfo info)
         {
-            instanceReadyList[info.instanceId] = true;
+            InstanceReadyList[info.instanceId] = true;
         }
 
         public static async Task AuthenticateServer(WebSocket webSocketRequest)
         {
             byte[] messageBuffer = new byte[4096];
-            var result = await webSocketRequest.ReceiveAsync(new ArraySegment<byte>(messageBuffer), CancellationToken.None);
+            var result =
+                await webSocketRequest.ReceiveAsync(new ArraySegment<byte>(messageBuffer), CancellationToken.None);
             var authStatus = ServerAuthInformation.NotAuthed;
             ServerInformation info = null;
             string challenge = null;
@@ -374,7 +382,8 @@ namespace ProjectEarthServerAPI.Util
                         byte[] challengeBytes = Encoding.UTF8.GetBytes(challenge);
 
                         await webSocketRequest.SendAsync(
-                            new ArraySegment<byte>(challengeBytes, 0, challengeBytes.Length), result.MessageType, result.EndOfMessage, CancellationToken.None);
+                            new ArraySegment<byte>(challengeBytes, 0, challengeBytes.Length), result.MessageType,
+                            result.EndOfMessage, CancellationToken.None);
 
                         authStatus = ServerAuthInformation.AuthStage1;
 
@@ -391,7 +400,8 @@ namespace ProjectEarthServerAPI.Util
                         byte[] challengeResponseStatus = Encoding.UTF8.GetBytes(success.ToString().ToLower());
 
                         await webSocketRequest.SendAsync(
-                            new ArraySegment<byte>(challengeResponseStatus, 0, challengeResponseStatus.Length), result.MessageType, result.EndOfMessage, CancellationToken.None);
+                            new ArraySegment<byte>(challengeResponseStatus, 0, challengeResponseStatus.Length),
+                            result.MessageType, result.EndOfMessage, CancellationToken.None);
 
                         if (success) authStatus = ServerAuthInformation.AuthStage2;
                         else
@@ -407,14 +417,14 @@ namespace ProjectEarthServerAPI.Util
 
                     case ServerAuthInformation.AuthStage2:
 
-                        if (!apiKeyList.ContainsKey(info.serverId))
+                        if (!ApiKeyList.ContainsKey(info.serverId))
                         {
                             Log.Information($"Server {info.serverId} registered itself to the api.");
 
                             var apiKey = Guid.NewGuid();
-                            apiKeyList.Add(info.serverId, apiKey);
-                            serverInfoList.Add(info.serverId, info);
-                            serverSocketList.Add(info.serverId, webSocketRequest);
+                            ApiKeyList.Add(info.serverId, apiKey);
+                            ServerInfoList.Add(info.serverId, info);
+                            ServerSocketList.Add(info.serverId, webSocketRequest);
 
                             byte[] apiKeyBytes = Encoding.UTF8.GetBytes(apiKey.ToString().ToLower());
 
@@ -440,37 +450,6 @@ namespace ProjectEarthServerAPI.Util
 
             var expectedResult = Convert.ToHexString(crypto.ComputeHash(Encoding.UTF8.GetBytes(challenge)));
             return expectedResult == challengeResponse;
-        }
-
-        public static BuildplateListResponse GetBuildplates(string playerId)
-        {
-            var buildplates = GenericUtils.ParseJsonFile<BuildplateListResponse>(playerId, "buildplates");
-
-            return buildplates;
-
-        }
-
-        public static BuildplateShareResponse GetBuildplateById(BuildplateRequest buildplateReq)
-        {
-            var list = GetBuildplates(buildplateReq.playerId);
-            BuildplateListResponse.BuildplateData buildplate = list.result.Find(match => match.id == buildplateReq.buildplateId);
-            
-            return new BuildplateShareResponse
-            {
-                result = new BuildplateShareResponse.BuildplateShareInfo
-                {
-                    buildplateData = buildplate,
-                    playerId = null
-                }
-            };
-        }
-
-        public static BuildplateListResponse.BuildplateData GetBuildplateDataForId(string playerId, Guid buildplateId)
-        {
-            var list = GetBuildplates(playerId);
-            BuildplateListResponse.BuildplateData buildplate = list.result.Find(match => match.id == buildplateId.ToString());
-            return buildplate;
-
         }
     }
 }

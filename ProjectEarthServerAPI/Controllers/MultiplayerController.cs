@@ -38,7 +38,7 @@ namespace ProjectEarthServerAPI.Controllers
         {
             string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var response = MultiplayerUtils.GetBuildplates(authtoken);
+            var response = BuildplateUtils.GetBuildplatesList(authtoken);
             return Content(JsonConvert.SerializeObject(response), "application/json");
         }
 

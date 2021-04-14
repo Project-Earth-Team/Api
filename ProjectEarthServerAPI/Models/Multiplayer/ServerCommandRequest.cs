@@ -16,7 +16,7 @@ namespace ProjectEarthServerAPI.Models.Multiplayer
 
     public class BuildplateRequest
     {
-        public string buildplateId { get; set; }
+        public Guid buildplateId { get; set; }
         public string playerId { get; set; }
     }
 

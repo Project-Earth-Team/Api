@@ -7,9 +7,9 @@ namespace ProjectEarthServerAPI.Util
 	public class DateTimeConverter : JsonConverter<DateTime>
 	{
 		public override DateTime ReadJson(JsonReader reader, Type objectType, [AllowNull] DateTime existingValue, bool hasExistingValue, JsonSerializer serializer)
-		{
-			return DateTime.Parse((string)reader.Value);
-		}
+        {
+            return (DateTime) reader.Value;
+        }
 
 		public override void WriteJson(JsonWriter writer, [AllowNull] DateTime value, JsonSerializer serializer)
 		{

@@ -37,12 +37,12 @@ namespace ProjectEarthServerAPI.Models.Buildplate
             public object augmentedImageSetId { get; set; }
             public double blocksPerMeter { get; set; }
             public BreakableItemToItemLootMap breakableItemToItemLootMap { get; set; }
-            public BuildplateListResponse.Dimension dimension { get; set; }
+            public Dimension dimension { get; set; }
 
             [JsonConverter(typeof(StringEnumConverter))]
             public GameplayMode gameplayMode { get; set; }
             public bool isFullSize { get; set; }
-            public BuildplateListResponse.Offset offset { get; set; }
+            public Offset offset { get; set; }
             public string playerJoinCode { get; set; }
             public object rarity { get; set; }
             public List<string> shutdownBehavior { get; set; }
@@ -52,7 +52,7 @@ namespace ProjectEarthServerAPI.Models.Buildplate
 
             [JsonConverter(typeof(StringEnumConverter))]
             public SurfaceOrientation surfaceOrientation { get; set; }
-            public string templateId { get; set; }
+            public Guid templateId { get; set; }
             public string worldId { get; set; }
         }
 
