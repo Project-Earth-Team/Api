@@ -54,7 +54,7 @@ namespace ProjectEarthServerAPI.Models.Features
         public string state { get; set; } // State: Active, Completed or Locked
         public BoostState boostState { get; set; } // See class below
         public UnlockPrice unlockPrice { get; set; } // Price to unlock item
-        public uint streamVersion { get; set; } // StreamVersion with changes, unused in our version
+        public ulong streamVersion { get; set; } // StreamVersion with changes, unused in our version
     }
 
     public class BoostState
