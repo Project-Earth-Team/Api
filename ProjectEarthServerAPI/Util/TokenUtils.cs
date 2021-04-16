@@ -52,25 +52,28 @@ namespace ProjectEarthServerAPI.Util
 
         public static void AddItemToken(string playerId, Guid itemId)
         {
-            var itemtoken = new Token
-            {
-                clientProperties = new Dictionary<string, string>(),
-                clientType = "item.unlocked",
-                lifetime = "Persistent",
-                rewards = new Rewards()
-            };
-
-            itemtoken.clientProperties.Add("itemid", itemId.ToString());
-
             var tokenlist = GetTokensForUserId(playerId);
 
-            if (tokenlist.All(pred => pred.Value.clientProperties["itemid"] != itemId.ToString()))
+            if (tokenlist.All(pred =>
+                pred.Value.clientProperties.Count == 0
+                || !pred.Value.clientProperties.ContainsKey("itemid")
+                || pred.Value.clientProperties["itemid"] != itemId.ToString())) {
+
+                var itemtoken = new Token
+                {
+                    clientProperties = new Dictionary<string, string>(),
+                    clientType = "item.unlocked",
+                    lifetime = "Persistent",
+                    rewards = new Rewards()
+                };
+
+                itemtoken.clientProperties.Add("itemid", itemId.ToString());
+
                 tokenlist.Add(Version4Generator.NewUuid(), itemtoken);
 
-            Log.Information($"[{playerId}]: Added item token {itemId}!");
-
-            WriteTokensForPlayer(playerId, tokenlist);
-
+                Log.Information($"[{playerId}]: Added item token {itemId}!");
+                WriteTokensForPlayer(playerId, tokenlist);
+            }
         }
 
         public static bool AddToken(string playerId, Token tokenToAdd)
