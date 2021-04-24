@@ -178,13 +178,22 @@ namespace ProjectEarthServerAPI.Controllers
 
     [Authorize]
     [ApiVersion("1.1")]
-    [Route("1/api/v{version:apiVersion}/journal/catalog")]
-    public class JournalCatalogController : Controller
+    public class JournalController : Controller
     {
-        public IActionResult Get()
+        [Route("1/api/v{version:apiVersion}/journal/catalog")]
+        public IActionResult GetCatalog()
         {
             var fs = new StreamReader(StateSingleton.Instance.config.journalCatalogFileLocation);
             return Content(fs.ReadToEnd(), "application/json");
+        }
+
+        [Route("1/api/v{version:apiVersion}/player/journal")]
+        public IActionResult GetJournal()
+        {
+            var authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var resp = JournalUtils.ReadJournalForPlayer(authtoken);
+
+            return Content(JsonConvert.SerializeObject(resp), "application/json");
         }
     }
 
