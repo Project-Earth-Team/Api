@@ -11,8 +11,8 @@ namespace ProjectEarthServerAPI.Util
             uint nextStreamId = GenericUtils.GetNextStreamVersion();
             foreach (var buildplate in rewards.Buildplates)
             {
-                // BuildplateUtils.AddToPlayer(playerId, buildplate.id);
-                // updates.buildplates = nextStreamId;
+                 BuildplateUtils.AddToPlayer(playerId, buildplate.Id);
+                 updates.buildplates = nextStreamId;
             }
 
             foreach (var challenge in rewards.Challenges)
@@ -25,6 +25,7 @@ namespace ProjectEarthServerAPI.Util
             {
                 InventoryUtils.AddItemToInv(playerId, item.Id, item.Amount);
                 updates.inventory = nextStreamId;
+                updates.playerJournal = nextStreamId;
             }
 
             foreach (var utilityBlock in rewards.UtilityBlocks) 

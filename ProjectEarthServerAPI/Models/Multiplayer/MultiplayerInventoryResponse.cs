@@ -37,7 +37,7 @@ namespace ProjectEarthServerAPI.Models.Multiplayer
 
         public static MultiplayerItem ConvertToMultiplayerItem(InventoryResponse.Hotbar item)
         {
-            if (item != null) return ConvertToMultiplayerItem(item.id, item.count, true, null, item.instanceId);
+            if (item != null) return ConvertToMultiplayerItem(item.id, item.count, true, null /*InventoryUtils.GetInstance(item.instanceId)*/ ); //TODO: Implement GetInstance()!
 
             var multiplayerItem = new MultiplayerItem
             {
@@ -77,7 +77,7 @@ namespace ProjectEarthServerAPI.Models.Multiplayer
                     ? itemCategory
                     : ItemCategory.Invalid;
 
-            ItemRarity rarity = Enum.TryParse(catalogItem.rarity, true, out ItemRarity itemRarity)
+            ItemRarity rarity = Enum.TryParse(Enum.GetName(catalogItem.rarity), true, out ItemRarity itemRarity)
                 ? itemRarity
                 : ItemRarity.Invalid;
 

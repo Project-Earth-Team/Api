@@ -34,12 +34,11 @@ namespace ProjectEarthServerAPI.Util
             string buildplateId,
             Coordinate playerCoords)
         {
-            // TODO: Actually start the server
 
             var server = ServerInfoList.First();
             var serverIp = server.Value.ip;
             var serverPort = server.Value.port;
-            var serverInstanceId = await NotifyServerInstance(server.Key, buildplateId, playerId); // TODO: Allocator 
+            var serverInstanceId = await NotifyServerInstance(server.Key, buildplateId, playerId);
 
             Log.Information($"[{playerId}]: Creating new buildplate instance: Buildplate {buildplateId}");
 
@@ -98,7 +97,7 @@ namespace ProjectEarthServerAPI.Util
                 {
                     applicationStatus = "Unknown",
                     //fqdn = "dns2527870c-89c6-420e-8378-996a2c40304a-azurebatch-cloudservice.westeurope.cloudapp.azure.com", // figure out why this breaks everything
-                    fqdn = "192.168.2.100",
+                    fqdn = "d.projectearth.dev",
                     gameplayMetadata = buildplateData,
                     hostCoordinate = playerCoords,
                     instanceId = serverInstanceId.ToString(),
@@ -203,7 +202,7 @@ namespace ProjectEarthServerAPI.Util
                     {
                         count = item.count,
                         id = item.guid,
-                        instanceId = item.instance_data
+                        instanceId = item.instance_data.id
                     };
 
                     response[i] = new HotbarTranslation
@@ -289,7 +288,8 @@ namespace ProjectEarthServerAPI.Util
                     slot.count = request.count + 1;
                     slot.id = catalogItem.id;
 
-                    if (isNonStackableItem) slot.instanceId.health = request.health;
+                    //if (isNonStackableItem)
+                        //InventoryUtils.EditInstance(playerId, slot.instanceId.Value, request.health); TODO:
 
                 }
 
@@ -330,7 +330,6 @@ namespace ProjectEarthServerAPI.Util
                     case ServerCommandType.EditInventory:
                         var invEdits = JsonConvert.DeserializeObject<EditInventoryRequest>(request.requestData);
                         EditInventoryForPlayer(playerId, invEdits);
-                        //foreach (EditInventoryRequest editRequest in invEdits) EditInventoryForPlayer(playerId, editRequest);
                         return "ok";
 
                     case ServerCommandType.EditHotbar:
@@ -341,7 +340,7 @@ namespace ProjectEarthServerAPI.Util
                     case ServerCommandType.EditBuildplate:
                         var newBuildplateData =
                             JsonConvert.DeserializeObject<BuildplateShareResponse>(request.requestData);
-                        BuildplateUtils.WriteBuildplate(newBuildplateData);
+                        //BuildplateUtils.UpdateBuildplateAndList(newBuildplateData, playerId);
                         return "ok";
 
                     case ServerCommandType.MarkServerAsReady:
@@ -435,6 +434,11 @@ namespace ProjectEarthServerAPI.Util
                             authStatus = ServerAuthInformation.Authed;
 
                         }
+
+                        break;
+
+                    case ServerAuthInformation.Authed:
+                        while (true) { }
 
                         break;
                 }

@@ -18,9 +18,10 @@ namespace ProjectEarthServerAPI.Util
     /// </summary>
     public class InventoryUtils
     {
-        public static InventoryUtilResult RemoveItemFromInv(string playerId, Guid itemIdToRemove, int count,
+        /*public static InventoryUtilResult RemoveItemFromInv(string playerId, Guid itemIdToRemove, int count,
             float health)
         {
+            
             var inv = ReadInventory(playerId);
             var item = inv.result.nonStackableItems.Find(match =>
                 match.id == itemIdToRemove && match.instances.Any(match => match.health == health));
@@ -28,17 +29,18 @@ namespace ProjectEarthServerAPI.Util
             {
                 InventoryResponse.Hotbar instanceItem = Array.Find(inv.result.hotbar, match =>
                     match.id == itemIdToRemove && match.instanceId.health == health);
-                return RemoveItemFromInv(playerId, itemIdToRemove, count, instanceItem.instanceId.id);
+                return RemoveItemFromInv(playerId, itemIdToRemove, count, instanceItem.instanceId);
             }
             else
             {
                 return RemoveItemFromInv(playerId, itemIdToRemove, count,
                     item.instances.Find(match => match.health == health).id);
             }
-        }
+            
+        }*/
 
         public static InventoryUtilResult RemoveItemFromInv(string playerId, Guid itemIdToRemove,
-            int count = 1, string unstackableItemId = null, bool includeHotbar = true)
+            int count = 1, Guid? unstackableItemId = null, bool includeHotbar = true)
         {
             var inv = ReadInventory(playerId);
 
@@ -47,9 +49,9 @@ namespace ProjectEarthServerAPI.Util
                 InventoryResponse.Hotbar hotbarItem = null;
                 foreach (InventoryResponse.Hotbar item in inv.result.hotbar)
                 {
-                    if (item != null && item.id == itemIdToRemove && item.count == count)
+                    if (item != null && item.id == itemIdToRemove && item.count <= count)
                     {
-                        if (unstackableItemId == null || item.instanceId.id == unstackableItemId)
+                        if (!unstackableItemId.HasValue || item.instanceId == unstackableItemId)
                             hotbarItem = item;
                         break;
                     }
@@ -103,7 +105,7 @@ namespace ProjectEarthServerAPI.Util
         }
 
         public static InventoryUtilResult RemoveItemFromInv(string playerId, string itemIdentifier, int count = 1,
-            string unstackableItemId = null)
+            Guid? unstackableItemId = null)
         {
             var itemId = StateSingleton.Instance.catalog.result.items.Find(match => match.item.name == itemIdentifier)
                 .id;
@@ -133,7 +135,7 @@ namespace ProjectEarthServerAPI.Util
             return new Tuple<InventoryUtilResult, int>(InventoryUtilResult.ItemNotFoundInInv, 0); // Item not in inventory, so count 0
         }
 
-        public static InventoryUtilResult AddItemToInv(string playerId, Guid itemIdToAdd, int count = 1, bool isStackableItem = true, string instanceId = null)
+        public static InventoryUtilResult AddItemToInv(string playerId, Guid itemIdToAdd, int count = 1, bool isStackableItem = true, Guid? instanceId = null)
         {
             try
             {
@@ -145,13 +147,26 @@ namespace ProjectEarthServerAPI.Util
 
                     if (itementry != null && instanceId != null)
                     {
-                        itementry.instances.Add(new InventoryResponse.ItemInstance{health = 100.00, id = instanceId});
+                        itementry.instances.Add(new InventoryResponse.ItemInstance{health = 100.00, id = instanceId.Value});
                         itementry.seen.on = DateTime.UtcNow;
+                    }
+                    else if (itementry != null)
+                    {
+                        itementry.instances.Add(new InventoryResponse.ItemInstance{health = 100.00, id = Guid.NewGuid()});
                     }
                     else
                     {
-                        itementry?.instances.Add(new InventoryResponse.ItemInstance{health = 100.00, id = Guid.NewGuid().ToString()});
+                        itementry = new InventoryResponse.NonStackableItem
+                        {
+                            fragments = 1,
+                            id = itemIdToAdd,
+                            instances = new List<InventoryResponse.ItemInstance> { new() { health = 100.00, id = Guid.NewGuid()} },
+                            seen = new InventoryResponse.DateTimeOn { on = DateTime.UtcNow },
+                            unlocked = new InventoryResponse.DateTimeOn { on = DateTime.UtcNow}
+                        };
                     }
+
+                    JournalUtils.UpdateEntry(playerId, itementry);
                 }
                 else
                 {
@@ -164,15 +179,17 @@ namespace ProjectEarthServerAPI.Util
                     }
                     else
                     {
-                        inv.result.stackableItems.Add(new InventoryResponse.StackableItem()
+                        itementry = new InventoryResponse.StackableItem()
                         {
                             fragments = 1,
                             id = itemIdToAdd,
                             owned = count,
                             seen = new InventoryResponse.DateTimeOn(){on = DateTime.UtcNow},
                             unlocked = new InventoryResponse.DateTimeOn(){on = DateTime.UtcNow}
-                        });
+                        };
                     }
+
+                    JournalUtils.UpdateEntry(playerId, itementry);
                 }
 
 
@@ -192,14 +209,14 @@ namespace ProjectEarthServerAPI.Util
         }
 
         public static InventoryUtilResult AddItemToInv(string playerId, string itemIdentifier, int count = 1,
-            bool isStackableItem = true, string instanceId = null)
+            bool isStackableItem = true, Guid? instanceId = null)
         {
             var itemId = StateSingleton.Instance.catalog.result.items.Find(match => match.item.name == itemIdentifier)
                 .id;
             return AddItemToInv(playerId, itemId, count, isStackableItem, instanceId);
         }
 
-        public static Tuple<InventoryUtilResult, double> EditHealthOfItem(string playerId, Guid itemId, string unstackableItemInstanceId, double newHealth) // TODO: Actually Edit lmao
+        public static Tuple<InventoryUtilResult, double> EditHealthOfItem(string playerId, Guid itemId, Guid? unstackableItemInstanceId, double newHealth) // TODO: Actually Edit lmao
         {
             try
             {
@@ -248,7 +265,7 @@ namespace ProjectEarthServerAPI.Util
                             else
                             {
                                 AddItemToInv(playerId, inv.result.hotbar[i].id, 1, false,
-                                    inv.result.hotbar[i].instanceId.id);
+                                    inv.result.hotbar[i].instanceId);
                             }
                         }
                     }
@@ -260,12 +277,12 @@ namespace ProjectEarthServerAPI.Util
                             if (inv.result.hotbar[i] != null)
                             {
                                 RemoveItemFromInv(playerId, newHotbar[i].id,
-                                    newHotbar[i].count - inv.result.hotbar[i].count, newHotbar[i].instanceId?.id, false);
+                                    newHotbar[i].count - inv.result.hotbar[i].count, newHotbar[i].instanceId, false);
                             }
                             else
                             {
                                 RemoveItemFromInv(playerId, newHotbar[i].id, newHotbar[i].count,
-                                    newHotbar[i].instanceId?.id, false);
+                                    newHotbar[i].instanceId, false);
                             }
                         }
                         else // Not adding the actual item, just the item id since earth can only transfer items already in the inventory item lists
@@ -277,7 +294,7 @@ namespace ProjectEarthServerAPI.Util
                             else
                             {
                                 AddItemToInv(playerId, newHotbar[i].id, 0, false,
-                                    newHotbar[i].instanceId.id);
+                                    newHotbar[i].instanceId);
                             }
                         }
                     }

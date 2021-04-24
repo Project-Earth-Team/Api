@@ -5,6 +5,7 @@ using ProjectEarthServerAPI.Models;
 using Newtonsoft.Json;
 using ProjectEarthServerAPI.Util;
 using Microsoft.AspNetCore.Authorization;
+using ProjectEarthServerAPI.Models.Features;
 using Uma.Uuid;
 
 namespace ProjectEarthServerAPI.Controllers
@@ -38,13 +39,13 @@ namespace ProjectEarthServerAPI.Controllers
                 icon = "genoa:chest_tappable_map", //see the github wiki link at the top for a list of these that we know about
                 metadata = new LocationResponse.Metadata
                 {
-                    rarity = LocationResponse.Rarity.Common,
+                    rarity = Item.Rarity.Common,
                     rewardId = version4Generator.NewUuid().ToString() // Seems to always be uuidv4 from official responses so generate one
                 },
                 encounterMetadata = null, //working captured responses have this, its fine
                 tappableMetadata = new LocationResponse.TappableMetadata
                 {
-                    rarity = LocationResponse.Rarity.Common //assuming this and the above need to allign. Why have 2 occurances? who knows.
+                    rarity = Item.Rarity.Common //assuming this and the above need to allign. Why have 2 occurances? who knows.
                 }
             };
 

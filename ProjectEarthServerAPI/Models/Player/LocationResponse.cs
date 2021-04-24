@@ -3,29 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using ProjectEarthServerAPI.Models.Features;
+using ProjectEarthServerAPI.Models.Multiplayer.Adventure;
 using ProjectEarthServerAPI.Util;
 
 namespace ProjectEarthServerAPI.Models
 {
     public class LocationResponse
     {
-        public class Rarity
-		{
-            public const string Common = "Common";
-            public const string Uncommon = "Uncommon";
-            public const string Rare = "Rare";
-            public const string Epic = "Epic";
-        }
-
-        public class Metadata
+        public class Metadata : TappableMetadata
         {
-            public string rarity { get; set; }
             public string rewardId { get; set; }
         }
 
         public class TappableMetadata
         {
-            public string rarity { get; set; }
+            [JsonConverter(typeof(StringEnumConverter))]
+            public Item.Rarity rarity { get; set; }
         }
 
         public class ActiveLocation
@@ -40,7 +35,7 @@ namespace ProjectEarthServerAPI.Models
             public string type { get; set; }
             public string icon { get; set; }
             public Metadata metadata { get; set; }
-            public object encounterMetadata { get; set; }
+            public EncounterMetadata encounterMetadata { get; set; }
             public TappableMetadata tappableMetadata { get; set; }
         }
 

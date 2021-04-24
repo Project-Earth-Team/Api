@@ -20,13 +20,13 @@ namespace ProjectEarthServerAPI.Models.Player
         {
             //I havent done adventures recently. Health is **Probably wrong**
             public Guid id { get; set; }
-            public ItemInstance instanceId { get; set; }
+            public Guid? instanceId { get; set; }
             public int count { get; set; }
         }
 
         public class ItemInstance
         {
-            public string id { get; set; }
+            public Guid id { get; set; }
             public double health { get; set; }
         }
 

@@ -117,7 +117,7 @@ namespace ProjectEarthServerAPI.Controllers
             var response = new ProfileResponse(ProfileUtils.ReadProfile(profileId));
             return Content(JsonConvert.SerializeObject(response), "application/json");
         }
-    } // TODO: Fixed String
+    }
 
     [Authorize]
     public class PlayerInventoryController : Controller

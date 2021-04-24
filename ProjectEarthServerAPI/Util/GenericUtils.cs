@@ -14,6 +14,9 @@ namespace ProjectEarthServerAPI.Util
             var filepath = $"./data/players/{playerId}/{fileNameWithoutJsonExtension}.json";
             if (!File.Exists(filepath))
             {
+                if (!Directory.Exists($"./data/players/{playerId}"))
+                    Directory.CreateDirectory($"./data/players/{playerId}");
+
                 SetupJsonFile<T>(playerId, filepath); // Generic setup for each player specific json type
             }
 
@@ -28,6 +31,7 @@ namespace ProjectEarthServerAPI.Util
             {
                 Log.Information($"[{playerId}]: Creating default json with Type: {typeof(T)}.");
                 var obj = new T();                                                                              // TODO: Implement Default Values for each player property/json we store for them
+
                 File.WriteAllText(filepath, JsonConvert.SerializeObject(obj));
                 return true;
 

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace ProjectEarthServerAPI.Models.Features
 {
@@ -7,7 +9,9 @@ namespace ProjectEarthServerAPI.Models.Features
 	{
 		public Guid id { get; set; }
 		public ItemInfo item { get; set; }
-		public string rarity { get; set; }
+
+		[JsonConverter(typeof(StringEnumConverter))]
+		public Rarity rarity { get; set; }
 		public int fragmentsRequired { get; set; }
 		public bool stacks { get; set; }
 		public BurnRate burnRate { get; set; }
@@ -17,6 +21,16 @@ namespace ProjectEarthServerAPI.Models.Features
 		public int? experience { get; set; }
 		public ExperiencePoints experiencePoints { get; set; } // This could be a Dictionary<string, int> ?
 		public string category { get; set; }
+
+        public enum Rarity
+        {
+			Common,
+			Uncommon,
+			Rare,
+			Epic,
+			Legendary,
+			OOBE
+        }
 
 		public class ItemInfo
 		{

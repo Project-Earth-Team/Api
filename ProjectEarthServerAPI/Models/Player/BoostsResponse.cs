@@ -74,7 +74,7 @@ namespace ProjectEarthServerAPI.Models
         public BoostResult result { get; set; }
         public Updates updates { get; set; }
 
-        public BoostResponse() // TODO: This works, but doesnt initialize default properly. Find a way to init either init properly or empty with bool?
+        public BoostResponse()
         {
             result = new BoostResult
             {

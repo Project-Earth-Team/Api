@@ -238,6 +238,7 @@ namespace ProjectEarthServerAPI.Util
 
             returnResponse.updates.smelting = nextStreamId;
             returnResponse.updates.inventory = nextStreamId;
+            returnResponse.updates.playerJournal = nextStreamId;
 
 
             if (job.completed == job.total || job.nextCompletionUtc == null)

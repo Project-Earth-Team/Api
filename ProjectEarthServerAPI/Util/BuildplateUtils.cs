@@ -37,6 +37,14 @@ namespace ProjectEarthServerAPI.Util
         public static void WritePlayerBuildplateList(string playerId, PlayerBuildplateList list)
             => GenericUtils.WriteJsonFile(playerId, list, "buildplates");
 
+        public static void AddToPlayer(string playerId, Guid buildplateId)
+        {
+            var bpList = ReadPlayerBuildplateList(playerId);
+
+            if (!bpList.UnlockedBuildplates.Contains(buildplateId))
+                bpList.UnlockedBuildplates.Add(buildplateId);
+        }
+
         public static BuildplateData CloneTemplateBuildplate(string playerId, BuildplateData templateBuildplate)
         {
             var clonedId = Guid.NewGuid();
@@ -68,6 +76,23 @@ namespace ProjectEarthServerAPI.Util
                     playerId = null
                 }
             };
+        }
+
+        public static void UpdateBuildplateAndList(BuildplateShareResponse data, string playerId)
+        {
+            data.result.buildplateData.eTag ??= "\"0xAAAAAAAAAAAAAAA\""; // TODO: If we ever use eTags for buildplates, replace this
+            WriteBuildplate(data);
+
+            var list = ReadPlayerBuildplateList(playerId);
+            PlayerBuildplateList newList = new PlayerBuildplateList();
+            for (int i = list.UnlockedBuildplates.IndexOf(data.result.buildplateData.id); i > 0; i--)
+            {
+                list.UnlockedBuildplates[i] = list.UnlockedBuildplates[i - 1];
+            }
+
+            list.UnlockedBuildplates[0] = data.result.buildplateData.id;
+
+            WritePlayerBuildplateList(playerId, list);
         }
 
         public static BuildplateData ReadBuildplate(Guid buildplateId)

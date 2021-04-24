@@ -24,6 +24,8 @@ namespace ProjectEarthServerAPI.Models
         public uint challenges { get; set; }
         [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public uint boosts { get; set; }
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public uint buildplates { get; set; }
 	}
 
     public class UpdateResponse

@@ -10,7 +10,7 @@ using ProjectEarthServerAPI.Models.Features;
 
 namespace ProjectEarthServerAPI.Util
 {
-    public class BoostUtils // TODO: Testing
+    public class BoostUtils
     {
         private static CatalogResponse catalog = StateSingleton.Instance.catalog;
 
