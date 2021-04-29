@@ -26,12 +26,12 @@ namespace ProjectEarthServerAPI.Controllers
             int numTappablesToSpawn = random.Next(1, 10);
             for (int i = 0; i < numTappablesToSpawn; i++)
             {
-                var tappable = TappableUtils.createTappableInRadiusOfCordinates(longitude, latitude, 0.0001,
-                    TappableUtils.TappableTypes[random.Next(0, TappableUtils.TappableTypes.Length - 1)]);
+                var tappable = TappableUtils.createTappableInRadiusOfCoordinates(longitude, latitude, 0.001,
+                    TappableUtils.TappableTypes[random.Next(0, TappableUtils.TappableTypes.Length)]);
                 //add the tappable to the list
                 tappables.Add(tappable);
                 //add its GUID to the singleton so we can grab the correct reward pool later
-                StateSingleton.Instance.activeTappableTypes.Add(Guid.Parse(tappable.id),tappable.type);
+                StateSingleton.Instance.activeTappableTypes.Add(Guid.Parse(tappable.id),tappable.icon);
             }
 
 

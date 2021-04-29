@@ -37,7 +37,7 @@ namespace ProjectEarthServerAPI.Controllers
 				{
 					Log.Error($"[Tappables] No drop sets for {type}!");
 				}
-				var targetDropSet = availableDropSets[random.Next(0, availableDropSets.Count - 1)];
+				var targetDropSet = availableDropSets[random.Next(0, availableDropSets.Count - 1)]; //TODO: Make this reflect type from above. Before that, we need to create a base standard for all tappable's drop rates
 				if (targetDropSet == null)
 				{
 					Log.Error($"[Tappables] targetDropSet is null! Available drop set count was {availableDropSets.Count}");

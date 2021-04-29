@@ -60,8 +60,19 @@ namespace ProjectEarthServerAPI.Util
             return tappableData;
         }
       
-        public static  LocationResponse.ActiveLocation createTappableInRadiusOfCordinates( double longitude, double latitude, double radius, string type )
+        /// <summary>
+        /// Generate a new tappable in a given radius of a given cord set
+        /// </summary>
+        /// <param name="longitude"></param>
+        /// <param name="latitude"></param>
+        /// <param name="radius">Spawn Radius</param>
+        /// <param name="type">Optional. If not provided, a random type will be picked from TappableUtils.TappableTypes</param>
+        /// <returns></returns>
+        public static  LocationResponse.ActiveLocation createTappableInRadiusOfCoordinates( double longitude, double latitude, double radius, string type  = null)
         {
+            //if null we do random
+            type ??= TappableUtils.TappableTypes[random.Next(0, TappableUtils.TappableTypes.Length)];
+            
             var currentTime = DateTime.UtcNow;
             //Nab tile loc
             
