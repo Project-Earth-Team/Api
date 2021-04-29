@@ -23,7 +23,7 @@ namespace ProjectEarthServerAPI
         public static void Main(string[] args)
         {
             TypeDescriptor.AddAttributes(typeof(Uuid), new TypeConverterAttribute(typeof(StringToUuidConv)));
-
+        
             // Init Logging
             var log = new LoggerConfiguration()
                 .WriteTo.Console()
@@ -42,7 +42,7 @@ namespace ProjectEarthServerAPI
             StateSingleton.Instance.settings = SettingsResponse.FromFile(StateSingleton.Instance.config.settingsFileLocation);
             StateSingleton.Instance.seasonChallenges = ChallengesResponse.FromFile(StateSingleton.Instance.config.seasonChallengesFileLocation);
             StateSingleton.Instance.productCatalog = ProductCatalogResponse.FromFile(StateSingleton.Instance.config.productCatalogFileLocation);
-
+            StateSingleton.Instance.tappableData = TappableUtils.loadAllTappableSets();
             //Start api
             CreateHostBuilder(args).Build().Run();
 

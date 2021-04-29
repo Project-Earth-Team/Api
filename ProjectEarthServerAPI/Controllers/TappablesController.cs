@@ -11,10 +11,11 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using ProjectEarthServerAPI.Models;
 using ProjectEarthServerAPI.Util;
+using Serilog;
 
 namespace ProjectEarthServerAPI.Controllers
 {
-	[Authorize]
+	//[Authorize]
     public class TappablesController : Controller
 	{
 		[HttpPost]
@@ -22,41 +23,58 @@ namespace ProjectEarthServerAPI.Controllers
         [Route("1/api/v{version:apiVersion}/tappables/{x}_{y}")]
 		public async Task<IActionResult> Post(int x, int y)
 		{
-            string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			var stream = new StreamReader(Request.Body);
-			var body = await stream.ReadToEndAsync();
+			string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
+				var stream = new StreamReader(Request.Body);
+				var body = await stream.ReadToEndAsync();
 
-			var req = JsonConvert.DeserializeObject<TappableRequest>(body);
+				var req = JsonConvert.DeserializeObject<TappableRequest>(body);
 
-			var response = new TappableResponse()
-			{
-				result = new TappableResponse.Result()
+				Random random = new Random();
+
+				var type = StateSingleton.Instance.activeTappableTypes[req.id];
+				var availableDropSets = StateSingleton.Instance.tappableData[type];
+				if (availableDropSets == null)
 				{
-					token = new Token()
+					Log.Error($"[Tappables] No drop sets for {type}!");
+				}
+				var targetDropSet = availableDropSets[random.Next(0, availableDropSets.Count - 1)];
+				if (targetDropSet == null)
+				{
+					Log.Error($"[Tappables] targetDropSet is null! Available drop set count was {availableDropSets.Count}");
+				}
+				var rewards = new RewardComponent[targetDropSet.Count];
+				for (int i = 0; i < targetDropSet.Count; i++)
+				{
+					rewards[i] = new RewardComponent()
 					{
-						clientProperties = new Dictionary<string, string>(),
-						clientType = "redeemtappable",
-						lifetime = "Persistent",
-						rewards = new Rewards()
+						Amount = random.Next(1, 3),
+						Id = new Guid(targetDropSet[i])
+					};
+				}
+
+				var response = new TappableResponse()
+				{
+					result = new TappableResponse.Result()
+					{
+						token = new Token()
 						{
-							ExperiencePoints = 400,
-							Inventory = new RewardComponent[]
+							clientProperties = new Dictionary<string, string>(),
+							clientType = "redeemtappable",
+							lifetime = "Persistent",
+							rewards = new Rewards()
 							{
-								new RewardComponent()
-								{
-									Amount = 10,
-									Id = new Guid("1eaa0d8c-2d89-2b84-aa1f-b75ccc85faff")
-								}
+								ExperiencePoints = 400,
+								Inventory = rewards
 							}
 						}
 					}
-				}
-            };
+				};
 
-            response.updates = RewardUtils.RedeemRewards(authtoken, response.result.token.rewards);
-            response.result.updates = response.updates;
+				response.updates = RewardUtils.RedeemRewards(authtoken, response.result.token.rewards);
+				response.result.updates = response.updates;
 
-			return Content(JsonConvert.SerializeObject(response), "application/json");
-		}
+				return Content(JsonConvert.SerializeObject(response), "application/json");
+			
+	}
     }
 }
