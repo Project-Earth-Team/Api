@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Newtonsoft.Json;
 using ProjectEarthServerAPI.Models;
 using ProjectEarthServerAPI.Util;
@@ -12,12 +13,25 @@ using Serilog;
 namespace ProjectEarthServerAPI.Controllers
 {
     [ApiVersion("1.1")]
-    [Route("api/v{version:apiVersion}/player/profile/signin")]
+    [Route("api/v{version:apiVersion}/player/profile/{profileID}")]
     public class SigninController : ControllerBase
     {
-        [HttpPost]
-        public async Task<ContentResult> Post(string jsonstring)
+        [Authorize]
+        [HttpGet]
+        public async Task<ContentResult> Get(string profileID)
         {
+            var response = new ProfileResponse(ProfileUtils.ReadProfile(profileID));
+            return Content(JsonConvert.SerializeObject(response), "application/json");
+        }
+        
+        
+        [HttpPost]
+        public async Task<ContentResult> Post(string jsonstring, string profileID)
+        {
+            if (profileID != "signin")
+            {
+                return null; //this is only for sign in. If something off comes our way, we don't accept.
+            }
 
             var httprequest = Request.Body;
             StreamReader sr = new StreamReader(httprequest);
@@ -51,5 +65,7 @@ namespace ProjectEarthServerAPI.Controllers
             //    "application/json");
 
         }
+        
+      
     }
 }

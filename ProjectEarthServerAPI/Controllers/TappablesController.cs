@@ -15,7 +15,7 @@ using Serilog;
 
 namespace ProjectEarthServerAPI.Controllers
 {
-	//[Authorize]
+	[Authorize]
     public class TappablesController : Controller
 	{
 		[HttpPost]

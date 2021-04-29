@@ -43,6 +43,7 @@ namespace ProjectEarthServerAPI
             StateSingleton.Instance.seasonChallenges = ChallengesResponse.FromFile(StateSingleton.Instance.config.seasonChallengesFileLocation);
             StateSingleton.Instance.productCatalog = ProductCatalogResponse.FromFile(StateSingleton.Instance.config.productCatalogFileLocation);
             StateSingleton.Instance.tappableData = TappableUtils.loadAllTappableSets();
+            StateSingleton.Instance.activeTappableTypes = new Dictionary<Guid, string>();
             //Start api
             CreateHostBuilder(args).Build().Run();
 
