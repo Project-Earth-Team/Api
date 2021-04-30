@@ -23,7 +23,7 @@ namespace ProjectEarthServerAPI.Controllers
         [Route("1/api/v{version:apiVersion}/tappables/{x}_{y}")]
 		public async Task<IActionResult> Post(int x, int y)
 		{
-			string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			   string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
 				var stream = new StreamReader(Request.Body);
 				var body = await stream.ReadToEndAsync();
 
@@ -32,12 +32,21 @@ namespace ProjectEarthServerAPI.Controllers
 				Random random = new Random();
 
 				var type = StateSingleton.Instance.activeTappableTypes[req.id];
-				var availableDropSets = StateSingleton.Instance.tappableData[type];
+				List<List<string>> availableDropSets = null;
+				try
+				{
+					availableDropSets = StateSingleton.Instance.tappableData[type];
+				}
+				catch (Exception e)
+				{
+					Log.Error("[Tappables] no json file for tappable type"+type+" exists in data/tappables");
+				}
+
 				if (availableDropSets == null)
 				{
 					Log.Error($"[Tappables] No drop sets for {type}!");
 				}
-				var targetDropSet = availableDropSets[random.Next(0, availableDropSets.Count - 1)]; //TODO: Make this reflect type from above. Before that, we need to create a base standard for all tappable's drop rates
+				var targetDropSet = availableDropSets[random.Next(0, availableDropSets.Count)]; 
 				if (targetDropSet == null)
 				{
 					Log.Error($"[Tappables] targetDropSet is null! Available drop set count was {availableDropSets.Count}");

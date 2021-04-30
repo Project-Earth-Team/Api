@@ -15,7 +15,6 @@ namespace ProjectEarthServerAPI.Controllers
     [Route("1/api/v{version:apiVersion}/locations/{latitude}/{longitude}")]
     public class LocationController : Controller
     {
-    //    private static Version4Generator version4Generator = new Version4Generator();
         private static Random random = new Random();
         public ContentResult Get(double latitude, double longitude)
         {
@@ -23,7 +22,7 @@ namespace ProjectEarthServerAPI.Controllers
             //Nab tile loc
             int[] cords = Tile.getTileForCords(latitude, longitude);
             List<LocationResponse.ActiveLocation> tappables = new List<LocationResponse.ActiveLocation>();
-            int numTappablesToSpawn = random.Next(1, 10);
+            int numTappablesToSpawn = random.Next(5, 20);
             for (int i = 0; i < numTappablesToSpawn; i++)
             {
                 var tappable = TappableUtils.createTappableInRadiusOfCoordinates(longitude, latitude, 0.001,
