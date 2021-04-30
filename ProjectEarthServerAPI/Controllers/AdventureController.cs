@@ -11,30 +11,30 @@ using ProjectEarthServerAPI.Util;
 
 namespace ProjectEarthServerAPI.Controllers
 {
-    [Authorize]
-    [ApiVersion("1.1")]
-    public class AdventureScrollsController : Controller
-    {
-        [Route("1/api/v{version:apiVersion}/adventures/scrolls")]
-        public ContentResult Get()
-        {
-            var responseobj = new ScrollsResponse();
-            var response = JsonConvert.SerializeObject(responseobj);
-            return Content(response, "application/json");
-        } // TODO: Fixed String
+	[Authorize]
+	[ApiVersion("1.1")]
+	public class AdventureScrollsController : Controller
+	{
+		[Route("1/api/v{version:apiVersion}/adventures/scrolls")]
+		public ContentResult Get()
+		{
+			var responseobj = new ScrollsResponse();
+			var response = JsonConvert.SerializeObject(responseobj);
+			return Content(response, "application/json");
+		} // TODO: Fixed String
 
-        [Route("1/api/v{version:apiVersion}/adventures/scrolls/{crystalId}")]
-        public async Task<ContentResult> PostRedeemCrystal(Guid crystalId)
-        {
-            var playerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+		[Route("1/api/v{version:apiVersion}/adventures/scrolls/{crystalId}")]
+		public async Task<ContentResult> PostRedeemCrystal(Guid crystalId)
+		{
+			var playerId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var stream = new StreamReader(Request.Body);
-            var body = await stream.ReadToEndAsync();
+			var stream = new StreamReader(Request.Body);
+			var body = await stream.ReadToEndAsync();
 
-            var req = JsonConvert.DeserializeObject<PlayerAdventureRequest>(body);
-            var resp = AdventureUtils.RedeemCrystal(playerId, req, crystalId);
+			var req = JsonConvert.DeserializeObject<PlayerAdventureRequest>(body);
+			var resp = AdventureUtils.RedeemCrystal(playerId, req, crystalId);
 
-            return Content(JsonConvert.SerializeObject(resp), "application/json");
-        }
-    }
+			return Content(JsonConvert.SerializeObject(resp), "application/json");
+		}
+	}
 }

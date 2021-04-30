@@ -8,283 +8,255 @@ using Serilog;
 
 namespace ProjectEarthServerAPI.Util
 {
-    public class CraftingUtils // TODO: Bug Fix: Cancelling a crafting task that you already collected some results
-                               // TODO: for returns the entire crafting cost, not just the remaining part
-    {
-        private static Recipes recipeList = StateSingleton.Instance.recipes;
-        private static Dictionary<string, Dictionary<int, CraftingSlotInfo>> craftingJobs = new Dictionary<string, Dictionary<int, CraftingSlotInfo>>();
-        public static bool StartCraftingJob(string playerId, int slot, CraftingRequest request) // TODO: Check if slot not unlocked (not a big priority)
-        {
-            recipeList ??= Recipes.FromFile("./data/recipes");
+	public class CraftingUtils // TODO: Bug Fix: Cancelling a crafting task that you already collected some results
+		// TODO: for returns the entire crafting cost, not just the remaining part
+	{
+		private static Recipes recipeList = StateSingleton.Instance.recipes;
+		private static Dictionary<string, Dictionary<int, CraftingSlotInfo>> craftingJobs = new Dictionary<string, Dictionary<int, CraftingSlotInfo>>();
 
-            var recipe = recipeList.result.crafting.Find(match => match.id == request.RecipeId);
+		public static bool StartCraftingJob(string playerId, int slot, CraftingRequest request) // TODO: Check if slot not unlocked (not a big priority)
+		{
+			recipeList ??= Recipes.FromFile("./data/recipes");
 
-            if (recipe != null)
-            {
-                var itemsToReturn = recipe.returnItems.ToList();
+			var recipe = recipeList.result.crafting.Find(match => match.id == request.RecipeId);
 
-                foreach (RecipeIngredients ingredient in recipe.ingredients)
-                {
-                    if (itemsToReturn.Find(match =>
-                        match.id == ingredient.items[0] && match.amount == ingredient.quantity) == null)
-                    {
-                        InventoryUtils.RemoveItemFromInv(playerId, ingredient.items[0], ingredient.quantity * request.Multiplier);
-                    }
-                }
+			if (recipe != null)
+			{
+				var itemsToReturn = recipe.returnItems.ToList();
 
-                var nextStreamId = GenericUtils.GetNextStreamVersion();
+				foreach (RecipeIngredients ingredient in recipe.ingredients)
+				{
+					if (itemsToReturn.Find(match =>
+						match.id == ingredient.items[0] && match.amount == ingredient.quantity) == null)
+					{
+						InventoryUtils.RemoveItemFromInv(playerId, ingredient.items[0], ingredient.quantity * request.Multiplier);
+					}
+				}
 
-                CraftingSlotInfo job = new CraftingSlotInfo
-                {
-                    available = 0,
-                    boostState = null,
-                    completed = 0,
-                    escrow = request.Ingredients,
-                    nextCompletionUtc = null,
-                    output = recipe.output,
-                    recipeId = recipe.id,
-                    sessionId = request.SessionId,
-                    state = "Active",
-                    streamVersion = nextStreamId,
-                    total = request.Multiplier,
-                    totalCompletionUtc = DateTime.UtcNow.Add(recipe.duration.TimeOfDay*request.Multiplier),
-                    unlockPrice = null
+				var nextStreamId = GenericUtils.GetNextStreamVersion();
 
-                };
+				CraftingSlotInfo job = new CraftingSlotInfo
+				{
+					available = 0,
+					boostState = null,
+					completed = 0,
+					escrow = request.Ingredients,
+					nextCompletionUtc = null,
+					output = recipe.output,
+					recipeId = recipe.id,
+					sessionId = request.SessionId,
+					state = "Active",
+					streamVersion = nextStreamId,
+					total = request.Multiplier,
+					totalCompletionUtc = DateTime.UtcNow.Add(recipe.duration.TimeOfDay * request.Multiplier),
+					unlockPrice = null
+				};
 
-                if (request.Multiplier != 1)
-                {
-                    job.nextCompletionUtc = DateTime.UtcNow.Add(recipe.duration.TimeOfDay);
-                }
+				if (request.Multiplier != 1)
+				{
+					job.nextCompletionUtc = DateTime.UtcNow.Add(recipe.duration.TimeOfDay);
+				}
 
-                if (!craftingJobs.ContainsKey(playerId))
-                {
-                    craftingJobs.Add(playerId, new Dictionary<int, CraftingSlotInfo>());
-                    craftingJobs[playerId].Add(1, new CraftingSlotInfo());
-                    craftingJobs[playerId].Add(2, new CraftingSlotInfo());
-                    craftingJobs[playerId].Add(3, new CraftingSlotInfo());
-                }
+				if (!craftingJobs.ContainsKey(playerId))
+				{
+					craftingJobs.Add(playerId, new Dictionary<int, CraftingSlotInfo>());
+					craftingJobs[playerId].Add(1, new CraftingSlotInfo());
+					craftingJobs[playerId].Add(2, new CraftingSlotInfo());
+					craftingJobs[playerId].Add(3, new CraftingSlotInfo());
+				}
 
-                craftingJobs[playerId][slot] = job;
+				craftingJobs[playerId][slot] = job;
 
-                UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
+				UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
 
-                Log.Debug($"[{playerId}]: Initiated crafting job in slot {slot}.");
+				Log.Debug($"[{playerId}]: Initiated crafting job in slot {slot}.");
 
-                return true;
-            }
+				return true;
+			}
 
-            return false;
+			return false;
+		}
 
-        }
+		public static CraftingSlotResponse GetCraftingJobInfo(string playerId, int slot)
+		{
+			try
+			{
+				var job = craftingJobs[playerId][slot];
+				var recipe = recipeList.result.crafting.Find(match => match.id == job.recipeId & !match.deprecated);
+				var updates = new Updates();
+				var nextStreamId = GenericUtils.GetNextStreamVersion();
 
-        public static CraftingSlotResponse GetCraftingJobInfo(string playerId, int slot)
-        {
+				job.streamVersion = nextStreamId;
 
-            try
-            {
-                var job = craftingJobs[playerId][slot];
-                var recipe = recipeList.result.crafting.Find(match => match.id == job.recipeId & !match.deprecated);
-                var updates = new Updates();
-                var nextStreamId = GenericUtils.GetNextStreamVersion();
+				if (job.totalCompletionUtc != null && DateTime.Compare(job.totalCompletionUtc.Value, DateTime.UtcNow) < 0 && job.recipeId != null)
+				{
+					job.available = job.total - job.completed;
+					job.completed += job.available;
+					job.nextCompletionUtc = null;
+					job.state = "Completed";
+					job.escrow = new InputItem[0];
+				}
+				/*else
+				{
 
-                job.streamVersion = nextStreamId;
+				    job.available++;
+				    //job.completed++;
+				    job.state = "Available";
+				    job.streamVersion = nextStreamId;
+				    job.nextCompletionUtc = job.nextCompletionUtc.Value.Add(recipe.duration.TimeOfDay);
 
-                if (job.totalCompletionUtc != null && DateTime.Compare(job.totalCompletionUtc.Value, DateTime.UtcNow) < 0 && job.recipeId != null) 
-                {                                                                                                                                  
-                                                                                                                                                   
-                    job.available = job.total - job.completed;
-                    job.completed += job.available;
-                    job.nextCompletionUtc = null;
-                    job.state = "Completed";
-                    job.escrow = new InputItem[0];
-                }
-                /*else
-                {
+				    for (int i = 0; i < job.escrow.Length - 1; i++)
+				    {
+				        job.escrow[i].quantity -= recipe.ingredients[i].quantity;
+				    }
 
-                    job.available++;
-                    //job.completed++;
-                    job.state = "Available";
-                    job.streamVersion = nextStreamId;
-                    job.nextCompletionUtc = job.nextCompletionUtc.Value.Add(recipe.duration.TimeOfDay);
+				}*/
 
-                    for (int i = 0; i < job.escrow.Length - 1; i++)
-                    {
-                        job.escrow[i].quantity -= recipe.ingredients[i].quantity;
-                    }
+				updates.crafting = nextStreamId;
 
-                }*/
+				var returnResponse = new CraftingSlotResponse {result = job, updates = updates};
 
-                updates.crafting = nextStreamId;
+				UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
 
-                var returnResponse = new CraftingSlotResponse
-                {
-                    result = job,
-                    updates = updates
-                };
+				Log.Debug($"[{playerId}]: Requested crafting slot {slot} status.");
 
-                UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
+				return returnResponse;
+			}
+			catch (Exception e)
+			{
+				Log.Error($"[{playerId}]: Error while getting crafting job info! Crafting Slot: {slot}");
+				Log.Debug($"Exception: {e.StackTrace}");
+				return null;
+			}
+		}
 
-                Log.Debug($"[{playerId}]: Requested crafting slot {slot} status.");
+		public static CollectItemsResponse FinishCraftingJob(string playerId, int slot)
+		{
+			var job = craftingJobs[playerId][slot];
+			var recipe = recipeList.result.crafting.Find(match => match.id == job.recipeId & !match.deprecated);
+			int craftedAmount = 0;
 
-                return returnResponse;
-            }
-            catch (Exception e )
-            {
-                Log.Error($"[{playerId}]: Error while getting crafting job info! Crafting Slot: {slot}");
-                Log.Debug($"Exception: {e.StackTrace}");
-                return null;
-            }
+			var nextStreamId = GenericUtils.GetNextStreamVersion();
 
-        }
+			var returnResponse = new CollectItemsResponse {result = new CollectItemsInfo {rewards = new Rewards(),}, updates = new Updates()};
 
-        public static CollectItemsResponse FinishCraftingJob(string playerId, int slot)
-        {
-            var job = craftingJobs[playerId][slot];
-            var recipe = recipeList.result.crafting.Find(match => match.id == job.recipeId & !match.deprecated);
-            int craftedAmount = 0;
+			if (job.completed != job.total && job.nextCompletionUtc != null)
+			{
+				if (DateTime.UtcNow >= job.nextCompletionUtc)
+				{
+					craftedAmount++;
+					while (DateTime.UtcNow >= job.nextCompletionUtc && job.nextCompletionUtc.Value.Add(recipe.duration.TimeOfDay) < job.totalCompletionUtc && craftedAmount < job.total - job.completed)
+					{
+						job.nextCompletionUtc = job.nextCompletionUtc.Value.Add(recipe.duration.TimeOfDay);
+						craftedAmount++;
+					}
 
-            var nextStreamId = GenericUtils.GetNextStreamVersion();
+					job.nextCompletionUtc = job.nextCompletionUtc.Value.Add(recipe.duration.TimeOfDay);
+					job.completed += craftedAmount;
+					//job.available -= craftedAmount;
+					for (int i = 0; i < job.escrow.Length - 1; i++)
+					{
+						job.escrow[i].quantity -= recipe.ingredients[i].quantity * craftedAmount;
+					}
 
-            var returnResponse = new CollectItemsResponse
-            {
-                result = new CollectItemsInfo
-                {
-                    rewards = new Rewards(),
-                },
-                updates = new Updates()
-            };
+					job.streamVersion = nextStreamId;
 
-            if (job.completed != job.total && job.nextCompletionUtc != null)
-            {
-                if (DateTime.UtcNow >= job.nextCompletionUtc)
-                {
-                    craftedAmount++;
-                    while (DateTime.UtcNow >= job.nextCompletionUtc && job.nextCompletionUtc.Value.Add(recipe.duration.TimeOfDay) < job.totalCompletionUtc && craftedAmount < job.total-job.completed)
-                    {
-                        job.nextCompletionUtc = job.nextCompletionUtc.Value.Add(recipe.duration.TimeOfDay);
-                        craftedAmount++;
-                    }
+					InventoryUtils.AddItemToInv(playerId, job.output.itemId, job.output.quantity * craftedAmount);
+				}
+			}
+			else
+			{
+				craftedAmount = job.available;
+				InventoryUtils.AddItemToInv(playerId, job.output.itemId, job.output.quantity * craftedAmount);
+				// TODO: Add to challenges, tokens, journal (when implemented)
+			}
 
-                    job.nextCompletionUtc = job.nextCompletionUtc.Value.Add(recipe.duration.TimeOfDay);
-                    job.completed += craftedAmount;
-                    //job.available -= craftedAmount;
-                    for (int i = 0; i < job.escrow.Length-1; i++)
-                    {
-                        job.escrow[i].quantity -= recipe.ingredients[i].quantity*craftedAmount;
-                    }
+			if (!TokenUtils.GetTokenResponseForUserId(playerId).Result.tokens.Any(match => match.Value.clientProperties.ContainsKey("itemid") && match.Value.clientProperties["itemid"] == job.output.itemId.ToString()))
+			{
+				//TokenUtils.AddItemToken(playerId, job.output.itemId); -> List of item tokens not known. Could cause issues later, for now we just disable it.
+				returnResponse.updates.tokens = nextStreamId;
+			}
 
-                    job.streamVersion = nextStreamId;
+			returnResponse.result.rewards.Inventory = returnResponse.result.rewards.Inventory.Append(new RewardComponent {Amount = job.output.quantity * craftedAmount, Id = job.output.itemId}).ToArray();
 
-                    InventoryUtils.AddItemToInv(playerId, job.output.itemId, job.output.quantity*craftedAmount);
-                }
-            }
-            else
-            {
-                craftedAmount = job.available;
-                InventoryUtils.AddItemToInv(playerId, job.output.itemId, job.output.quantity * craftedAmount);
-                // TODO: Add to challenges, tokens, journal (when implemented)
-            }
-
-            if (!TokenUtils.GetTokenResponseForUserId(playerId).Result.tokens.Any(match => match.Value.clientProperties.ContainsKey("itemid") && match.Value.clientProperties["itemid"] == job.output.itemId.ToString()))
-            {
-                //TokenUtils.AddItemToken(playerId, job.output.itemId); -> List of item tokens not known. Could cause issues later, for now we just disable it.
-                returnResponse.updates.tokens = nextStreamId;
-            }
-
-            returnResponse.result.rewards.Inventory = returnResponse.result.rewards.Inventory.Append(new RewardComponent
-            {
-                Amount = job.output.quantity*craftedAmount,
-                Id = job.output.itemId
-            }).ToArray();
-
-            returnResponse.updates.crafting = nextStreamId;
-            returnResponse.updates.inventory = nextStreamId;
-            returnResponse.updates.playerJournal = nextStreamId;
+			returnResponse.updates.crafting = nextStreamId;
+			returnResponse.updates.inventory = nextStreamId;
+			returnResponse.updates.playerJournal = nextStreamId;
 
 
-            if (job.completed == job.total || job.nextCompletionUtc == null)
-            {
-                job.nextCompletionUtc = null;
-                job.available = 0;
-                job.completed = 0;
-                job.recipeId = null;
-                job.sessionId = null;
-                job.state = "Empty";
-                job.total = 0;
-                job.boostState = null;
-                job.totalCompletionUtc = null;
-                job.unlockPrice = null;
-                job.output = null;
-                job.streamVersion = nextStreamId;
-            }
+			if (job.completed == job.total || job.nextCompletionUtc == null)
+			{
+				job.nextCompletionUtc = null;
+				job.available = 0;
+				job.completed = 0;
+				job.recipeId = null;
+				job.sessionId = null;
+				job.state = "Empty";
+				job.total = 0;
+				job.boostState = null;
+				job.totalCompletionUtc = null;
+				job.unlockPrice = null;
+				job.output = null;
+				job.streamVersion = nextStreamId;
+			}
 
-            UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
+			UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
 
-            Log.Debug($"[{playerId}]: Collected results of crafting slot {slot}.");
+			Log.Debug($"[{playerId}]: Collected results of crafting slot {slot}.");
 
-            return returnResponse;
+			return returnResponse;
+		}
 
-        }
+		public static CraftingSlotResponse CancelCraftingJob(string playerId, int slot)
+		{
+			var job = craftingJobs[playerId][slot];
+			var nextStreamId = GenericUtils.GetNextStreamVersion();
+			var resp = new CraftingSlotResponse {result = new CraftingSlotInfo(), updates = new Updates()};
 
-        public static CraftingSlotResponse CancelCraftingJob(string playerId, int slot)
-        {
-            var job = craftingJobs[playerId][slot];
-            var nextStreamId = GenericUtils.GetNextStreamVersion();
-            var resp = new CraftingSlotResponse
-            {
-                result = new CraftingSlotInfo(),
-                updates = new Updates()
-        };
+			foreach (InputItem item in job.escrow)
+			{
+				InventoryUtils.AddItemToInv(playerId, item.itemId, item.quantity);
+			}
 
-            foreach (InputItem item in job.escrow)
-            {
-                InventoryUtils.AddItemToInv(playerId, item.itemId, item.quantity);
-            }
+			job.nextCompletionUtc = null;
+			job.available = 0;
+			job.completed = 0;
+			job.recipeId = null;
+			job.sessionId = null;
+			job.state = "Empty";
+			job.total = 0;
+			job.boostState = null;
+			job.totalCompletionUtc = null;
+			job.unlockPrice = null;
+			job.output = null;
+			job.streamVersion = nextStreamId;
 
-            job.nextCompletionUtc = null;
-            job.available = 0;
-            job.completed = 0;
-            job.recipeId = null;
-            job.sessionId = null;
-            job.state = "Empty";
-            job.total = 0;
-            job.boostState = null;
-            job.totalCompletionUtc = null;
-            job.unlockPrice = null;
-            job.output = null;
-            job.streamVersion = nextStreamId;
+			UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
 
-            UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
+			Log.Debug($"[{playerId}]: Cancelled crafting job in slot {slot}.");
 
-            Log.Debug($"[{playerId}]: Cancelled crafting job in slot {slot}.");
+			resp.updates.crafting = nextStreamId;
+			return resp;
+		}
 
-            resp.updates.crafting = nextStreamId;
-            return resp;
-        }
+		public static CraftingUpdates UnlockCraftingSlot(string playerId, int slot)
+		{
+			var job = craftingJobs[playerId][slot];
 
-        public static CraftingUpdates UnlockCraftingSlot(string playerId, int slot)
-        {
-            var job = craftingJobs[playerId][slot];
+			RubyUtils.SetRubies(playerId, job.unlockPrice.cost - job.unlockPrice.discount, false);
+			job.state = "Empty";
+			job.unlockPrice = null;
 
-            RubyUtils.SetRubies(playerId, job.unlockPrice.cost - job.unlockPrice.discount, false);
-            job.state = "Empty";
-            job.unlockPrice = null;
+			var nextStreamId = GenericUtils.GetNextStreamVersion();
+			var returnUpdates = new CraftingUpdates {updates = new Updates()};
 
-            var nextStreamId = GenericUtils.GetNextStreamVersion();
-            var returnUpdates = new CraftingUpdates
-            {
-                updates = new Updates()
-            };
+			UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
 
-            UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
+			Log.Debug($"[{playerId}]: Unlocked crafting slot {slot}.");
 
-            Log.Debug($"[{playerId}]: Unlocked crafting slot {slot}.");
+			returnUpdates.updates.crafting = nextStreamId;
 
-            returnUpdates.updates.crafting = nextStreamId;
-
-            return returnUpdates;
-
-        }
-    }
+			return returnUpdates;
+		}
+	}
 }
