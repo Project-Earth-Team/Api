@@ -39,7 +39,9 @@ namespace ProjectEarthServerAPI.Controllers
 				}
 				catch (Exception e)
 				{
-					Log.Error("[Tappables] no json file for tappable type"+type+" exists in data/tappables");
+					Log.Error("[Tappables] no json file for tappable type"+type+" exists in data/tappables. Using backup of dirt (f0617d6a-c35a-5177-fcf2-95f67d79196d)");
+					availableDropSets = new List<List<string>>();
+					availableDropSets.Add(new List<string>(){"f0617d6a-c35a-5177-fcf2-95f67d79196d"}); //dirt for you... sorry :/
 				}
 
 				if (availableDropSets == null)
