@@ -22,10 +22,10 @@ namespace ProjectEarthServerAPI.Controllers
             //Nab tile loc
             int[] cords = Tile.getTileForCords(latitude, longitude);
             List<LocationResponse.ActiveLocation> tappables = new List<LocationResponse.ActiveLocation>();
-            int numTappablesToSpawn = random.Next(5, 20);
+            int numTappablesToSpawn = random.Next(StateSingleton.Instance.config.minTappableSpawnAmount, StateSingleton.Instance.config.maxTappableSpawnAmount);
             for (int i = 0; i < numTappablesToSpawn; i++)
             {
-                var tappable = TappableUtils.createTappableInRadiusOfCoordinates(longitude, latitude, 0.001,
+                var tappable = TappableUtils.createTappableInRadiusOfCoordinates(longitude, latitude, StateSingleton.Instance.config.tappableSpawnRadius,
                     TappableUtils.TappableTypes[random.Next(0, TappableUtils.TappableTypes.Length)]);
                 //add the tappable to the list
                 tappables.Add(tappable);

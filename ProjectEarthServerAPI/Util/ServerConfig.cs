@@ -22,6 +22,11 @@ namespace ProjectEarthServerAPI.Util
         public string seasonChallengesFileLocation { get; set; }
         public string productCatalogFileLocation { get; set; }
         public Dictionary<string, string> multiplayerAuthKeys { get; set; }
+        //tappable settings
+        public int minTappableSpawnAmount { get; set; }
+        public int maxTappableSpawnAmount { get; set; }
+        public double tappableSpawnRadius { get; set; }
+        
         //Load method
 
         /// <summary>
