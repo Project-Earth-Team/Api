@@ -39,8 +39,4 @@ namespace ProjectEarthServerAPI.Util
             return JsonConvert.DeserializeObject<ServerConfig>(file);
         }
     }
-
-    
-
-
 }

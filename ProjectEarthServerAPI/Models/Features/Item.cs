@@ -12,6 +12,7 @@ namespace ProjectEarthServerAPI.Models.Features
 
 		[JsonConverter(typeof(StringEnumConverter))]
 		public Rarity rarity { get; set; }
+
 		public int fragmentsRequired { get; set; }
 		public bool stacks { get; set; }
 		public BurnRate burnRate { get; set; }
@@ -22,15 +23,15 @@ namespace ProjectEarthServerAPI.Models.Features
 		public ExperiencePoints experiencePoints { get; set; } // This could be a Dictionary<string, int> ?
 		public string category { get; set; }
 
-        public enum Rarity
-        {
+		public enum Rarity
+		{
 			Common,
 			Uncommon,
 			Rare,
 			Epic,
 			Legendary,
 			OOBE
-        }
+		}
 
 		public class ItemInfo
 		{
@@ -51,6 +52,7 @@ namespace ProjectEarthServerAPI.Models.Features
 			public AudioMetadata? audioMetadata { get; set; }
 			public Dictionary<string, string> clientProperties { get; set; }
 		}
+
 		public class BurnRate
 		{
 			public int heatPerSecond { get; set; }

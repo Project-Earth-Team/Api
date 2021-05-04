@@ -10,6 +10,7 @@ using Uma.Uuid;
 
 namespace ProjectEarthServerAPI.Controllers
 {
+
     [Authorize]
     [ApiVersion("1.1")]
     [Route("1/api/v{version:apiVersion}/locations/{latitude}/{longitude}")]
@@ -47,10 +48,10 @@ namespace ProjectEarthServerAPI.Controllers
                 updates = new Updates()
             };
 
-            //serialize
-            var response = JsonConvert.SerializeObject(locationResp);
-            //Send
-            return Content(response, "application/json");
-        }
-    }
+			//serialize
+			var response = JsonConvert.SerializeObject(locationResp);
+			//Send
+			return Content(response, "application/json");
+		}
+	}
 }

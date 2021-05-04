@@ -16,18 +16,21 @@ using Serilog;
 namespace ProjectEarthServerAPI.Controllers
 {
 	[Authorize]
-    public class TappablesController : Controller
+	public class TappablesController : Controller
 	{
 		[HttpPost]
-        [ApiVersion("1.1")]
-        [Route("1/api/v{version:apiVersion}/tappables/{x}_{y}")]
+		[ApiVersion("1.1")]
+		[Route("1/api/v{version:apiVersion}/tappables/{x}_{y}")]
 		public async Task<IActionResult> Post(int x, int y)
 		{
-			   string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+			  string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
 				var stream = new StreamReader(Request.Body);
 				var body = await stream.ReadToEndAsync();
 
+
 				var req = JsonConvert.DeserializeObject<TappableRequest>(body);
+
 
 				Random random = new Random();
 

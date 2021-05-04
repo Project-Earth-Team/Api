@@ -12,6 +12,7 @@ using Serilog;
 
 namespace ProjectEarthServerAPI.Controllers
 {
+
     [ApiVersion("1.1")]
     [Route("api/v{version:apiVersion}/player/profile/{profileID}")]
     public class SigninController : ControllerBase
@@ -68,4 +69,5 @@ namespace ProjectEarthServerAPI.Controllers
         
       
     }
+
 }

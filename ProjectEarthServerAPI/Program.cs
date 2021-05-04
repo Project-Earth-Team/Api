@@ -17,6 +17,7 @@ using Uma.Uuid;
 
 namespace ProjectEarthServerAPI
 {
+
     public class Program
     {
 
@@ -58,4 +59,5 @@ namespace ProjectEarthServerAPI
                     webBuilder.UseStartup<Startup>();
                 });
     }
+
 }

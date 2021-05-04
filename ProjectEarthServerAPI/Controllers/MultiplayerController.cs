@@ -14,77 +14,78 @@ using ProjectEarthServerAPI.Util;
 
 namespace ProjectEarthServerAPI.Controllers
 {
-    public class MultiplayerController : Controller
-    {
-        #region Buildplates
-        [Authorize]
-        [ApiVersion("1.1")]
-        [Route("1/api/v{version:apiVersion}/multiplayer/buildplate/{buildplateId}/instances")]
-        public async Task<IActionResult> PostCreateInstance(string buildplateId)
-        {
-            string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var stream = new StreamReader(Request.Body);
-            var body = await stream.ReadToEndAsync();
-            var parsedRequest = JsonConvert.DeserializeObject<BuildplateServerRequest>(body);
+	public class MultiplayerController : Controller
+	{
+		#region Buildplates
 
-            var response = await MultiplayerUtils.CreateBuildplateInstance(authtoken, buildplateId, parsedRequest.playerCoordinate);
-            return Content(JsonConvert.SerializeObject(response), "application/json");
-        }
+		[Authorize]
+		[ApiVersion("1.1")]
+		[Route("1/api/v{version:apiVersion}/multiplayer/buildplate/{buildplateId}/instances")]
+		public async Task<IActionResult> PostCreateInstance(string buildplateId)
+		{
+			string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			var stream = new StreamReader(Request.Body);
+			var body = await stream.ReadToEndAsync();
+			var parsedRequest = JsonConvert.DeserializeObject<BuildplateServerRequest>(body);
 
-        [Authorize]
-        [ApiVersion("1.1")]
-        [Route("1/api/v{version:apiVersion}/buildplates")]
-        public IActionResult GetBuildplates()
-        {
-            string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
+			var response = await MultiplayerUtils.CreateBuildplateInstance(authtoken, buildplateId, parsedRequest.playerCoordinate);
+			return Content(JsonConvert.SerializeObject(response), "application/json");
+		}
 
-            var response = BuildplateUtils.GetBuildplatesList(authtoken);
-            return Content(JsonConvert.SerializeObject(response), "application/json");
-        }
+		[Authorize]
+		[ApiVersion("1.1")]
+		[Route("1/api/v{version:apiVersion}/buildplates")]
+		public IActionResult GetBuildplates()
+		{
+			string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        #endregion
+			var response = BuildplateUtils.GetBuildplatesList(authtoken);
+			return Content(JsonConvert.SerializeObject(response), "application/json");
+		}
 
-        [Authorize]
-        [ApiVersion("1.1")]
-        [Route("1/api/v{version:apiVersion}/multiplayer/partitions/{worldId}/instances/{instanceId}")]
-        public IActionResult GetInstanceStatus(string worldId, Guid instanceId)
-        {
-            string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
+		#endregion
 
-            var response = MultiplayerUtils.CheckInstanceStatus(authtoken, instanceId);
-            if (response == null)
-            {
-                return StatusCode(204);        
-            }
-            else
-            {
-                return Content(JsonConvert.SerializeObject(response), "application/json");
-            }
-        }
+		[Authorize]
+		[ApiVersion("1.1")]
+		[Route("1/api/v{version:apiVersion}/multiplayer/partitions/{worldId}/instances/{instanceId}")]
+		public IActionResult GetInstanceStatus(string worldId, Guid instanceId)
+		{
+			string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        [ApiVersion("1.1")]
-        [Route("1/api/v{version:apiVersion}/private/server/command")]
-        public async Task<IActionResult> PostServerCommand()
-        {
-            var stream = new StreamReader(Request.Body);
-            var body = await stream.ReadToEndAsync();
-            var parsedRequest = JsonConvert.DeserializeObject<ServerCommandRequest>(body);
+			var response = MultiplayerUtils.CheckInstanceStatus(authtoken, instanceId);
+			if (response == null)
+			{
+				return StatusCode(204);
+			}
+			else
+			{
+				return Content(JsonConvert.SerializeObject(response), "application/json");
+			}
+		}
 
-            var response = MultiplayerUtils.ExecuteServerCommand(parsedRequest);
+		[ApiVersion("1.1")]
+		[Route("1/api/v{version:apiVersion}/private/server/command")]
+		public async Task<IActionResult> PostServerCommand()
+		{
+			var stream = new StreamReader(Request.Body);
+			var body = await stream.ReadToEndAsync();
+			var parsedRequest = JsonConvert.DeserializeObject<ServerCommandRequest>(body);
 
-            if (response == "ok") return Ok();
-            else return Content(response, "application/json");
-        }
+			var response = MultiplayerUtils.ExecuteServerCommand(parsedRequest);
 
-        [ApiVersion("1.1")]
-        [Route("1/api/v{version:apiVersion}/private/server/ws")]
-        public async Task GetWebSocketServer()
-        {
-            if (HttpContext.WebSockets.IsWebSocketRequest)
-            {
-                var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-                await MultiplayerUtils.AuthenticateServer(webSocket);
-            }
-        }
-    }
+			if (response == "ok") return Ok();
+			else return Content(response, "application/json");
+		}
+
+		[ApiVersion("1.1")]
+		[Route("1/api/v{version:apiVersion}/private/server/ws")]
+		public async Task GetWebSocketServer()
+		{
+			if (HttpContext.WebSockets.IsWebSocketRequest)
+			{
+				var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
+				await MultiplayerUtils.AuthenticateServer(webSocket);
+			}
+		}
+	}
 }

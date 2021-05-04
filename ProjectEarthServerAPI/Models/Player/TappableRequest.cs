@@ -9,5 +9,5 @@ namespace ProjectEarthServerAPI.Models.Features
 	{
 		public Guid id { get; set; }
 		public Coordinate playerCoordinate { get; set; }
-    }
+	}
 }
