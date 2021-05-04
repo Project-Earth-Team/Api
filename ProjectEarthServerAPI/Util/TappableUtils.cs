@@ -15,7 +15,7 @@ namespace ProjectEarthServerAPI.Util
     public class TappableUtils
     {
         private static Version4Generator version4Generator = new Version4Generator();
-        //TODO: Consider turning this into a dictionary and building out a spawn-weight system?
+        // TODO: Consider turning this into a dictionary (or pull it out to a separate file) and building out a spawn-weight system? 
         public static string[] TappableTypes = new[]
         {
             "genoa:stone_mound_a_tappable_map",
@@ -36,7 +36,7 @@ namespace ProjectEarthServerAPI.Util
             "genoa:chicken_tappable_map"
         };
         private static Random random = new Random();
-        //For json de-ser
+        // For json deserialization
         public class TappableLootTable
         {
             public string tappableID { get; set; }
@@ -51,7 +51,6 @@ namespace ProjectEarthServerAPI.Util
             string[] files = Directory.GetFiles("./data/tappable", "*.json");
             foreach (var file in files)
             {
-               
                 TappableLootTable table = JsonConvert.DeserializeObject<TappableLootTable>(File.ReadAllText(file));
                 tappableData.Add(table.tappableID, table.possibleDropSets);
                 Log.Information($"Loaded {table.possibleDropSets.Count} drop sets for tappable ID {table.tappableID} | Path: {file}");
@@ -74,12 +73,12 @@ namespace ProjectEarthServerAPI.Util
             type ??= TappableUtils.TappableTypes[random.Next(0, TappableUtils.TappableTypes.Length)];
             
             var currentTime = DateTime.UtcNow;
+
             //Nab tile loc
-            
             int[] cords = Tile.getTileForCords(latitude, longitude);
             LocationResponse.ActiveLocation tappable = new LocationResponse.ActiveLocation
             {
-                id = Guid.NewGuid().ToString(), // Just a GUID for the tappable
+                id = Guid.NewGuid().ToString(), // Generate a random GUID for the tappable
                 tileId = cords[0]+"_"+cords[1],
                 coordinate = new Coordinate
                 {
