@@ -3,7 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Newtonsoft.Json;
 using ProjectEarthServerAPI.Models;
 using ProjectEarthServerAPI.Util;
@@ -12,12 +14,28 @@ using Serilog;
 namespace ProjectEarthServerAPI.Controllers
 {
 	[ApiVersion("1.1")]
-	[Route("api/v{version:apiVersion}/player/profile/signin")]
+	[Route("api/v{version:apiVersion}/player/profile/{profileID}")]
 	public class SigninController : ControllerBase
 	{
-		[HttpPost]
-		public async Task<ContentResult> Post(string jsonstring)
+		[Authorize]
+		[HttpGet]
+		public async Task<ContentResult> Get(string profileID)
 		{
+			var response = new ProfileResponse(ProfileUtils.ReadProfile(profileID));
+			return Content(JsonConvert.SerializeObject(response), "application/json");
+		}
+
+
+		[HttpPost]
+		public async Task<ContentResult> Post(string jsonstring, string profileID)
+		{
+			if (profileID != "signin")
+			{
+				ContentResult badReq = new ContentResult();
+				badReq.StatusCode = 400;
+				return badReq;
+			}
+
 			var httprequest = Request.Body;
 			StreamReader sr = new StreamReader(httprequest);
 			var request = JsonConvert.DeserializeObject<SigninRequest>(await sr.ReadToEndAsync());
@@ -37,7 +55,7 @@ namespace ProjectEarthServerAPI.Controllers
 				updates = new Updates()
 			};
 
-			var resp = JsonConvert.SerializeObject(response, new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore});
+			var resp = JsonConvert.SerializeObject(response, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
 
 			Log.Information($"[{playerid}]: Logged in.");
 

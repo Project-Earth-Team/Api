@@ -93,6 +93,7 @@ namespace ProjectEarthServerAPI.Controllers
 		}
 	}
 
+
 	[Authorize]
 	[ApiVersion("1.1")]
 	[Route("1/api/v{version:apiVersion}/player/utilityBlocks")]
@@ -106,18 +107,19 @@ namespace ProjectEarthServerAPI.Controllers
 			//return Content("{\"result\":{\"crafting\":{\"1\":{\"sessionId\":null,\"recipeId\":null,\"output\":null,\"escrow\":[],\"completed\":0,\"available\":0,\"total\":0,\"nextCompletionUtc\":null,\"totalCompletionUtc\":null,\"state\":\"Empty\",\"boostState\":null,\"unlockPrice\":null,\"streamVersion\":4},\"2\":{\"sessionId\":null,\"recipeId\":null,\"output\":null,\"escrow\":[],\"completed\":0,\"available\":0,\"total\":0,\"nextCompletionUtc\":null,\"totalCompletionUtc\":null,\"state\":\"Locked\",\"boostState\":null,\"unlockPrice\":{\"cost\":1,\"discount\":0},\"streamVersion\":4},\"3\":{\"sessionId\":null,\"recipeId\":null,\"output\":null,\"escrow\":[],\"completed\":0,\"available\":0,\"total\":0,\"nextCompletionUtc\":null,\"totalCompletionUtc\":null,\"state\":\"Locked\",\"boostState\":null,\"unlockPrice\":{\"cost\":1,\"discount\":0},\"streamVersion\":4}},\"smelting\":{\"1\":{\"fuel\":null,\"burning\":null,\"hasSufficientFuel\":null,\"heatAppliedToCurrentItem\":null,\"sessionId\":null,\"recipeId\":null,\"output\":null,\"escrow\":[],\"completed\":0,\"available\":0,\"total\":0,\"nextCompletionUtc\":null,\"totalCompletionUtc\":null,\"state\":\"Empty\",\"boostState\":null,\"unlockPrice\":null,\"streamVersion\":4},\"2\":{\"fuel\":null,\"burning\":null,\"hasSufficientFuel\":null,\"heatAppliedToCurrentItem\":null,\"sessionId\":null,\"recipeId\":null,\"output\":null,\"escrow\":[],\"completed\":0,\"available\":0,\"total\":0,\"nextCompletionUtc\":null,\"totalCompletionUtc\":null,\"state\":\"Locked\",\"boostState\":null,\"unlockPrice\":{\"cost\":1,\"discount\":0},\"streamVersion\":4},\"3\":{\"fuel\":null,\"burning\":null,\"hasSufficientFuel\":null,\"heatAppliedToCurrentItem\":null,\"sessionId\":null,\"recipeId\":null,\"output\":null,\"escrow\":[],\"completed\":0,\"available\":0,\"total\":0,\"nextCompletionUtc\":null,\"totalCompletionUtc\":null,\"state\":\"Locked\",\"boostState\":null,\"unlockPrice\":{\"cost\":1,\"discount\":0},\"streamVersion\":4}}},\"expiration\":null,\"continuationToken\":null,\"updates\":{}}", "application/json");
 		}
 	}
+	//
+	// [Authorize]
+	// [ApiVersion("1.1")]
+	// [Route("1/api/v{version:apiVersion}/player/profile/{profileId}")]
+	// public class PlayerProfileController : Controller
+	// {
+	//     public IActionResult Get(string profileId)
+	//     {
+	//         var response = new ProfileResponse(ProfileUtils.ReadProfile(profileId));
+	//         return Content(JsonConvert.SerializeObject(response), "application/json");
+	//     }
+	// }
 
-	[Authorize]
-	[ApiVersion("1.1")]
-	[Route("1/api/v{version:apiVersion}/player/profile/{profileId}")]
-	public class PlayerProfileController : Controller
-	{
-		public IActionResult Get(string profileId)
-		{
-			var response = new ProfileResponse(ProfileUtils.ReadProfile(profileId));
-			return Content(JsonConvert.SerializeObject(response), "application/json");
-		}
-	}
 
 	[Authorize]
 	public class PlayerInventoryController : Controller
@@ -236,7 +238,7 @@ namespace ProjectEarthServerAPI.Controllers
 	{
 		public IActionResult Get()
 		{
-			var responseobj = new FeaturesResponse() {result = new FeaturesResult(), updates = new Updates()};
+			var responseobj = new FeaturesResponse() { result = new FeaturesResult(), updates = new Updates() };
 			var response = JsonConvert.SerializeObject(responseobj);
 			return Content(response, "application/json");
 		}

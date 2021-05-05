@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,6 +15,7 @@ namespace ProjectEarthServerAPI.Util
 	public sealed class StateSingleton
 	{
 		private StateSingleton() { }
+
 		private static StateSingleton instance = null;
 
 		public static StateSingleton Instance
@@ -36,5 +37,12 @@ namespace ProjectEarthServerAPI.Util
 		public SettingsResponse settings { get; set; }
 		public ChallengesResponse seasonChallenges { get; set; }
 		public ProductCatalogResponse productCatalog { get; set; }
+
+		public Dictionary<string, List<List<string>>> tappableData { get; set; }
+
+		/// <summary>
+		/// A reference of guid <-> id, so that we can keep track of a tappable from spawn to redeem
+		/// </summary>
+		public Dictionary<Guid, string> activeTappableTypes { get; set; }
 	}
 }
