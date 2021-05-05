@@ -14,9 +14,7 @@ namespace ProjectEarthServerAPI.Util
 	/// </summary>
 	public sealed class StateSingleton
 	{
-		private StateSingleton()
-		{
-		}
+		private StateSingleton() { }
 
 		private static StateSingleton instance = null;
 

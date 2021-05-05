@@ -45,8 +45,7 @@ namespace ProjectEarthServerAPI.Util
 			{
 				TappableLootTable table = JsonConvert.DeserializeObject<TappableLootTable>(File.ReadAllText(file));
 				tappableData.Add(table.tappableID, table.possibleDropSets);
-				Log.Information(
-					$"Loaded {table.possibleDropSets.Count} drop sets for tappable ID {table.tappableID} | Path: {file}");
+				Log.Information($"Loaded {table.possibleDropSets.Count} drop sets for tappable ID {table.tappableID} | Path: {file}");
 			}
 
 			return tappableData;
@@ -61,8 +60,7 @@ namespace ProjectEarthServerAPI.Util
 		/// <param name="type">Optional. If not provided, a random type will be picked from TappableUtils.TappableTypes</param>
 		/// <returns></returns>
 		//double is default set to negative because its *extremely unlikely* someone will set a negative value intentionally, and I can't set it to null.
-		public static LocationResponse.ActiveLocation createTappableInRadiusOfCoordinates(double longitude,
-			double latitude, double radius = -1.0, string type = null)
+		public static LocationResponse.ActiveLocation createTappableInRadiusOfCoordinates(double longitude, double latitude, double radius = -1.0, string type = null)
 		{
 			//if null we do random
 			type ??= TappableUtils.TappableTypes[random.Next(0, TappableUtils.TappableTypes.Length)];
@@ -81,27 +79,22 @@ namespace ProjectEarthServerAPI.Util
 				tileId = cords[0] + "_" + cords[1],
 				coordinate = new Coordinate
 				{
-					latitude =
-						Math.Round(latitude + random.NextDouble() * radius, 6), // Round off for the client to be happy
+					latitude = Math.Round(latitude + random.NextDouble() * radius, 6), // Round off for the client to be happy
 					longitude = Math.Round(longitude + random.NextDouble() * radius, 6)
 				},
 				spawnTime = currentTime,
-				expirationTime =
-					currentTime.AddMinutes(
-						10), //Packet captures show that typically earth keeps Tappables around for 10 minutes
+				expirationTime = currentTime.AddMinutes(10), //Packet captures show that typically earth keeps Tappables around for 10 minutes
 				type = "Tappable", // who wouldve guessed?
 				icon = type,
 				metadata = new LocationResponse.Metadata
 				{
 					rarity = Item.Rarity.Common,
-					rewardId = version4Generator.NewUuid()
-						.ToString() // Seems to always be uuidv4 from official responses so generate one
+					rewardId = version4Generator.NewUuid().ToString() // Seems to always be uuidv4 from official responses so generate one
 				},
 				encounterMetadata = null, //working captured responses have this, its fine
 				tappableMetadata = new LocationResponse.TappableMetadata
 				{
-					rarity = Item.Rarity
-						.Common //assuming this and the above need to allign. Why have 2 occurances? who knows.
+					rarity = Item.Rarity.Common //assuming this and the above need to allign. Why have 2 occurances? who knows.
 				}
 			};
 

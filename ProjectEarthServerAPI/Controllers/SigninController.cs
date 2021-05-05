@@ -55,8 +55,7 @@ namespace ProjectEarthServerAPI.Controllers
 				updates = new Updates()
 			};
 
-			var resp = JsonConvert.SerializeObject(response,
-				new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
+			var resp = JsonConvert.SerializeObject(response, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
 
 			Log.Information($"[{playerid}]: Logged in.");
 
