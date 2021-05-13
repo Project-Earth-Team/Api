@@ -13,27 +13,28 @@ using Uma.Uuid;
 
 namespace ProjectEarthServerAPI.Controllers
 {
-	[Authorize]
-	public class PlayerTokenController : Controller
-	{
-		[ApiVersion("1.1")]
-		[ResponseCache(Duration = 11200)]
-		[Route("1/api/v{version:apiVersion}/player/tokens")]
-		public IActionResult Get()
-		{
-			string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
-			var returnTokens = TokenUtils.GetSerializedTokenResponse(authtoken);
+    [Authorize]
+    public class PlayerTokenController : Controller
+    {
+        [Authorize]
+        [ApiVersion("1.1")]
+        [ResponseCache(Duration = 11200)]
+        [Route("1/api/v{version:apiVersion}/player/tokens")]
+        public IActionResult Get()
+        {
+            string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var returnTokens = TokenUtils.ReadTokens(authtoken);
 
 			Log.Debug($"[{authtoken}]: Requested tokens."); // Debug since this is spammed a lot
 
-			return Content(returnTokens, "application/json");
-		}
+            return Content(JsonConvert.SerializeObject(returnTokens), "application/json");
+        }
 
-		[ApiVersion("1.1")]
-		[Route("1/api/v{version:apiVersion}/player/tokens/{token}/redeem")] // TODO: Proper testing
-		public IActionResult RedeemToken(Uuid token)
-		{
-			string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        [ApiVersion("1.1")]
+        [Route("1/api/v{version:apiVersion}/player/tokens/{token}/redeem")] // TODO: Proper testing
+        public IActionResult RedeemToken(Guid token)
+        {
+            string authtoken = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
 			var redeemedToken = TokenUtils.RedeemToken(authtoken, token);
 

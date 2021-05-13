@@ -26,7 +26,7 @@ namespace ProjectEarthServerAPI.Util
 
 		private static void RewardLevelupRewards(string playerId, int level)
 		{
-			RewardUtils.RedeemRewards(playerId, ProfileResponse.levels[level.ToString()].rewards);
+			RewardUtils.RedeemRewards(playerId, ProfileResponse.levels[level.ToString()].rewards, EventLocation.LevelUp);
 		}
 
 		private static bool WriteProfile(string playerId, ProfileData playerProfile)

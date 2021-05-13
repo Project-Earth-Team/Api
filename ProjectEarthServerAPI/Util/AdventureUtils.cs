@@ -19,7 +19,7 @@ namespace ProjectEarthServerAPI.Util
 			InventoryUtils.RemoveItemFromInv(playerId, crystalId);
 
 			var selectedAdventureIcon = "genoa:adventure_generic_map_b";
-			var selectedAdventureId = "b7335819-c123-49b9-83fb-8a0ec5032779";
+			var selectedAdventureId = Guid.Parse("b7335819-c123-49b9-83fb-8a0ec5032779");
 
 			var adventureLocation = new LocationResponse.ActiveLocation
 			{
@@ -38,8 +38,7 @@ namespace ProjectEarthServerAPI.Util
 				icon = selectedAdventureIcon,
 				id = selectedAdventureId,
 				metadata = new(),
-				tileId = string.Join("-",
-					Tile.getTileForCords(adventureRequest.coordinate.latitude, adventureRequest.coordinate.longitude)),
+				tileId = Tile.getTileForCoordinates(adventureRequest.coordinate.latitude, adventureRequest.coordinate.longitude),
 				type = "PlayerAdventure"
 			};
 

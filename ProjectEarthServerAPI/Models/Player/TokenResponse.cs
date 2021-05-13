@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Newtonsoft.Json;
-using Uma.Uuid;
 
 namespace ProjectEarthServerAPI.Models
 {
@@ -15,12 +14,12 @@ namespace ProjectEarthServerAPI.Models
 
 		public TokenResponse()
 		{
-			Result = new TokenResult {tokens = new Dictionary<Uuid, Token>()};
+			Result = new TokenResult {tokens = new Dictionary<Guid, Token>()};
 		}
 	}
 
 	public class TokenResult
 	{
-		public Dictionary<Uuid, Token> tokens { get; set; }
+		public Dictionary<Guid, Token> tokens { get; set; }
 	}
 }

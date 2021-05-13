@@ -9,11 +9,10 @@ using Serilog;
 namespace ProjectEarthServerAPI.Util
 {
 	public class CraftingUtils // TODO: Bug Fix: Cancelling a crafting task that you already collected some results
-		// TODO: for returns the entire crafting cost, not just the remaining part
+							   // TODO: for returns the entire crafting cost, not just the remaining part
 	{
 		private static Recipes recipeList = StateSingleton.Instance.recipes;
-		private static Dictionary<string, Dictionary<int, CraftingSlotInfo>> craftingJobs = new Dictionary<string, Dictionary<int, CraftingSlotInfo>>();
-
+		private static Dictionary<string, Dictionary<int, CraftingSlotInfo>> craftingJobs = new();
 		public static bool StartCraftingJob(string playerId, int slot, CraftingRequest request) // TODO: Check if slot not unlocked (not a big priority)
 		{
 			recipeList ??= Recipes.FromFile("./data/recipes");
@@ -50,6 +49,7 @@ namespace ProjectEarthServerAPI.Util
 					total = request.Multiplier,
 					totalCompletionUtc = DateTime.UtcNow.Add(recipe.duration.TimeOfDay * request.Multiplier),
 					unlockPrice = null
+
 				};
 
 				if (request.Multiplier != 1)
@@ -75,10 +75,12 @@ namespace ProjectEarthServerAPI.Util
 			}
 
 			return false;
+
 		}
 
 		public static CraftingSlotResponse GetCraftingJobInfo(string playerId, int slot)
 		{
+
 			try
 			{
 				var job = craftingJobs[playerId][slot];
@@ -90,6 +92,7 @@ namespace ProjectEarthServerAPI.Util
 
 				if (job.totalCompletionUtc != null && DateTime.Compare(job.totalCompletionUtc.Value, DateTime.UtcNow) < 0 && job.recipeId != null)
 				{
+
 					job.available = job.total - job.completed;
 					job.completed += job.available;
 					job.nextCompletionUtc = null;
@@ -97,24 +100,28 @@ namespace ProjectEarthServerAPI.Util
 					job.escrow = new InputItem[0];
 				}
 				/*else
-				{
+                {
 
-				    job.available++;
-				    //job.completed++;
-				    job.state = "Available";
-				    job.streamVersion = nextStreamId;
-				    job.nextCompletionUtc = job.nextCompletionUtc.Value.Add(recipe.duration.TimeOfDay);
+                    job.available++;
+                    //job.completed++;
+                    job.state = "Available";
+                    job.streamVersion = nextStreamId;
+                    job.nextCompletionUtc = job.nextCompletionUtc.Value.Add(recipe.duration.TimeOfDay);
 
-				    for (int i = 0; i < job.escrow.Length - 1; i++)
-				    {
-				        job.escrow[i].quantity -= recipe.ingredients[i].quantity;
-				    }
+                    for (int i = 0; i < job.escrow.Length - 1; i++)
+                    {
+                        job.escrow[i].quantity -= recipe.ingredients[i].quantity;
+                    }
 
-				}*/
+                }*/
 
 				updates.crafting = nextStreamId;
 
-				var returnResponse = new CraftingSlotResponse {result = job, updates = updates};
+				var returnResponse = new CraftingSlotResponse
+				{
+					result = job,
+					updates = updates
+				};
 
 				UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
 
@@ -128,6 +135,7 @@ namespace ProjectEarthServerAPI.Util
 				Log.Debug($"Exception: {e.StackTrace}");
 				return null;
 			}
+
 		}
 
 		public static CollectItemsResponse FinishCraftingJob(string playerId, int slot)
@@ -138,7 +146,14 @@ namespace ProjectEarthServerAPI.Util
 
 			var nextStreamId = GenericUtils.GetNextStreamVersion();
 
-			var returnResponse = new CollectItemsResponse {result = new CollectItemsInfo {rewards = new Rewards(),}, updates = new Updates()};
+			var returnResponse = new CollectItemsResponse
+			{
+				result = new CollectItemsInfo
+				{
+					rewards = new Rewards(),
+				},
+				updates = new Updates()
+			};
 
 			if (job.completed != job.total && job.nextCompletionUtc != null)
 			{
@@ -160,24 +175,21 @@ namespace ProjectEarthServerAPI.Util
 					}
 
 					job.streamVersion = nextStreamId;
-
-					InventoryUtils.AddItemToInv(playerId, job.output.itemId, job.output.quantity * craftedAmount);
 				}
 			}
 			else
 			{
 				craftedAmount = job.available;
-				InventoryUtils.AddItemToInv(playerId, job.output.itemId, job.output.quantity * craftedAmount);
-				// TODO: Add to challenges, tokens, journal (when implemented)
 			}
 
-			if (!TokenUtils.GetTokenResponseForUserId(playerId).Result.tokens.Any(match => match.Value.clientProperties.ContainsKey("itemid") && match.Value.clientProperties["itemid"] == job.output.itemId.ToString()))
+			InventoryUtils.AddItemToInv(playerId, job.output.itemId, job.output.quantity * craftedAmount);
+			EventUtils.HandleEvents(playerId, new ItemEvent { action = ItemEventAction.ItemCrafted, amount = (uint)(job.output.quantity * craftedAmount), eventId = job.output.itemId });
+
+			returnResponse.result.rewards.Inventory = returnResponse.result.rewards.Inventory.Append(new RewardComponent
 			{
-				//TokenUtils.AddItemToken(playerId, job.output.itemId); -> List of item tokens not known. Could cause issues later, for now we just disable it.
-				returnResponse.updates.tokens = nextStreamId;
-			}
-
-			returnResponse.result.rewards.Inventory = returnResponse.result.rewards.Inventory.Append(new RewardComponent {Amount = job.output.quantity * craftedAmount, Id = job.output.itemId}).ToArray();
+				Amount = job.output.quantity * craftedAmount,
+				Id = job.output.itemId
+			}).ToArray();
 
 			returnResponse.updates.crafting = nextStreamId;
 			returnResponse.updates.inventory = nextStreamId;
@@ -205,13 +217,18 @@ namespace ProjectEarthServerAPI.Util
 			Log.Debug($"[{playerId}]: Collected results of crafting slot {slot}.");
 
 			return returnResponse;
+
 		}
 
 		public static CraftingSlotResponse CancelCraftingJob(string playerId, int slot)
 		{
 			var job = craftingJobs[playerId][slot];
 			var nextStreamId = GenericUtils.GetNextStreamVersion();
-			var resp = new CraftingSlotResponse {result = new CraftingSlotInfo(), updates = new Updates()};
+			var resp = new CraftingSlotResponse
+			{
+				result = new CraftingSlotInfo(),
+				updates = new Updates()
+			};
 
 			foreach (InputItem item in job.escrow)
 			{
@@ -248,7 +265,10 @@ namespace ProjectEarthServerAPI.Util
 			job.unlockPrice = null;
 
 			var nextStreamId = GenericUtils.GetNextStreamVersion();
-			var returnUpdates = new CraftingUpdates {updates = new Updates()};
+			var returnUpdates = new CraftingUpdates
+			{
+				updates = new Updates()
+			};
 
 			UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
 
@@ -257,6 +277,7 @@ namespace ProjectEarthServerAPI.Util
 			returnUpdates.updates.crafting = nextStreamId;
 
 			return returnUpdates;
+
 		}
 	}
 }

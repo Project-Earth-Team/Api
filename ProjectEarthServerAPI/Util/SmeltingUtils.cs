@@ -188,21 +188,16 @@ namespace ProjectEarthServerAPI.Util
 
 					job.streamVersion = nextStreamId;
 
-					InventoryUtils.AddItemToInv(playerId, job.output.itemId, job.output.quantity * craftedAmount);
 				}
 			}
 			else
 			{
 				craftedAmount = job.available;
-				InventoryUtils.AddItemToInv(playerId, job.output.itemId, job.output.quantity * craftedAmount);
 				// TODO: Add to challenges, tokens, journal (when implemented)
 			}
-
-			if (!TokenUtils.GetTokenResponseForUserId(playerId).Result.tokens.Any(match => match.Value.clientProperties.ContainsKey("itemid") && match.Value.clientProperties["itemid"] == job.output.itemId.ToString()))
-			{
-				//TokenUtils.AddItemToken(playerId, job.output.itemId); -> List of item tokens not known. Could cause issues later, for now we just disable it.
-				returnResponse.updates.tokens = nextStreamId;
-			}
+            
+            InventoryUtils.AddItemToInv(playerId, job.output.itemId, job.output.quantity * craftedAmount);
+			EventUtils.HandleEvents(playerId, new ItemEvent { action = ItemEventAction.ItemSmelted, amount = (uint)(job.output.quantity * craftedAmount), eventId = job.output.itemId });
 
 			returnResponse.result.rewards.Inventory = returnResponse.result.rewards.Inventory.Append(new RewardComponent {Amount = job.output.quantity * craftedAmount, Id = job.output.itemId}).ToArray();
 
@@ -234,6 +229,12 @@ namespace ProjectEarthServerAPI.Util
 				job.streamVersion = nextStreamId;
 			}
 
+			returnResponse.result.rewards.Inventory = returnResponse.result.rewards.Inventory.Append(new RewardComponent
+            {
+                Amount = job.output.quantity*craftedAmount,
+                Id = job.output.itemId
+            }).ToArray();
+            
 			UtilityBlockUtils.UpdateUtilityBlocks(playerId, slot, job);
 
 			Log.Debug($"[{playerId}]: Collected results of smelting slot {slot}.");

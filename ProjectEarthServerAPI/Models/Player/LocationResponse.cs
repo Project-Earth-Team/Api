@@ -23,9 +23,15 @@ namespace ProjectEarthServerAPI.Models
 			public Item.Rarity rarity { get; set; }
 		}
 
+		public class ActiveLocationStorage
+		{
+			public ActiveLocation location { get; set; }
+			public Rewards rewards { get; set; }
+		}
+
 		public class ActiveLocation
 		{
-			public string id { get; set; }
+			public Guid id { get; set; }
 			public string tileId { get; set; }
 			public Coordinate coordinate { get; set; }
 

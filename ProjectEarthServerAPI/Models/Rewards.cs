@@ -22,7 +22,7 @@ namespace ProjectEarthServerAPI.Models
 		public RewardComponent[] Challenges { get; set; }
 
 		[JsonProperty("personaItems")]
-		public Uuid[] PersonaItems { get; set; }
+		public Guid[] PersonaItems { get; set; }
 
 		[JsonProperty("utilityBlocks")]
 		public RewardComponent[] UtilityBlocks { get; set; }
@@ -32,7 +32,7 @@ namespace ProjectEarthServerAPI.Models
 			Inventory = Array.Empty<RewardComponent>();
 			Buildplates = Array.Empty<RewardComponent>();
 			Challenges = Array.Empty<RewardComponent>();
-			PersonaItems = Array.Empty<Uuid>();
+			PersonaItems = Array.Empty<Guid>();
 			UtilityBlocks = Array.Empty<RewardComponent>();
 		}
 	}

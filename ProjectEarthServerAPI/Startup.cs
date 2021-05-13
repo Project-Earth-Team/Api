@@ -10,7 +10,9 @@ using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
+using System.Transactions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.ResponseCompression;
 using ProjectEarthServerAPI.Util;
@@ -70,7 +72,7 @@ namespace ProjectEarthServerAPI
 			app.UseAuthentication();
 			app.UseAuthorization();
 
-			app.UseWebSockets();
+            app.UseWebSockets(new WebSocketOptions{KeepAliveInterval = TransactionManager.MaximumTimeout});
 
 			app.UseResponseCaching();
 

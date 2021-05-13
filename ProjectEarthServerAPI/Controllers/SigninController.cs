@@ -14,26 +14,24 @@ using Serilog;
 namespace ProjectEarthServerAPI.Controllers
 {
 	[ApiVersion("1.1")]
-	[Route("api/v{version:apiVersion}/player/profile/{profileID}")]
 	public class SigninController : ControllerBase
 	{
 		[Authorize]
 		[HttpGet]
-		public async Task<ContentResult> Get(string profileID)
+		[Route("1/api/v{version:apiVersion}/player/profile/{profileID}")]
+		public IActionResult Get(string profileID)
 		{
 			var response = new ProfileResponse(ProfileUtils.ReadProfile(profileID));
 			return Content(JsonConvert.SerializeObject(response), "application/json");
 		}
 
-
+		[Route("api/v{version:apiVersion}/player/profile/{profileID}")]
 		[HttpPost]
-		public async Task<ContentResult> Post(string jsonstring, string profileID)
+		public async Task<IActionResult> Post(string jsonstring, string profileID)
 		{
 			if (profileID != "signin")
 			{
-				ContentResult badReq = new ContentResult();
-				badReq.StatusCode = 400;
-				return badReq;
+				return BadRequest();
 			}
 
 			var httprequest = Request.Body;

@@ -35,7 +35,7 @@ namespace ProjectEarthServerAPI.Util
 
 		//From https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames with slight changes
 
-		public static int[] getTileForCords(double lat, double lon)
+		public static string getTileForCoordinates(double lat, double lon)
 		{
 			//Adapted from java example. Zoom is replaced by the constant 16 because all MCE tiles are at zoom 16
 
@@ -51,7 +51,7 @@ namespace ProjectEarthServerAPI.Util
 			if (ytile >= (1 << 16))
 				ytile = ((1 << 16) - 1);
 
-			return new int[] {xtile, ytile};
+			return $"{xtile}_{ytile}";
 		}
 
 		//Helper

@@ -9,98 +9,81 @@ using Uma.Uuid;
 
 namespace ProjectEarthServerAPI.Util
 {
-	public class TokenUtils
-	{
-		private static readonly Version4Generator Version4Generator = new();
+    public class TokenUtils
+    {
+        private static readonly Version4Generator Version4Generator = new();
 
-		public static Dictionary<Uuid, Token> GetSigninTokens(string playerId)
-		{
-			var origTokens = GetTokensForUserId(playerId);
-			Dictionary<Uuid, Token> returnTokens = new Dictionary<Uuid, Token>();
-			foreach (KeyValuePair<Uuid, Token> tok in origTokens)
-			{
-				if (tok.Value.clientProperties.Count == 0)
-				{
-					returnTokens.Add(tok.Key, tok.Value);
-				}
-			}
+        public static Dictionary<Guid, Token> GetSigninTokens(string playerId)
+        {
+            var origTokens = ReadTokens(playerId);
+            Dictionary<Guid, Token> returnTokens = new Dictionary<Guid, Token>();
+            returnTokens = origTokens.Result.tokens
+                .Where(pred => pred.Value.clientProperties.Count == 0)
+                .ToDictionary(pred => pred.Key, pred => pred.Value);
 
-			return returnTokens;
-		}
 
-		public static Dictionary<Uuid, Token> GetTokensForUserId(string playerId)
-		{
-			var serializedTokens = GetTokenResponseForUserId(playerId);
-			return serializedTokens.Result.tokens;
-		}
 
-		public static TokenResponse GetTokenResponseForUserId(string playerId)
-		{
-			var returntokens = GetSerializedTokenResponse(playerId);
+            return returnTokens;
+        }
 
-			var serializedTokens = JsonConvert.DeserializeObject<TokenResponse>(returntokens, new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore});
-			return serializedTokens;
-		}
+        public static void AddItemToken(string playerId, Guid itemId)
+        {
+            var itemtoken = new Token
+            {
+                clientProperties = new Dictionary<string, string>(),
+                clientType = "item.unlocked",
+                lifetime = "Persistent",
+                rewards = new Rewards()
+            };
 
-		public static string GetSerializedTokenResponse(string playerId)
-		{
-			return JsonConvert.SerializeObject(
-				GenericUtils.ParseJsonFile<TokenResponse>(playerId, "tokens"));
-		}
+            itemtoken.clientProperties.Add("itemid", itemId.ToString());
 
-		public static void AddItemToken(string playerId, Guid itemId)
-		{
-			var tokenlist = GetTokensForUserId(playerId);
+            AddToken(playerId, itemtoken);
 
-			if (tokenlist.All(pred =>
-				pred.Value.clientProperties.Count == 0
-				|| !pred.Value.clientProperties.ContainsKey("itemid")
-				|| pred.Value.clientProperties["itemid"] != itemId.ToString()))
-			{
-				var itemtoken = new Token {clientProperties = new Dictionary<string, string>(), clientType = "item.unlocked", lifetime = "Persistent", rewards = new Rewards()};
+            Log.Information($"[{playerId}]: Added item token {itemId}!");
+        }
 
-				itemtoken.clientProperties.Add("itemid", itemId.ToString());
+        public static bool AddToken(string playerId, Token tokenToAdd)
+        {
+            var tokens = ReadTokens(playerId);
+            if (!tokens.Result.tokens.ContainsValue(tokenToAdd))
+            {
+                tokens.Result.tokens.Add(Guid.NewGuid(), tokenToAdd);
+                WriteTokens(playerId, tokens);
+                Log.Information($"[{playerId}] Added token!");
+                return true;
+            }
 
-				tokenlist.Add(Version4Generator.NewUuid(), itemtoken);
+            Log.Error($"[{playerId}] Tried to add token, but it already exists!");
+            return false;
+        }
 
-				Log.Information($"[{playerId}]: Added item token {itemId}!");
-				WriteTokensForPlayer(playerId, tokenlist);
-			}
-		}
-
-		public static bool AddToken(string playerId, Token tokenToAdd)
-		{
-			var tokenlist = GetTokensForUserId(playerId);
-			if (!tokenlist.ContainsValue(tokenToAdd))
-			{
-				tokenlist.Add(Version4Generator.NewUuid(), tokenToAdd);
-				return true;
-			}
-			else return false;
-		}
-
-		public static Token RedeemToken(string playerId, Uuid tokenId)
-		{
-			var parsedTokens = GetTokenResponseForUserId(playerId);
-			if (parsedTokens.Result.tokens.ContainsKey(tokenId))
-			{
-				var tokenToRedeem = parsedTokens.Result.tokens[tokenId];
-				RewardUtils.RedeemRewards(playerId, tokenToRedeem.rewards);
+        public static Token RedeemToken(string playerId, Guid tokenId)
+        {
+            var parsedTokens = ReadTokens(playerId);
+            if (parsedTokens.Result.tokens.ContainsKey(tokenId))
+            {
+                var tokenToRedeem = parsedTokens.Result.tokens[tokenId];
+                RewardUtils.RedeemRewards(playerId, tokenToRedeem.rewards, EventLocation.Token);
 
 				parsedTokens.Result.tokens.Remove(tokenId);
 
-				Log.Information($"[{playerId}]: Redeemed token {tokenId}.");
+                WriteTokens(playerId, parsedTokens);
 
-				return tokenToRedeem;
-			}
+                Log.Information($"[{playerId}]: Redeemed token {tokenId}.");
 
-			return null;
-		}
+                return tokenToRedeem;
+            }
+            else
+            {
+                Log.Information($"[{playerId}] tried to redeem token {tokenId}, but it was not in the token list!");
+                return null;
+            }
+        }
 
-		private static void WriteTokensForPlayer(string playerId, Dictionary<Uuid, Token> tokenlist)
-		{
-			var tokenResp = new TokenResponse {Result = new TokenResult {tokens = tokenlist}, updates = new Updates()};
-			GenericUtils.WriteJsonFile(playerId, tokenResp, "tokens");
-		}
-	}
+        public static TokenResponse ReadTokens(string playerId)
+            => GenericUtils.ParseJsonFile<TokenResponse>(playerId, "tokens");
+        private static void WriteTokens(string playerId, TokenResponse tokenList)
+            => GenericUtils.WriteJsonFile(playerId, tokenList, "tokens");
+    }
 }

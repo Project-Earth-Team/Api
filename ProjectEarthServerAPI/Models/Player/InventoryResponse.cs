@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Policy;
@@ -20,7 +20,7 @@ namespace ProjectEarthServerAPI.Models.Player
 
 		public class Hotbar
 		{
-			//I havent done adventures recently. Health is **Probably wrong**
+			public double health { get; set; }
 			public Guid id { get; set; }
 			public Guid? instanceId { get; set; }
 			public int count { get; set; }

@@ -11,11 +11,10 @@ namespace ProjectEarthServerAPI.Util
 {
 	public class ChallengeUtils
 	{
-		private static readonly ChallengesList ChallengeList = StateSingleton.Instance.seasonChallenges.result;
 
 		public static bool ActivateChallengeForPlayer(string playerId, Guid challengeId)
 		{
-			var challenge = ChallengeList.challenges.First(pred => pred.Key == challengeId).Value;
+			var challenge = StateSingleton.Instance.challengeStorage.challenges[challengeId].challengeInfo;
 			var playerChallenges = ReadChallenges(playerId);
 			bool shouldBeActivated = false;
 
@@ -51,15 +50,20 @@ namespace ProjectEarthServerAPI.Util
 			return true;
 		}
 
+		public static Rewards GetRewardsForChallenge(Guid challengeId) 
+			=> StateSingleton.Instance.challengeStorage.challenges[challengeId].challengeInfo.rewards;
+
+		public static ChallengeInfo GetChallengeById(string playerId, Guid challengeId) 
+			=> ReadChallenges(playerId).result.challenges[challengeId];
+
 		public static Updates RedeemChallengeForPlayer(string playerId, Guid challengeId)
 		{
-			var challenge = ChallengeList.challenges.First(pred => pred.Key == challengeId).Value;
+			var challenge = StateSingleton.Instance.challengeStorage.challenges[challengeId].challengeInfo;
 			var playerChallenges = ReadChallenges(playerId);
 
 			playerChallenges.result.challenges[challengeId].isComplete = true;
 			playerChallenges.result.challenges[challengeId].state = ChallengeState.Completed;
 			playerChallenges.result.challenges[challengeId].percentComplete = 100;
-
 
 			WriteChallenges(playerId, playerChallenges);
 
@@ -68,28 +72,150 @@ namespace ProjectEarthServerAPI.Util
 			completionToken.clientProperties.Add("category", challenge.category.GetDisplayName());
 			completionToken.clientProperties.Add("expirationtimeutc", playerChallenges.result.challenges[challengeId].endTimeUtc.Value.ToString(CultureInfo.InvariantCulture));
 
-			var returnUpdates = RewardUtils.RedeemRewards(playerId, challenge.rewards);
-			if (TokenUtils.AddToken(playerId, completionToken))
-				returnUpdates.tokens = 1; // Not the actual stream id ofc, but we just need to tell the game to reload the tokens
+			var returnUpdates = new Updates();
+
+			if (TokenUtils.AddToken(playerId, completionToken)) 
+				returnUpdates.tokens = GenericUtils.GetNextStreamVersion();
+
+			EventUtils.HandleEvents(playerId, new ChallengeEvent { action = ChallengeEventAction.ChallengeCompleted, eventId = challengeId });
 
 			return returnUpdates;
 		}
 
-		public static Updates ProgressChallenge(string playerId, ChallengeEventType challengeEvent, Guid eventId, int amount = 1)
+		public static void AddChallengeToPlayer(string playerId, Guid challengeId)
 		{
+			var challenge = StateSingleton.Instance.challengeStorage.challenges[challengeId].challengeInfo;
 			var playerChallenges = ReadChallenges(playerId);
-			var activeChallenges =
-				playerChallenges.result.challenges.Where(pred => pred.Value.state == ChallengeState.Active).ToDictionary(pred => pred.Key, pred => pred.Value);
 
-			// TODO: Implement challenge backend, since challenge requirements are not set in the response
-			return new Updates() {challenges = GenericUtils.GetNextStreamVersion()};
+			playerChallenges.result.challenges.Add(challengeId, challenge);
+
+			WriteChallenges(playerId, playerChallenges);
 		}
 
-		public static ChallengesResponse ReloadChallenges(string playerId)
+		public static void ProgressChallenge(string playerId, BaseEvent ev)
 		{
 			var playerChallenges = ReadChallenges(playerId);
-			return playerChallenges;
+			var challengeIdList = playerChallenges.result.challenges.Keys.ToList();
+			List<ChallengeBackend> challengeRequirements = new();
+			foreach (Guid id in challengeIdList)
+			{
+				challengeRequirements.Add(new ChallengeBackend
+				{
+					challengeBackendInformation = StateSingleton.Instance.challengeStorage.challenges[id].challengeBackendInformation,
+					challengeRequirements = StateSingleton.Instance.challengeStorage.challenges[id].challengeRequirements,
+					challengeInfo = playerChallenges.result.challenges[id]
+				});
+			}
+
+			var challengesToProgress = challengeRequirements.Where(pred =>
+				!pred.challengeInfo.isComplete && 
+				(pred.challengeBackendInformation.progressWhenLocked ||
+				 pred.challengeInfo.state == ChallengeState.Active))
+				.ToList();
+
+			switch (ev)
+			{
+				case TappableEvent evt:
+					var tappable = StateSingleton.Instance.activeTappables[evt.eventId];
+
+					challengesToProgress = challengesToProgress
+						.Where(pred => pred.challengeRequirements.tappables?
+							.Find(pred => 
+								pred.targetTappableTypes == null
+								|| pred.targetTappableTypes.Contains(tappable.location.type)) != null)
+						.ToList();
+
+					break;
+
+				case ItemEvent evt:
+					var catalogItem =
+						StateSingleton.Instance.catalog.result.items.Find(match => match.id == evt.eventId);
+
+					challengesToProgress = challengesToProgress.Where(pred =>
+						pred.challengeRequirements.items?.Find(match =>
+							(match.location == null || match.location.Contains(evt.location))
+							&& match.action.Contains(evt.action) 
+							&& (match.targetItems == null 
+							    || match.targetItems.itemIds.Contains(evt.eventId)
+							    || match.targetItems.tags.Contains(catalogItem.item.journalMetadata.groupKey) 
+							    || match.targetItems.rarity.Contains(catalogItem.rarity))) != null)
+						.ToList();
+
+					break;
+
+				case ChallengeEvent evt:
+					ChallengeInfo challenge = GetChallengeById(playerId, evt.eventId);
+
+					challengesToProgress = challengesToProgress.Where(pred =>
+						pred.challengeRequirements.challenges?
+							.Find(pred => 
+								(pred.targetChallengeIds == null || pred.targetChallengeIds.Contains(evt.eventId)) 
+								&& (pred.durations == null || pred.durations.Contains(challenge.duration)) 
+								&& (pred.rarities == null || pred.rarities.Contains(challenge.rarity))) != null)
+						.ToList();
+
+					break;
+
+				/*case MultiplayerEvent evt:
+					challengesToProgress = challengesToProgress.Where(pred =>
+						pred.challengeRequirements.eventName == evt.GetType().ToString()
+						&& pred.challengeRequirements.eventAction == Enum.GetName(evt.action) &&
+						(!pred.challengeRequirements.onlyAdventure || evt.isAdventure))
+						.ToList();
+
+					challengesToProgress = challengesToProgress.Where(pred => 
+						pred.challengeRequirements.targetIdList.Contains(evt.eventId) 
+						&& (pred.challengeRequirements.sourceId == null || pred.challengeRequirements.sourceId == evt.sourceId))
+						.ToList();
+
+					break;
+
+				case MobEvent evt:
+					challengesToProgress = challengesToProgress.Where(pred =>
+						pred.challengeRequirements.eventName == evt.GetType().ToString()
+						&& pred.challengeRequirements.eventAction == Enum.GetName(evt.action)
+						&& (!pred.challengeRequirements.doneByPlayer || evt.killedByPlayer))
+						.ToList();
+
+					challengesToProgress = challengesToProgress.Where(pred => 
+						pred.challengeRequirements.targetIdList.Contains(evt.eventId) 
+						&& (pred.challengeRequirements.sourceId == null || pred.challengeRequirements.sourceId == evt.killerId))
+						.ToList();
+
+					break;*/
+
+			}
+
+			var challengesToRedeem = new List<Guid>();
+
+			foreach (ChallengeBackend challenge in challengesToProgress)
+			{
+				var id = playerChallenges.result.challenges.First(pred => pred.Value == challenge.challengeInfo).Key;
+
+				Log.Debug($"[{playerId}] Progressing challenge {id}.");
+
+				var info = challenge.challengeInfo;
+				if (ev.GetType() == typeof(ItemEvent)) info.currentCount += (int) ((ItemEvent)ev).amount;
+				info.currentCount++;
+				info.percentComplete = (info.currentCount / info.totalThreshold) * 100;
+
+				if (info.currentCount >= info.totalThreshold) challengesToRedeem.Add(id);
+
+				playerChallenges.result.challenges[id] = info;
+			}
+
+			WriteChallenges(playerId, playerChallenges);
+
+			foreach (Guid id in challengesToRedeem) 
+				RedeemChallengeForPlayer(playerId, id);
+
 		}
+
+        public static ChallengesResponse ReloadChallenges(string playerId)
+        {
+            var playerChallenges = ReadChallenges(playerId);
+            return playerChallenges;
+        }
 
 		private static ChallengesResponse ReadChallenges(string playerId)
 		{
