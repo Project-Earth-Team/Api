@@ -36,7 +36,7 @@ namespace ProjectEarthServerAPI.Controllers
 					{
 						production = new LocatorResponse.Production()
 						{
-							playfabTitleId = "11509",
+							playfabTitleId = "20CA2",
 							serviceUri = baseServerIP,
 							cdnUri = baseServerIP + "/cdn",
 							//playfabTitleId = "F0DE2" //maybe make our own soon? - Mojang could kill this anytime after server sunset with no warning. 
@@ -82,7 +82,7 @@ namespace ProjectEarthServerAPI.Controllers
 					{
 						production = new LocatorResponse.Production()
 						{
-							playfabTitleId = "11509", serviceUri = baseServerIP, cdnUri = baseServerIP + "/cdn",
+							playfabTitleId = "20CA2", serviceUri = baseServerIP, cdnUri = baseServerIP + "/cdn",
 							//playfabTitleId = "F0DE2" //maybe make our own soon? - Mojang could kill this anytime after server sunset with no warning. 
 						}
 					},
